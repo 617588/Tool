@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Beratungstools</title>
+
+<style>
+body{
+ margin:0;
+ font-family:Arial;
+ background:#f2f2f2;
+ padding:20px;
+}
+
+.wrapper{
+ max-width:1180px;
+ margin:auto;
+}
+
+.header{
+ background:#ff4d0d;
+ color:white;
+ padding:22px;
+ font-size:22px;
+ font-weight:600;
+ text-align:center;
+ border-radius:10px 10px 0 0;
+}
+
+.grid{
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:20px;
+ padding:20px;
+ background:white;
+ border-radius:0 0 10px 10px;
+}
+
+.card{
+ background:#f9f9f9;
+ border-radius:12px;
+ padding:20px;
+ cursor:pointer;
+ box-shadow:0 6px 14px rgba(0,0,0,0.06);
+ transition:.2s;
+ display:flex;
+ flex-direction:column;
+ justify-content:space-between;
+}
+
+.card:hover{
+ transform:translateY(-4px);
+ box-shadow:0 12px 20px rgba(0,0,0,0.12);
+}
+
+.cardTitle{
+ font-size:18px;
+ font-weight:600;
+ margin-bottom:10px;
+}
+
+.cardText{
+ font-size:14px;
+ color:#555;
+ margin-bottom:15px;
+ line-height:1.4;
+}
+
+.cardBtn{
+ display:inline-block;
+ padding:10px 14px;
+ border-radius:20px;
+ background:#ff4d0d;
+ color:white;
+ font-weight:600;
+ text-align:center;
+}
+
+@media (max-width:700px){
+ .grid{
+  grid-template-columns:1fr;
+ }
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrapper">
+
+<div class="header">
+ Wählen Sie, was wir für Sie optimieren dürfen
+</div>
+
+<div class="grid">
+
+<!-- Rendite -->
+<div class="card" onclick="openTool('Rendite-Vergleich.html')">
+  <div>
+    <div class="cardTitle">Rendite Vergleich</div>
+    <div class="cardText">
+      Sehen Sie auf einen Blick, wie viel mehr aus Ihrem Geld werden kann – ohne mehr einzuzahlen.
+    </div>
+  </div>
+  <div class="cardBtn">Mehr Rendite aufdecken →</div>
+</div>
+
+<!-- Riester -->
+<div class="card" onclick="openTool('Riester-Vergleich.html')">
+  <div>
+    <div class="cardTitle">Riester / Wohnriester</div>
+    <div class="cardText">
+      Finden Sie heraus, wie viel Förderung Ihnen wirklich zusteht – und ob Sie aktuell Geld verschenken.
+    </div>
+  </div>
+  <div class="cardBtn">Förderung prüfen →</div>
+</div>
+
+<!-- Zinsvergleich -->
+<div class="card" onclick="openTool('Zinsvergleich.html')">
+  <div>
+    <div class="cardTitle">Zinsvergleich</div>
+    <div class="cardText">
+      Prüfen Sie sofort, ob Sie zu viel Zinsen zahlen – und wie Sie Ihre Finanzierung günstiger gestalten.
+    </div>
+  </div>
+  <div class="cardBtn">Zinsen vergleichen →</div>
+</div>
+
+<!-- VD / ZK -->
+<div class="card" onclick="openTool('VD_ZK-Vergleich.html')">
+  <div>
+    <div class="cardTitle">Vorfinanzierung / Zwischenkredit</div>
+    <div class="cardText">
+      Erkennen Sie direkt, welche Variante Sie weniger kostet – transparent und verständlich.
+    </div>
+  </div>
+  <div class="cardBtn">Kosten vergleichen →</div>
+</div>
+<!-- Finanzierungs-Check -->
+
+<div
+class="card"
+onclick="openTool('Persönlicher-Finanzierungs-Check.html')">
+    <div>
+        <div class="cardTitle">
+            Persönlicher Finanzierungs-Check
+        </div>
+        <div class="cardText">
+            Ermitteln Sie Ihre maximale
+            Darlehensrate, Haushaltskosten
+            und den möglichen Darlehensbetrag
+            in wenigen Sekunden.
+        </div>
+    </div>
+    <div class="cardBtn">
+        Finanzierung prüfen →
+    </div>
+
+</div>
+</div>
+</div>
+
+<script>
+function openTool(file){
+  window.location.href = file;
+}
+</script>
+
+</body>
+</html>
