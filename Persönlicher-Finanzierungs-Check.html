@@ -1,0 +1,3009 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>
+
+Persönlicher Finanzierungs-Check
+
+</title>
+
+<style>
+
+/* =========================
+   BASIS
+========================= */
+
+*{
+
+    box-sizing:border-box;
+
+}
+
+body{
+
+    margin:0;
+
+    padding:30px;
+
+    background:#f3f4f6;
+
+    font-family:Arial,sans-serif;
+
+}
+
+.container{
+
+    max-width:1200px;
+
+    margin:auto;
+
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.header{
+
+    height:72px;
+
+    background:#ff4d0d;
+
+    color:white;
+
+    border-radius:18px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    position:relative;
+
+    font-size:24px;
+
+    font-weight:600;
+
+    box-shadow:
+    0 8px 18px rgba(255,77,13,.25);
+
+}
+
+.backBtn{
+
+    position:absolute;
+
+    left:16px;
+
+    width:42px;
+
+    height:42px;
+
+    border-radius:50%;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    text-decoration:none;
+
+    background:rgba(255,255,255,.25);
+
+    transition:.2s;
+
+}
+
+.backBtn:hover{
+
+    background:white;
+
+}
+
+.backBtn svg{
+
+    width:18px;
+
+    height:18px;
+
+    fill:white;
+
+}
+
+.backBtn:hover svg{
+
+    fill:#ff4d0d;
+
+}
+
+/* =========================
+   CARD
+========================= */
+
+.card{
+
+    margin-top:20px;
+
+    background:white;
+
+    border-radius:18px;
+
+    overflow:hidden;
+
+    box-shadow:
+    0 5px 20px rgba(0,0,0,.08);
+
+}
+
+/* =========================
+   ACCORDION
+========================= */
+
+.accordion-header{
+
+    background:#efefef;
+
+    padding:18px 22px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    cursor:pointer;
+
+    font-size:18px;
+
+    font-weight:600;
+
+}
+
+.accordion-result{
+
+    background:white;
+
+    color:#ff4d0d;
+
+    border:1px solid #e6e6e6;
+
+    border-radius:10px;
+
+    padding:8px 14px;
+
+    min-width:140px;
+
+    text-align:center;
+
+    font-size:15px;
+
+    font-weight:700;
+
+}
+
+.accordion-content{
+
+    max-height:3000px;
+
+    opacity:1;
+
+    overflow:hidden;
+
+    transition:
+    max-height .35s ease,
+    opacity .25s ease;
+
+}
+
+.accordion-content.closed{
+
+    max-height:0;
+
+    opacity:0;
+
+}
+
+.content{
+
+    padding:20px;
+
+}
+
+/* =========================
+   KUNDENDATEN
+========================= */
+
+.customerGrid{
+
+    display:grid;
+
+    grid-template-columns:
+    1.2fr
+    0.8fr;
+
+    gap:50px;
+
+}
+
+.customerLeft{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:15px;
+
+}
+
+.customerRight{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:15px;
+
+}
+
+label{
+
+    display:block;
+
+    margin-bottom:6px;
+
+    font-weight:600;
+
+}
+/* =========================
+   INPUTS
+========================= */
+
+input,
+select{
+
+    width:100%;
+
+    padding:10px 12px;
+
+    border:1px solid #cdcdcd;
+
+    border-radius:10px;
+
+    font-size:15px;
+
+}
+
+input:focus,
+select:focus{
+
+    outline:none;
+
+    border:2px solid #ff4d0d;
+
+}
+
+/* =========================
+   SLIDER
+========================= */
+
+.switch{
+
+    position:relative;
+
+    width:60px;
+
+    height:32px;
+
+    display:block;
+
+}
+
+.switch input{
+
+    opacity:0;
+
+    width:0;
+
+    height:0;
+
+}
+
+.slider{
+
+    position:absolute;
+
+    inset:0;
+
+    border-radius:50px;
+
+    background:#d2d2d2;
+
+    transition:.3s;
+
+}
+
+.slider:before{
+
+    content:"";
+
+    position:absolute;
+
+    width:24px;
+
+    height:24px;
+
+    left:4px;
+
+    bottom:4px;
+
+    background:white;
+
+    border-radius:50%;
+
+    transition:.3s;
+
+}
+
+.switch input:checked + .slider{
+
+    background:#ff4d0d;
+
+}
+
+.switch input:checked + .slider:before{
+
+    transform:translateX(28px);
+
+}
+
+/* =========================
+   TABELLEN
+========================= */
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+}
+
+th{
+
+    background:#f7f7f7;
+
+    padding:12px;
+
+    text-align:left;
+
+}
+
+td{
+
+    padding:10px;
+
+    border-bottom:1px solid #ececec;
+
+}
+
+td:last-child{
+
+    text-align:center;
+
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+.iconBtn{
+
+    width:36px;
+
+    height:36px;
+
+    border:none;
+
+    background:#ff4d0d;
+
+    color:white;
+
+    border-radius:50%;
+
+    cursor:pointer;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:18px;
+
+    transition:.2s;
+
+}
+
+.iconBtn:hover{
+
+    transform:scale(1.08);
+
+}
+
+/* =========================
+   ERGEBNISZEILE
+========================= */
+
+.result-bar{
+
+    background:#f8f8f8;
+
+    border-top:1px solid #ececec;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:15px 20px;
+
+    font-weight:600;
+
+}
+
+.result-bar span{
+
+    font-size:24px;
+
+}
+/* =========================
+   MAXIMALE DARLEHENSRATE
+========================= */
+
+.max-rate{
+
+    background:#ff4d0d;
+
+    color:white;
+
+    border-radius:18px;
+
+    margin-top:20px;
+
+    padding:18px 22px;
+
+    display:grid;
+
+    grid-template-columns:
+    180px
+    1fr
+    170px;
+
+    align-items:center;
+
+    box-shadow:
+    0 8px 18px rgba(255,77,13,.25);
+
+}
+
+.ampel-pill{
+
+    background:white;
+
+    border-radius:999px;
+
+    padding:10px 16px;
+
+    text-align:center;
+
+    font-weight:700;
+
+    color:#188038;
+
+    width:max-content;
+
+}
+
+.max-rate-center{
+
+    text-align:center;
+
+}
+
+.max-rate-title{
+
+    font-size:15px;
+
+    opacity:.9;
+
+}
+
+.max-rate-value{
+
+    font-size:38px;
+
+    font-weight:700;
+
+}
+
+.pdfWrap{
+
+    text-align:right;
+
+}
+
+.pdfBtn{
+
+    border:none;
+
+    background:#ffb899;
+
+    color:#ff4d0d;
+
+    padding:10px 16px;
+
+    border-radius:10px;
+
+    cursor:pointer;
+
+    font-weight:600;
+
+    transition:.2s;
+
+}
+
+.pdfBtn:hover{
+
+    background:white;
+
+}
+
+/* =========================
+   DARLEHENSBETRAG
+========================= */
+
+.darlehen-card{
+
+    background:white;
+
+    border-radius:18px;
+
+    margin-top:20px;
+
+    overflow:hidden;
+
+    box-shadow:
+    0 5px 20px rgba(0,0,0,.08);
+
+}
+
+.darlehen-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:18px 20px;
+
+}
+
+.darlehensErgebnis{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:30px;
+
+    padding:15px 20px 20px;
+
+}
+
+.darlehensFormel{
+
+    color:#7a7a7a;
+
+    font-size:14px;
+
+    line-height:1.4;
+
+    white-space:nowrap;
+
+    text-align:center;
+
+}
+
+.bigNumber{
+
+    font-size:42px;
+
+    font-weight:700;
+
+    line-height:1;
+
+    margin:0;
+
+}
+/* =========================
+   HILFSKLASSEN
+========================= */
+
+.disabled-field{
+
+    background:#ececec;
+
+    color:#777;
+
+}
+
+/* =========================
+   ZAHLENFELDER
+========================= */
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button{
+
+    -webkit-appearance:none;
+
+    margin:0;
+
+}
+
+input[type=number]{
+
+    -moz-appearance:textfield;
+
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width:900px){
+
+    .customerGrid{
+
+        grid-template-columns:1fr;
+
+        gap:20px;
+
+    }
+
+    .max-rate{
+
+        grid-template-columns:1fr;
+
+        gap:15px;
+
+        text-align:center;
+
+    }
+
+    .pdfWrap{
+
+        text-align:center;
+
+    }
+
+    .ampel-pill{
+
+        margin:auto;
+
+    }
+
+    .darlehensErgebnis{
+
+        flex-direction:column;
+
+        gap:15px;
+
+    }
+
+    .bigNumber{
+
+        font-size:34px;
+
+    }
+
+}
+
+/* =========================
+   ENDE CSS
+========================= */
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+
+<a
+href="index.html"
+class="backBtn">
+
+<svg viewBox="0 0 24 24">
+<path d="M15 18l-6-6 6-6"/>
+</svg>
+
+</a>
+
+Persönlicher Finanzierungs-Check
+
+</div>
+
+<!-- KUNDENDATEN -->
+
+<div class="card accordion">
+
+<div class="accordion-header">
+
+<span>Kundendaten</span>
+
+</div>
+
+<div class="accordion-content">
+
+<div class="content">
+
+<div class="customerGrid">
+
+<div class="customerLeft">
+
+<div>
+
+<label>Person 1</label>
+
+<input
+type="text"
+id="person1Name">
+
+</div>
+
+<div>
+
+<label>Person 2</label>
+
+<input
+type="text"
+id="person2Name">
+
+</div>
+
+</div>
+
+<div class="customerRight">
+
+<div>
+
+<label>Anzahl Kinder</label>
+
+<select
+id="kinder"
+onchange="berechnenEinkommen()">
+<option value="0">0</option>
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+<option value="6">6</option>
+<option value="7">7</option>
+<option value="8">8</option>
+<option value="9">9</option>
+<option value="10">10</option>
+
+</select>
+
+</div>
+
+<div>
+
+<label>2. Person im Haushalt</label>
+
+<label class="switch">
+
+<input
+type="checkbox"
+id="person2Aktiv"
+checked>
+
+<span class="slider"></span>
+
+</label>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- EINKÜNFTE -->
+
+<div class="card accordion">
+
+<div class="accordion-header">
+
+<span>Einkünfte</span>
+
+<div
+id="einkuenfteHeader"
+class="accordion-result">
+
+0 €
+
+</div>
+
+</div>
+
+<div class="accordion-content">
+
+<div class="content">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Einkunftsart</th>
+
+<th>Person 1</th>
+
+<th>Person 2</th>
+
+<th>Ansetzbarer Betrag</th>
+
+<th style="width:60px;"></th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td>Lohn / Gehalt</td>
+
+<td>
+
+<input
+type="number"
+id="lohn1"
+oninput="berechnenEinkommen()">
+
+</td>
+
+<td>
+
+<input
+type="number"
+id="lohn2"
+oninput="berechnenEinkommen()">
+
+</td>
+
+<td id="sumLohn">
+
+0 €
+
+</td>
+
+<td></td>
+
+</tr>
+
+<tr>
+
+<td>Gewinne</td>
+
+<td>
+
+<input
+type="number"
+id="gewinn1"
+oninput="berechnenEinkommen()">
+
+</td>
+
+<td>
+
+<input
+type="number"
+id="gewinn2"
+oninput="berechnenEinkommen()">
+
+</td>
+
+<td id="sumGewinn">
+
+0 €
+
+</td>
+
+<td></td>
+
+</tr>
+</tbody>
+
+<!-- MIETEINNAHMEN -->
+
+<tbody id="mietContainer">
+
+<tr class="mietRow">
+
+<td>
+
+Mieten
+
+</td>
+
+<td>
+
+<input
+type="number"
+class="miet1"
+oninput="berechnenEinkommen()">
+
+</td>
+
+<td>
+
+<input
+type="number"
+class="miet2"
+oninput="berechnenEinkommen()">
+
+</td>
+
+<td class="mietAnsatz">
+
+0 €
+
+</td>
+
+<td>
+
+<button
+type="button"
+class="iconBtn"
+onclick="neueMiete()">
+
++
+
+</button>
+
+</td>
+
+</tr>
+
+</tbody>
+
+<tbody>
+
+<tr>
+
+<td>Rente</td>
+
+<td>
+
+<input
+type="number"
+id="rente1"
+oninput="berechnenEinkommen()">
+
+</td>
+
+<td>
+
+<input
+type="number"
+id="rente2"
+oninput="berechnenEinkommen()">
+
+</td>
+
+<td id="sumRente">
+
+0 €
+
+</td>
+
+<td></td>
+
+</tr>
+
+<tr>
+
+<td>Sonstiges</td>
+
+<td>
+
+<input
+type="number"
+id="sonst1"
+oninput="berechnenEinkommen()">
+
+</td>
+
+<td>
+
+<input
+type="number"
+id="sonst2"
+oninput="berechnenEinkommen()">
+
+</td>
+
+<td id="sumSonst">
+
+0 €
+
+</td>
+
+<td></td>
+
+</tr>
+
+<tr>
+
+<td>
+
+Kindergeld
+
+</td>
+
+<td colspan="2">
+
+Anzahl Kinder × 259 €
+
+</td>
+
+<td id="kindergeld">
+
+0 €
+
+</td>
+
+<td></td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+<div class="result-bar">
+
+<span>
+
+Gesamteinkommen
+
+</span>
+
+<span id="gesamteinkommen">
+
+0 €
+
+</span>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- AUSGABEN -->
+
+<div class="card accordion">
+
+<div class="accordion-header">
+
+<span>Ausgaben</span>
+
+<div
+id="ausgabenHeader"
+class="accordion-result">
+
+0 €
+
+</div>
+
+</div>
+
+<div class="accordion-content">
+
+<div class="content">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Ausgabeart</th>
+
+<th>Monatsrate</th>
+
+<th>Restschuld / Grundschuld</th>
+
+<th>Anzusetzender Betrag</th>
+
+<th style="width:60px;"></th>
+
+</tr>
+
+</thead>
+<!-- WÜSTENROT -->
+
+<tbody id="wuesteContainer">
+
+<tr class="wuesteRow">
+
+<td>Darlehen Wüstenrot</td>
+
+<td>
+
+<input
+type="number"
+class="wuesteRate"
+oninput="berechnenAusgaben()">
+
+</td>
+
+<td>
+
+<input
+type="number"
+class="wuesteRest"
+oninput="berechnenAusgaben()">
+
+</td>
+
+<td class="wuesteAnsatz">
+
+0 €
+
+</td>
+
+<td>
+
+<button
+type="button"
+class="iconBtn"
+onclick="neuesWuesteDarlehen()">
+
++
+
+</button>
+
+</td>
+
+</tr>
+
+</tbody>
+
+<!-- FREMDDARLEHEN -->
+
+<tbody id="fremdDarlehenContainer">
+
+<tr class="fremdDarlehen">
+
+<td>Fremdes Darlehen</td>
+
+<td>
+
+<input
+type="number"
+class="fremdRate"
+oninput="berechnenAusgaben()">
+
+</td>
+
+<td>
+
+<input
+type="number"
+class="fremdRest"
+oninput="berechnenAusgaben()">
+
+</td>
+
+<td class="fremdAnsatz">
+
+0 €
+
+</td>
+
+<td>
+
+<button
+type="button"
+class="iconBtn"
+onclick="neuesFremddarlehen()">
+
++
+
+</button>
+
+</td>
+
+</tr>
+
+</tbody>
+
+<!-- KREDIT -->
+
+<tbody id="kreditContainer">
+
+<tr class="kreditRow">
+
+<td>Kredit</td>
+
+<td>
+
+<input
+type="number"
+class="kreditRate"
+oninput="berechnenAusgaben()">
+
+</td>
+
+<td>-</td>
+
+<td class="kreditAnsatz">
+
+0 €
+
+</td>
+
+<td>
+
+<button
+type="button"
+class="iconBtn"
+onclick="neuerKredit()">
+
++
+
+</button>
+
+</td>
+
+</tr>
+
+</tbody>
+
+<!-- UNTERHALT -->
+
+<tbody id="unterhaltContainer">
+
+<tr class="unterhaltRow">
+
+<td>Unterhalt</td>
+
+<td>
+
+<input
+type="number"
+class="unterhaltRate"
+oninput="berechnenAusgaben()">
+
+</td>
+
+<td>-</td>
+
+<td class="unterhaltAnsatz">
+
+0 €
+
+</td>
+
+<td>
+
+<button
+type="button"
+class="iconBtn"
+onclick="neuerUnterhalt()">
+
++
+
+</button>
+
+</td>
+
+</tr>
+
+</tbody>
+
+<!-- SONSTIGE KOSTEN -->
+
+<tbody>
+
+<tr>
+
+<td>
+
+Sonstiges
+(PKV, Erbbau, Hausgeld)
+
+</td>
+
+<td>
+
+<input
+type="number"
+id="sonstigeAusgabe"
+oninput="berechnenAusgaben()">
+
+</td>
+
+<td>-</td>
+
+<td id="sonstigeAnsatz">
+
+0 €
+
+</td>
+
+<td></td>
+
+</tr>
+
+<tr>
+
+<td>
+
+Miete (kalt)
+
+</td>
+
+<td>
+
+<input
+type="number"
+id="mieteKalt"
+oninput="berechnenAusgaben()">
+
+</td>
+
+<td>-</td>
+
+<td id="mieteAnsatz">
+
+0 €
+
+</td>
+
+<td></td>
+
+</tr>
+
+<tr>
+
+<td>
+
+Haushaltskosten
+
+</td>
+
+<td>
+
+Automatisch
+
+</td>
+
+<td>
+
+-
+
+</td>
+
+<td id="haushaltskosten">
+
+0 €
+
+</td>
+
+<td></td>
+
+</tr>
+
+</tbody>
+</table>
+
+</div>
+
+<div class="result-bar">
+
+<span>
+
+Gesamtausgaben
+
+</span>
+
+<span id="gesamtausgaben">
+
+0 €
+
+</span>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- MAXIMALE DARLEHENSRATE -->
+
+<div class="max-rate">
+
+<div
+id="ampelPill"
+class="ampel-pill">
+
+🟢 Sehr gut
+
+</div>
+
+<div class="max-rate-center">
+
+<div class="max-rate-title">
+
+Maximale Darlehensrate
+
+</div>
+
+<div
+id="maxDarlehensrate"
+class="max-rate-value">
+
+0 €
+
+</div>
+
+</div>
+
+<div class="pdfWrap">
+
+<button
+type="button"
+class="pdfBtn"
+onclick="druckePDF()">
+
+PDF-Bericht
+
+</button>
+
+</div>
+
+</div>
+
+<!-- DARLEHENSBETRAG -->
+
+<div class="darlehen-card">
+
+<div class="darlehen-header">
+
+<span>
+
+Darlehensbetrag anzeigen
+
+</span>
+
+<label class="switch">
+
+<input
+type="checkbox"
+id="darlehenAnzeigen">
+
+<span class="slider"></span>
+
+</label>
+
+</div>
+
+<div
+id="darlehenBereich"
+style="display:none;">
+
+<div class="darlehensErgebnis">
+
+<div
+id="darlehensInfo"
+class="darlehensFormel">
+
+Rate × 12
+<br>
+────────
+<br>
+6 %
+
+</div>
+
+<div
+id="darlehensbetrag"
+class="bigNumber">
+
+0 €
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<script>
+
+/* =========================
+   ACCORDION
+========================= */
+
+document
+.querySelectorAll(".accordion")
+.forEach(accordion=>{
+
+    const header =
+    accordion.querySelector(
+        ".accordion-header"
+    );
+
+    const content =
+    accordion.querySelector(
+        ".accordion-content"
+    );
+
+    header.addEventListener("click",()=>{
+
+        content.classList.toggle(
+            "closed"
+        );
+
+    });
+
+});
+
+/* =========================
+   DARLEHEN EIN/AUS
+========================= */
+
+document
+.getElementById(
+"darlehenAnzeigen"
+)
+.addEventListener(
+"change",
+function(){
+
+    document
+    .getElementById(
+    "darlehenBereich"
+    )
+    .style.display =
+
+    this.checked
+    ? "block"
+    : "none";
+
+});
+
+/* =========================
+   PERSON 2
+========================= */
+
+const checkbox =
+document.getElementById(
+"person2Aktiv"
+);
+
+const person2Name =
+document.getElementById(
+"person2Name"
+);
+
+checkbox.addEventListener(
+"change",
+function(){
+
+    const ids = [
+
+        "lohn2",
+        "gewinn2",
+        "rente2",
+        "sonst2"
+
+    ];
+
+    if(this.checked){
+
+        person2Name.disabled =
+        false;
+
+        person2Name.classList.remove(
+        "disabled-field"
+        );
+
+        ids.forEach(id=>{
+
+            const feld =
+            document.getElementById(id);
+
+            if(feld){
+
+                feld.disabled =
+                false;
+
+                feld.classList.remove(
+                "disabled-field"
+                );
+
+            }
+
+        });
+
+        document
+        .querySelectorAll(".miet2")
+        .forEach(feld=>{
+
+            feld.disabled =
+            false;
+
+            feld.classList.remove(
+            "disabled-field"
+            );
+
+        });
+
+    }
+    else{
+
+        person2Name.disabled =
+        true;
+
+        person2Name.value = "";
+
+        person2Name.classList.add(
+        "disabled-field"
+        );
+
+        ids.forEach(id=>{
+
+            const feld =
+            document.getElementById(id);
+
+            if(feld){
+
+                feld.disabled =
+                true;
+
+                feld.value = "";
+
+                feld.classList.add(
+                "disabled-field"
+                );
+
+            }
+
+        });
+
+        document
+        .querySelectorAll(".miet2")
+        .forEach(feld=>{
+
+            feld.disabled =
+            true;
+
+            feld.value = "";
+
+            feld.classList.add(
+            "disabled-field"
+            );
+
+        });
+
+    }
+
+    berechnenEinkommen();
+    berechneHaushaltskosten();
+
+});
+
+/* =========================
+   HILFSFUNKTIONEN
+========================= */
+
+function wert(id){
+
+    return Number(
+        document
+        .getElementById(id)
+        .value
+    ) || 0;
+
+}
+
+function euro(betrag){
+
+    return betrag.toLocaleString(
+        "de-DE",
+        {
+            style:"currency",
+            currency:"EUR"
+        }
+    );
+
+}
+
+function leseEuro(id){
+
+    return parseFloat(
+
+        document
+        .getElementById(id)
+        .innerText
+        .replace(/[^\d,-]/g,"")
+        .replace(".","")
+        .replace(",", ".")
+
+    ) || 0;
+
+}
+
+/* =========================
+   PDF
+========================= */
+
+function druckePDF(){
+
+    const kunde1 =
+    document.getElementById("person1Name").value || "-";
+
+    const kunde2 =
+    document.getElementById("person2Name").value || "-";
+
+    const kinder =
+    document.getElementById("kinder").value;
+
+    const einkommen =
+    document.getElementById("gesamteinkommen").innerText;
+
+    const ausgaben =
+    document.getElementById("gesamtausgaben").innerText;
+
+    const rate =
+    document.getElementById("maxDarlehensrate").innerText;
+
+    const darlehen =
+    document.getElementById("darlehensbetrag").innerText;
+
+    const ampel =
+    document.getElementById("ampelPill").innerText;
+
+    const heute =
+    new Date().toLocaleDateString("de-DE");
+
+    const fenster =
+    window.open(
+        "",
+        "_blank"
+    );
+
+    fenster.document.write(`
+
+<!DOCTYPE html>
+
+<html lang="de">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>
+Finanzierungs-Check
+</title>
+
+<style>
+
+body{
+
+    font-family:Arial,sans-serif;
+
+    margin:0;
+
+    padding:25px;
+
+    color:#333;
+
+    font-size:13px;
+
+}
+
+.header{
+
+    background:#ff4d0d;
+
+    color:white;
+
+    padding:18px;
+
+    border-radius:12px;
+
+    margin-bottom:25px;
+
+}
+
+.headerTitel{
+
+    font-size:30px;
+
+    font-weight:700;
+
+}
+
+.datum{
+
+    margin-top:10px;
+
+    font-size:14px;
+
+}
+
+.box{
+
+    border:1px solid #ddd;
+
+    border-radius:12px;
+
+    padding:14px;
+
+    margin-bottom:12px;
+
+}
+
+.headline{
+
+    font-size:20px;
+
+    font-weight:700;
+
+    color:#ff4d0d;
+
+    margin-bottom:15px;
+
+}
+
+.row{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    margin-bottom:10px;
+
+}
+
+.ergebnis{
+
+    background:#fff4ef;
+
+    border:2px solid #ff4d0d;
+
+    border-radius:16px;
+
+    padding:25px;
+
+    text-align:center;
+
+    margin-top:20px;
+
+}
+
+.gross{
+
+    font-size:34px;
+
+    font-weight:700;
+
+    color:#ff4d0d;
+
+}
+
+.rateBox{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:20px;
+
+    margin-top:15px;
+
+}
+
+.formel{
+
+    color:#888;
+
+    font-size:12px;
+
+    line-height:1.4;
+
+    text-align:right;
+
+}
+
+.ampel{
+
+    font-size:22px;
+
+    font-weight:700;
+
+}
+.bruch{
+
+    display:inline-flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    color:#777;
+
+    font-size:12px;
+
+    min-width:140px;
+
+}
+
+.bruch-oben{
+
+    width:100%;
+
+    text-align:center;
+
+    border-bottom:2px solid #777;
+
+    padding-bottom:4px;
+
+}
+
+.bruch-unten{
+
+    width:100%;
+
+    text-align:center;
+
+    padding-top:4px;
+
+}
+
+.footer{
+
+    margin-top:30px;
+
+    border-top:1px solid #ddd;
+
+    padding-top:12px;
+
+    font-size:12px;
+
+    color:#666;
+
+}
+
+.unterschrift{
+
+    margin-top:30px;
+
+}
+
+.linie{
+
+    width:250px;
+
+    border-top:1px solid #666;
+
+    margin-top:60px;
+
+    padding-top:8px;
+
+}
+
+@media print{
+
+    body{
+
+        padding:20px;
+
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+
+<div class="headerTitel">
+
+Persönlicher Finanzierungs-Check
+
+</div>
+
+<div class="datum">
+
+Datum: ${heute}
+
+</div>
+
+</div>
+
+<div class="box">
+
+<div class="headline">
+
+Kundendaten
+
+</div>
+
+<div class="row">
+
+<span>Person 1</span>
+<span>${kunde1}</span>
+
+</div>
+
+<div class="row">
+
+<span>Person 2</span>
+<span>${kunde2}</span>
+
+</div>
+
+<div class="row">
+
+<span>Kinder</span>
+<span>${kinder}</span>
+
+</div>
+
+</div>
+
+<div class="box">
+
+<div class="headline">
+
+Ergebnis
+
+</div>
+
+<div class="row">
+
+<span>Bewertung</span>
+<span>${ampel}</span>
+
+</div>
+
+<div class="row">
+
+<span>Gesamteinkommen</span>
+<span>${einkommen}</span>
+
+</div>
+
+<div class="row">
+
+<span>Gesamtausgaben</span>
+<span>${ausgaben}</span>
+
+</div>
+
+</div>
+
+<div class="ergebnis">
+
+<div>
+
+Maximale Darlehensrate
+
+</div>
+
+<div class="gross">
+
+${rate}
+
+</div>
+
+<div class="rateBox">
+
+<div class="bruch">
+
+<div class="bruch-oben">
+
+${rate} × 12
+
+</div>
+
+<div class="bruch-unten">
+
+6 %
+
+</div>
+
+</div>
+
+<div class="gross">
+
+${darlehen}
+
+</div>
+
+</div>
+
+</div>
+
+<div class="box">
+
+<div class="headline">
+
+Hinweis
+
+</div>
+
+Diese Berechnung dient ausschließlich
+zur ersten Orientierung und stellt
+keine verbindliche Finanzierungszusage dar.
+
+</div>
+
+<div class="unterschrift">
+
+<div class="linie">
+
+Berater
+
+</div>
+
+</div>
+
+<div class="footer">
+
+Kevin Hirsch<br>
+Wüstenrot Bausparkasse AG
+
+</div>
+
+</body>
+
+</html>
+
+`);
+
+    fenster.document.close();
+
+    setTimeout(()=>{
+
+        fenster.print();
+
+    },500);
+
+}
+
+/* =========================
+   EINKOMMEN
+========================= */
+
+function berechnenEinkommen(){
+
+    let lohn =
+    wert("lohn1")
+    +
+    wert("lohn2");
+
+    let gewinn =
+    wert("gewinn1")
+    +
+    wert("gewinn2");
+
+    let rente =
+    wert("rente1")
+    +
+    wert("rente2");
+
+    let sonst =
+    wert("sonst1")
+    +
+    wert("sonst2");
+
+    let kinder =
+
+    Number(
+    document
+    .getElementById("kinder")
+    .value
+    );
+
+    let kindergeld =
+    kinder * 259;
+
+    let mieten = 0;
+
+    document
+    .querySelectorAll(".mietRow")
+    .forEach(row=>{
+
+        const p1 =
+        Number(
+        row.querySelector(".miet1")
+        .value
+        ) || 0;
+
+        const p2 =
+        Number(
+        row.querySelector(".miet2")
+        .value
+        ) || 0;
+
+        const ansatz =
+        (p1 + p2) * 0.8;
+
+        row.querySelector(
+        ".mietAnsatz"
+        ).innerText =
+        euro(ansatz);
+
+        mieten += ansatz;
+
+    });
+
+    document.getElementById(
+    "sumLohn"
+    ).innerText =
+    euro(lohn);
+
+    document.getElementById(
+    "sumGewinn"
+    ).innerText =
+    euro(gewinn);
+
+    document.getElementById(
+    "sumRente"
+    ).innerText =
+    euro(rente);
+
+    document.getElementById(
+    "sumSonst"
+    ).innerText =
+    euro(sonst);
+
+    document.getElementById(
+    "kindergeld"
+    ).innerText =
+    euro(kindergeld);
+
+    const gesamt =
+
+    lohn +
+    gewinn +
+    rente +
+    sonst +
+    kindergeld +
+    mieten;
+
+    document.getElementById(
+    "gesamteinkommen"
+    ).innerText =
+    euro(gesamt);
+
+    document.getElementById(
+    "einkuenfteHeader"
+    ).innerText =
+    euro(gesamt);
+
+    berechneHaushaltskosten();
+
+}
+/* =========================
+   MIETE +
+========================= */
+
+function neueMiete(){
+
+document
+.getElementById(
+"mietContainer"
+)
+.insertAdjacentHTML(
+"beforeend",
+`
+
+<tr class="mietRow">
+
+<td>Mieten</td>
+
+<td>
+
+<input
+type="number"
+class="miet1"
+oninput="berechnenEinkommen()">
+
+</td>
+
+<td>
+
+<input
+type="number"
+class="miet2"
+oninput="berechnenEinkommen()">
+
+</td>
+
+<td class="mietAnsatz">
+
+0 €
+
+</td>
+
+<td>
+
+<button
+type="button"
+class="iconBtn"
+onclick="this.closest('tr').remove();berechnenEinkommen();">
+
+🗑
+
+</button>
+
+</td>
+
+</tr>
+
+`
+);
+
+checkbox.dispatchEvent(
+new Event("change")
+);
+
+}
+
+/* =========================
+   WÜSTENROT +
+========================= */
+
+function neuesWuesteDarlehen(){
+
+document
+.getElementById(
+"wuesteContainer"
+)
+.insertAdjacentHTML(
+"beforeend",
+`
+
+<tr class="wuesteRow">
+
+<td>Darlehen Wüstenrot</td>
+
+<td>
+
+<input
+type="number"
+class="wuesteRate"
+oninput="berechnenAusgaben()">
+
+</td>
+
+<td>
+
+<input
+type="number"
+class="wuesteRest"
+oninput="berechnenAusgaben()">
+
+</td>
+
+<td class="wuesteAnsatz">
+
+0 €
+
+</td>
+
+<td>
+
+<button
+type="button"
+class="iconBtn"
+onclick="this.closest('tr').remove();berechnenAusgaben();">
+
+🗑
+
+</button>
+
+</td>
+
+</tr>
+
+`
+);
+
+}
+/* =========================
+   FREMDDARLEHEN +
+========================= */
+
+function neuesFremddarlehen(){
+
+document
+.getElementById(
+"fremdDarlehenContainer"
+)
+.insertAdjacentHTML(
+"beforeend",
+`
+
+<tr class="fremdDarlehen">
+
+<td>Fremdes Darlehen</td>
+
+<td>
+
+<input
+type="number"
+class="fremdRate"
+oninput="berechnenAusgaben()">
+
+</td>
+
+<td>
+
+<input
+type="number"
+class="fremdRest"
+oninput="berechnenAusgaben()">
+
+</td>
+
+<td class="fremdAnsatz">
+
+0 €
+
+</td>
+
+<td>
+
+<button
+type="button"
+class="iconBtn"
+onclick="this.closest('tr').remove();berechnenAusgaben();">
+
+🗑
+
+</button>
+
+</td>
+
+</tr>
+
+`
+);
+
+}
+
+/* =========================
+   KREDIT +
+========================= */
+
+function neuerKredit(){
+
+document
+.getElementById(
+"kreditContainer"
+)
+.insertAdjacentHTML(
+"beforeend",
+`
+
+<tr class="kreditRow">
+
+<td>Kredit</td>
+
+<td>
+
+<input
+type="number"
+class="kreditRate"
+oninput="berechnenAusgaben()">
+
+</td>
+
+<td>
+
+-
+
+</td>
+
+<td class="kreditAnsatz">
+
+0 €
+
+</td>
+
+<td>
+
+<button
+type="button"
+class="iconBtn"
+onclick="this.closest('tr').remove();berechnenAusgaben();">
+
+🗑
+
+</button>
+
+</td>
+
+</tr>
+
+`
+);
+
+}
+
+/* =========================
+   UNTERHALT +
+========================= */
+
+function neuerUnterhalt(){
+
+document
+.getElementById(
+"unterhaltContainer"
+)
+.insertAdjacentHTML(
+"beforeend",
+`
+
+<tr class="unterhaltRow">
+
+<td>Unterhalt</td>
+
+<td>
+
+<input
+type="number"
+class="unterhaltRate"
+oninput="berechnenAusgaben()">
+
+</td>
+
+<td>
+
+-
+
+</td>
+
+<td class="unterhaltAnsatz">
+
+0 €
+
+</td>
+
+<td>
+
+<button
+type="button"
+class="iconBtn"
+onclick="this.closest('tr').remove();berechnenAusgaben();">
+
+🗑
+
+</button>
+
+</td>
+
+</tr>
+
+`
+);
+
+}
+/* =========================
+   AUSGABEN
+========================= */
+
+function berechnenAusgaben(){
+
+    let gesamt = 0;
+
+    document
+    .querySelectorAll(".wuesteRow")
+    .forEach(row=>{
+
+        const rate =
+        Number(
+        row.querySelector(".wuesteRate").value
+        ) || 0;
+
+        const rest =
+        Number(
+        row.querySelector(".wuesteRest").value
+        ) || 0;
+
+        const ansatz =
+        Math.max(
+            rate,
+            rest * 0.06 / 12
+        );
+
+        row.querySelector(
+        ".wuesteAnsatz"
+        ).innerText =
+        euro(ansatz);
+
+        gesamt += ansatz;
+
+    });
+
+    document
+    .querySelectorAll(".fremdDarlehen")
+    .forEach(row=>{
+
+        const rate =
+        Number(
+        row.querySelector(".fremdRate").value
+        ) || 0;
+
+        const rest =
+        Number(
+        row.querySelector(".fremdRest").value
+        ) || 0;
+
+        const ansatz =
+        Math.max(
+            rate,
+            rest * 0.06 / 12
+        );
+
+        row.querySelector(
+        ".fremdAnsatz"
+        ).innerText =
+        euro(ansatz);
+
+        gesamt += ansatz;
+
+    });
+
+    document
+    .querySelectorAll(".kreditRow")
+    .forEach(row=>{
+
+        const rate =
+        Number(
+        row.querySelector(".kreditRate").value
+        ) || 0;
+
+        row.querySelector(
+        ".kreditAnsatz"
+        ).innerText =
+        euro(rate);
+
+        gesamt += rate;
+
+    });
+
+    document
+    .querySelectorAll(".unterhaltRow")
+    .forEach(row=>{
+
+        const rate =
+        Number(
+        row.querySelector(".unterhaltRate").value
+        ) || 0;
+
+        row.querySelector(
+        ".unterhaltAnsatz"
+        ).innerText =
+        euro(rate);
+
+        gesamt += rate;
+
+    });
+
+    const sonstige =
+    wert("sonstigeAusgabe");
+
+    document
+    .getElementById(
+    "sonstigeAnsatz"
+    ).innerText =
+    euro(sonstige);
+
+    gesamt += sonstige;
+
+    const miete =
+    wert("mieteKalt");
+
+    document
+    .getElementById(
+    "mieteAnsatz"
+    ).innerText =
+    euro(miete);
+
+    gesamt += miete;
+
+    const haushalt =
+    window.haushaltskosten || 0;
+
+    gesamt += haushalt;
+
+    window.gesamtAusgaben =
+    gesamt;
+
+    document
+    .getElementById(
+    "gesamtausgaben"
+    ).innerText =
+    euro(gesamt);
+
+    document
+    .getElementById(
+    "ausgabenHeader"
+    ).innerText =
+    euro(gesamt);
+
+    berechneMaxDarlehensrate();
+
+}
+
+/* =========================
+   HAUSHALTSKOSTEN
+========================= */
+
+function berechneHaushaltskosten(){
+
+    let personen = 1;
+
+    if(checkbox.checked){
+
+        personen++;
+
+    }
+
+    personen += Number(
+        document.getElementById("kinder").value
+    );
+
+    let mieteVorhanden = false;
+
+    document
+    .querySelectorAll(".mietRow")
+    .forEach(row=>{
+
+        const p1 =
+        Number(
+        row.querySelector(".miet1").value
+        ) || 0;
+
+        const p2 =
+        Number(
+        row.querySelector(".miet2").value
+        ) || 0;
+
+        if(p1 > 0 || p2 > 0){
+
+            mieteVorhanden = true;
+
+        }
+
+    });
+
+    let kosten = 0;
+
+    if(mieteVorhanden){
+
+        if(personen === 1){
+
+            kosten = 1340;
+
+        }else{
+
+            kosten = 1680;
+
+            if(personen > 2){
+
+                kosten +=
+                (personen - 2) * 255;
+
+            }
+
+        }
+
+    }else{
+
+        if(personen === 1){
+
+            kosten = 890;
+
+        }else{
+
+            kosten = 1230;
+
+            if(personen > 2){
+
+                kosten +=
+                (personen - 2) * 255;
+
+            }
+
+        }
+
+    }
+
+    window.haushaltskosten =
+    kosten;
+
+    document
+    .getElementById(
+    "haushaltskosten"
+    ).innerText =
+    euro(kosten);
+
+    berechnenAusgaben();
+
+}
+
+/* =========================
+   MAX RATE
+========================= */
+
+function berechneMaxDarlehensrate(){
+
+    const einkommen =
+
+    leseEuro(
+    "gesamteinkommen"
+    );
+
+    const ausgaben =
+
+    window.gesamtAusgaben || 0;
+
+    let rate =
+
+    einkommen
+    -
+    ausgaben;
+
+    if(rate < 0){
+
+        rate = 0;
+
+    }
+
+    document
+    .getElementById(
+    "maxDarlehensrate"
+    ).innerText =
+    euro(rate);
+
+    const darlehen =
+
+    (rate * 12)
+    /
+    0.06;
+
+    document
+    .getElementById(
+    "darlehensbetrag"
+    ).innerText =
+    euro(darlehen);
+
+    document
+    .getElementById(
+    "darlehensInfo"
+    ).innerHTML =
+
+    euro(rate)
+
+    +
+
+    " × 12"
+
+    +
+
+    "<br>────────"
+
+    +
+
+    "<br>6 %";
+
+    const ampel =
+    document.getElementById(
+    "ampelPill"
+    );
+
+    if(rate >= 1000){
+
+        ampel.innerHTML =
+        "🟢 Sehr gut";
+
+        ampel.style.color =
+        "#188038";
+
+    }
+    else if(rate > 0){
+
+        ampel.innerHTML =
+        "🟡 Machbar";
+
+        ampel.style.color =
+        "#c48800";
+
+    }
+    else{
+
+        ampel.innerHTML =
+        "🔴 Kritisch";
+
+        ampel.style.color =
+        "#c5221f";
+
+    }
+
+}
+/* =========================
+   START
+========================= */
+
+checkbox.dispatchEvent(
+new Event("change")
+);
+
+berechnenEinkommen();
+
+berechneHaushaltskosten();
+
+berechnenAusgaben();
+
+berechneMaxDarlehensrate();
+
+</script>
+
+</body>
+
+</html>
