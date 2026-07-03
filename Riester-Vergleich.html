@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Riester / Wohnriester – Förderrechner alt vs. neu</title>
+<style>
+  :root {
+    --gruen: #ff4d0d;
+    --gruen-dunkel: #ff4d0d;
+    --gruen-hell: #fff1eb;
+    --neu-kachel: #bfe8cf;
+    --grau: #f4f5f6;
+    --grau-mittel: #d8dbde;
+    --text: #1c2521;
+    --text-grau: #5a6560;
+    --rot: #c0392b;
+    --gold: #b8860b;
+
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    background: #eceef0;
+    color: var(--text);
+    line-height: 1.5;
+    padding: 20px;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; }
+  header {
+    background: var(--gruen);
+    color: #fff;
+    padding: 22px 30px;
+    border-radius: 10px 10px 0 0;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  header h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.3px; }
+  header .sub { font-size: 13px; opacity: 0.9; margin-top: 3px; }
+  .badge { background: rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+
+  .panel { background: #fff; padding: 26px 30px; }
+  .panel + .panel { border-top: 1px solid var(--grau-mittel); }
+  .panel:last-child { border-radius: 0 0 10px 10px; }
+
+  .section-title { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-grau); font-weight: 700; margin-bottom: 18px; }
+
+  /* Eingabe-Grid */
+  .inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 26px 40px; }
+  .field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+  .field .val { color: var(--gruen-dunkel); font-weight: 700; }
+  input[type=range] { width: 100%; accent-color: var(--gruen); height: 6px; cursor: pointer; }
+  .range-row { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-grau); margin-top: 3px; }
+
+  .kids { display: flex; gap: 8px; flex-wrap: wrap; }
+  .kids button {
+    flex: 1; min-width: 44px; padding: 10px 0; border: 1.5px solid var(--grau-mittel);
+    background: #fff; border-radius: 7px; font-size: 15px; font-weight: 600; cursor: pointer;
+    transition: all .15s;
+  }
+  .kids button.active { background: var(--gruen); color: #fff; border-color: var(--gruen); }
+  .kids button:hover:not(.active) { border-color: var(--gruen); }
+
+  .income-input { width: 100%; padding: 11px 12px; border: 1.5px solid var(--grau-mittel); border-radius: 7px; font-size: 15px; font-weight: 600; }
+  .income-input:focus { outline: none; border-color: var(--gruen); }
+
+  .toggle-row { display: flex; align-items: center; gap: 10px; margin-top: 4px; font-size: 13px; }
+  .switch { position: relative; width: 44px; height: 24px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider-sw { position: absolute; cursor: pointer; inset: 0; background: var(--grau-mittel); border-radius: 24px; transition: .2s; }
+  .slider-sw:before { content: ""; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: .2s; }
+  .switch input:checked + .slider-sw { background: var(--gruen); }
+  .switch input:checked + .slider-sw:before { transform: translateX(20px); }
+
+  .kinder-detail { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; padding: 14px; background: var(--grau); border-radius: 8px; }
+  .kinder-detail.hidden { display: none; }
+  .kinder-detail .field label { font-size: 12px; }
+  .mini-input { width: 60px; padding: 7px; border: 1.5px solid var(--grau-mittel); border-radius: 6px; text-align: center; font-weight: 600; }
+
+  /* Vergleich */
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  .card { border: 1px solid var(--grau-mittel); border-radius: 10px; overflow: hidden; }
+  .card.alt .card-head { background: #d8dbde; }
+  .card.neu .card-head { background: var(--neu-kachel); }
+  .card-head { color: #000; padding: 14px 20px; }
+  .card-head h3 { font-size: 17px; font-weight: 600; }
+  .card-head .tag { font-size: 11px; opacity: 0.9; }
+  .card-body { padding: 20px; }
+  .row { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px dashed #e4e7ea; font-size: 14px; }
+  .row:last-child { border-bottom: none; }
+  .row .lbl { color: var(--text-grau); }
+  .row .num { font-weight: 600; }
+  .row.total { margin-top: 6px; padding-top: 13px; border-top: 2px solid var(--text); border-bottom: none; font-size: 16px; }
+  .row.total .num { color: var(--gruen-dunkel); font-size: 20px; }
+  .quote { background: var(--gruen-hell); border-radius: 8px; padding: 12px 14px; margin-top: 14px; font-size: 13px; }
+  .quote .q-num { font-size: 24px; font-weight: 700; color: var(--gruen-dunkel); }
+  .quote .q-lbl { font-size: 11px; color: var(--text-grau); text-transform: uppercase; letter-spacing: 0.5px; }
+  .warn { color: var(--rot); font-size: 12px; margin-top: 8px; }
+
+  /* Differenz-Banner */
+  .diff-banner { background: var(--gruen-dunkel); color: #fff; padding: 18px 24px; border-radius: 10px; margin-top: 22px; display: flex; justify-content: space-around; text-align: center; }
+  .diff-banner .item .big { font-size: 26px; font-weight: 700; }
+  .diff-banner .item .lbl { font-size: 12px; opacity: 0.85; }
+
+  /* Bausparsumme */
+  .bausparsumme { margin-top: 22px; }
+  .bsp-bestand { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+  .bsp-field label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-grau); display: block; margin-bottom: 8px; }
+  .bsp-field .bsp-input { width: 100%; }
+  .bsp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  .bsp-card { background: var(--grau); border-radius: 9px; padding: 18px 20px; }
+  .bsp-card.neu { background: var(--gruen-hell); border: 1.5px solid var(--gruen); }
+  .bsp-card label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-grau); display: block; margin-bottom: 8px; }
+  .bsp-card .bsp-input { width: 100%; padding: 12px; border: 1.5px solid var(--grau-mittel); border-radius: 7px; font-size: 19px; font-weight: 700; }
+  .bsp-card .bsp-empf { font-size: 26px; font-weight: 700; color: var(--gruen-dunkel); }
+  .bsp-card .bsp-hint { font-size: 12px; color: var(--text-grau); margin-top: 6px; }
+
+  .footer-note { font-size: 11px; color: var(--text-grau); margin-top: 20px; padding: 0 4px; }
+  .print-btn { background: var(--gruen); color: #fff; border: none; padding: 11px 22px; border-radius: 7px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .print-btn:hover { background: var(--gruen-dunkel); }
+
+  @media (max-width: 760px) {
+    .inputs, .compare, .bsp-grid, .bsp-bestand, .kinder-detail { grid-template-columns: 1fr; }
+    .diff-banner { flex-direction: column; gap: 12px; }
+  }
+  @media print {
+    body { background: #fff; padding: 0; }
+    .no-print { display: none !important; }
+    header { border-radius: 0; }
+  }
+
+  /* Zurück-Button */
+  .backBtn{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.25);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-decoration:none;
+  transition:.2s;
+  flex-shrink:0;
+  }
+  .backBtn:hover{background:#fff}
+  .backBtn svg{width:18px;height:18px;fill:#fff}
+  .backBtn:hover svg{fill:#ff4d0d}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+  <a href="index.html" class="backBtn" title="Zurück">
+    <svg viewBox="0 0 24 24">
+      <path d="M15 18l-6-6 6-6"/>
+    </svg>
+  </a>
+
+  <div>
+    <h1>Riester / Wohnriester – Fördervergleich</h1>
+    <div class="sub">Altes System vs. Reform ab 01.01.2027</div>
+  </div>
+
+  <div class="badge">Beratungstool</div>
+</header>
+
+  <!-- EINGABE -->
+  <div class="panel no-print">
+    <div class="section-title">Eingaben</div>
+    <div class="inputs">
+
+      <div class="field">
+        <label>Monatlicher Eigenbeitrag: <span class="val" id="beitragVal">25 €</span> <span style="color:var(--text-grau);font-weight:400">(= <span id="beitragJahr">300</span> € / Jahr)</span></label>
+        <input type="range" id="beitrag" min="10" max="150" step="5" value="25">
+        <div class="range-row"><span>10 €</span><span>150 €</span></div>
+      </div>
+
+      <div class="field">
+        <label>Jahresbruttoeinkommen (Vorjahr) &amp; Alter des Kunden</label>
+        <div style="display:flex;gap:12px">
+          <input type="number" class="income-input" id="einkommen" value="35000" step="1000" style="flex:2">
+          <input type="number" class="income-input" id="alterKunde" value="40" min="18" max="67" style="flex:1" title="Alter des Kunden">
+        </div>
+        <div class="range-row"><span>Bruttoeinkommen / Jahr</span><span>Alter (Jahre)</span></div>
+      </div>
+
+      <div class="field">
+        <label>Anzahl Kinder (kindergeldberechtigt)</label>
+        <div class="kids" id="kidsBtns">
+          <button data-k="0" class="active">0</button>
+          <button data-k="1">1</button>
+          <button data-k="2">2</button>
+          <button data-k="3">3</button>
+          <button data-k="4">4</button>
+          <button data-k="5">5</button>
+        </div>
+        <div class="kinder-detail hidden" id="kinderDetail">
+          <div style="grid-column:1/-1;font-size:11px;color:var(--text-grau);margin-bottom:2px">
+            ⓘ Alter je Kind eingeben. Bestimmt die Restdauer der Kinderzulage (Kindergeldbezug, längstens bis 25). Das Geburtsjahr für die alte 185-€/300-€-Staffel wird automatisch abgeleitet.
+          </div>
+          <div id="kinderAlterWrap" style="grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:10px"></div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Optionen</label>
+        <div class="toggle-row">
+          <label class="switch"><input type="checkbox" id="bspToggle"><span class="slider-sw"></span></label>
+          <span>Bausparsumme-Empfehlung anzeigen</span>
+        </div>
+        <div class="toggle-row" style="margin-top:12px">
+          <label class="switch"><input type="checkbox" id="bonusToggle"><span class="slider-sw"></span></label>
+          <span>Berufseinsteiger-Bonus (200 €, unter 25)</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- VERGLEICH -->
+  <div class="panel">
+    <div class="section-title">Förderung im Vergleich</div>
+    <div class="compare">
+
+      <div class="card alt">
+        <div class="card-head">
+          <h3>Bisher (Altvertrag)</h3>
+          <div class="tag">bis 31.12.2026 · Bestandsschutz</div>
+        </div>
+        <div class="card-body">
+          <div class="row"><span class="lbl">Eigenbeitrag / Jahr</span><span class="num" id="altEigen">300 €</span></div>
+          <div class="row"><span class="lbl">Grundzulage</span><span class="num" id="altGrund">175 €</span></div>
+          <div class="row"><span class="lbl">Kinderzulage <span style="font-size:11px;color:var(--text-grau)">(185 €/300 € je Geburtsjahr)</span></span><span class="num" id="altKinder">0 €</span></div>
+          <div class="row total"><span class="lbl">Zulage gesamt</span><span class="num" id="altGesamt">175 €</span></div>
+          <div class="quote">
+            <div class="q-lbl">Förderquote</div>
+            <span class="q-num" id="altQuote">58 %</span>
+            <span style="font-size:12px;color:var(--text-grau)"> der Einzahlung als Zulage</span>
+          </div>
+          <div class="warn" id="altWarn" style="display:none"></div>
+        </div>
+      </div>
+
+      <div class="card neu">
+        <div class="card-head">
+          <h3>Neu (ab 2027)</h3>
+          <div class="tag">50 ct/€ bis 360 € · 25 ct/€ bis 1.800 €</div>
+        </div>
+        <div class="card-body">
+          <div class="row"><span class="lbl">Eigenbeitrag / Jahr</span><span class="num" id="neuEigen">300 €</span></div>
+          <div class="row"><span class="lbl">Grundzulage</span><span class="num" id="neuGrund">150 €</span></div>
+          <div class="row"><span class="lbl">Kinderzulage <span style="font-size:11px;color:var(--text-grau)">(300 €/Kind, einheitlich)</span></span><span class="num" id="neuKinder">0 €</span></div>
+          <div class="row total"><span class="lbl">Zulage gesamt</span><span class="num" id="neuGesamt">150 €</span></div>
+          <div class="quote">
+            <div class="q-lbl">Förderquote</div>
+            <span class="q-num" id="neuQuote">50 %</span>
+            <span style="font-size:12px;color:var(--text-grau)"> der Einzahlung als Zulage</span>
+          </div>
+          <div class="warn" id="neuWarn" style="display:none"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="diff-banner">
+      <div class="item">
+        <div class="big" id="diffJahr">–25 €</div>
+        <div class="lbl">Differenz Zulage / Jahr</div>
+      </div>
+      <div class="item">
+        <div class="big" id="maxBeitrag">30 €</div>
+        <div class="lbl">Mtl. Beitrag für volle Grundzulage (neu)</div>
+      </div>
+      <div class="item">
+        <div class="big" id="maxZulage">540 €</div>
+        <div class="lbl">Max. mögliche Grundzulage (neu)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BAUSPARSUMME (ausblendbar) -->
+  <div class="panel bausparsumme" id="bspPanel" style="display:none">
+    <div class="section-title">Wohnriester – Bestandsvertrag & Empfehlung</div>
+
+    <div style="font-size:13px;color:var(--text-grau);margin-bottom:18px;padding:12px 14px;background:var(--grau);border-radius:8px">
+      ⓘ Daten des bestehenden Riester-Bausparvertrags eingeben. Der gewünschte zukünftige Monatsbeitrag wird oben über den Slider „Monatlicher Eigenbeitrag" eingestellt.
+    </div>
+
+    <div class="bsp-bestand">
+      <div class="bsp-field">
+        <label>Aktuelle Bausparsumme</label>
+        <input type="number" class="bsp-input" id="bspAlt" value="20000" step="1000">
+        <div class="bsp-hint">Vertragssumme bisher</div>
+      </div>
+      <div class="bsp-field">
+        <label>Aktuelles Guthaben</label>
+        <input type="number" class="bsp-input" id="bspGuthaben" value="6000" step="500">
+        <div class="bsp-hint">Bisher angespartes Saldo</div>
+      </div>
+      <div class="bsp-field">
+        <label>Bisheriger Monatsbeitrag</label>
+        <input type="number" class="bsp-input" id="bspBeitragAlt" value="5" step="1">
+        <div class="bsp-hint">Was der Kunde aktuell zahlt</div>
+      </div>
+    </div>
+
+    <div class="bsp-grid" style="margin-top:22px">
+      <div class="bsp-card">
+        <label>Bisherige Situation</label>
+        <div class="row" style="padding:7px 0;font-size:13px"><span class="lbl">Bausparsumme</span><span class="num" id="bspAltShow">20.000 €</span></div>
+        <div class="row" style="padding:7px 0;font-size:13px"><span class="lbl">Guthaben</span><span class="num" id="bspGutShow">6.000 €</span></div>
+        <div class="row" style="padding:7px 0;font-size:13px"><span class="lbl">Sparrate inkl. Zulage / Jahr</span><span class="num" id="bspSparAlt">235 €</span></div>
+        <div class="row" style="padding:7px 0;font-size:13px;border-bottom:none"><span class="lbl">Erfüllungsgrad</span><span class="num" id="bspFuellAlt">30 %</span></div>
+      </div>
+      <div class="bsp-card neu">
+        <label>Bausparsumme neu – empfohlen</label>
+        <div class="bsp-empf" id="bspNeu">– €</div>
+        <div class="bsp-hint" id="bspHint" style="margin-bottom:12px">Gefördertes Jahresvolumen × Faktor.</div>
+        <div class="row" style="padding:6px 0;font-size:12px"><span class="lbl">Eigenbeitrag / Jahr</span><span class="num" id="bspEigenNeu">300 €</span></div>
+        <div class="row" style="padding:6px 0;font-size:12px"><span class="lbl">+ Zulage neu / Jahr</span><span class="num" id="bspZulageNeu">150 €</span></div>
+        <div class="row" style="padding:6px 0;font-size:12px;border-bottom:none"><span class="lbl">= Gefördertes Volumen / Jahr</span><span class="num" id="bspGesamtNeu">450 €</span></div>
+        <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--grau-mittel)">
+          <label style="font-size:12px;font-weight:600;display:block;margin-bottom:6px">Faktor: <span id="faktorVal" style="color:var(--gruen-dunkel);font-weight:700">×20</span></label>
+          <input type="range" id="faktor" min="10" max="40" step="1" value="20">
+          <div class="range-row"><span>×10</span><span>×40</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel no-print" style="display:flex;justify-content:space-between;align-items:center">
+    <div class="footer-note">
+      Vereinfachte Modellrechnung, keine Steuer-/Anlageberatung. Steuervorteil (Sonderausgabenabzug) nicht berücksichtigt.
+      Werte alt: Grundzulage 175 €, Kind 185 €/300 €, Mindesteigenbeitrag 4 % – Zulagen, mind. 60 €.
+      Werte neu (Altersvorsorgereformgesetz): 50 ct/€ bis 360 €, 25 ct/€ bis 1.800 €, max. 540 € Grundzulage. Kinderzulage 1 € je gespartem Euro bis 300 €/Jahr, max. 300 € je Kind (einheitlich, ohne Geburtsjahr-Stichtag).
+      Bausparsummen-Empfehlung: gefördertes Jahresvolumen (Eigenbeitrag + Zulage) × einstellbarer Faktor. Kinderzulage nur für kindergeldberechtigte Kinder (längstens bis 25). Keine verbindliche Tarifkalkulation – konkrete Werte über das Wüstenrot-Angebotsprogramm.
+    </div>
+    <button class="print-btn" onclick="window.print()">Drucken / PDF</button>
+  </div>
+</div>
+
+<script>
+  const state = { beitrag: 25, einkommen: 35000, kids: 0, bonus: false, alterKunde: 40, kinderAlter: [], faktor: 20 };
+  const JAHR_AKTUELL = 2026;     // Stichtag-Bezug für Geburtsjahr-Ableitung
+  const KINDERGELD_BIS = 25;     // Kinderzulage längstens bis 25 (Kindergeldbezug)
+
+  const fmt = n => Math.round(n).toLocaleString('de-DE') + ' €';
+  const fmt0 = n => Math.round(n).toLocaleString('de-DE');
+
+  function calc() {
+    const jahr = state.beitrag * 12;
+
+    // ---- ALT ----
+    // Grundzulage 175, Kinder: 185 (vor 2008 geb.) + 300 (ab 2008 geb.)
+    // Geburtsjahr aus Alter abgeleitet; nur Kinder unter Kindergeldgrenze zählen.
+    let kidsAlt = 0, kidsNeu = 0, kidsAktiv = 0;
+    state.kinderAlter.forEach(a => {
+      if (a < KINDERGELD_BIS) {          // noch kindergeldberechtigt
+        kidsAktiv++;
+        const geburtsjahr = JAHR_AKTUELL - a;
+        if (geburtsjahr < 2008) kidsAlt++; else kidsNeu++;
+      }
+    });
+    const altKinderZulage = kidsAlt * 185 + kidsNeu * 300;
+    const altZulageVoll = 175 + altKinderZulage;
+    const mindest = Math.max(state.einkommen * 0.04 - altZulageVoll, 60);
+    // Kürzung wenn Eigenbeitrag < Mindesteigenbeitrag
+    const altFaktor = Math.min(jahr / mindest, 1);
+    const altGrund = 175 * altFaktor;
+    const altKinder = altKinderZulage * altFaktor;
+    const altGesamt = altGrund + altKinder;
+    const altQuote = jahr > 0 ? (altGesamt / jahr * 100) : 0;
+
+    // ---- NEU ----
+    // 50ct/€ bis 360, 25ct/€ bis 1800. Mindestbeitrag 120 €.
+    // Kinderzulage: nur Kinder unter Kindergeldgrenze (kidsAktiv).
+    const totalKids = kidsAktiv;
+    let neuGrund = 0;
+    if (jahr >= 120) {
+      const stufe1 = Math.min(jahr, 360) * 0.5;
+      const stufe2 = Math.max(Math.min(jahr, 1800) - 360, 0) * 0.25;
+      neuGrund = stufe1 + stufe2;
+    }
+    if (state.bonus) neuGrund += 200;
+    // Kinderzulage neu: 1 € je gespartem Euro bis 300 €/Jahr, max 300 € pro Kind.
+    // Anteilig bei weniger als 300 €/Jahr Eigenbeitrag. Voraussetzung: Mindestbeitrag 120 € erreicht.
+    const neuKinder = (jahr >= 120) ? totalKids * Math.min(jahr, 300) : 0;
+    const neuGesamt = neuGrund + neuKinder;
+    const neuQuote = jahr > 0 ? (neuGesamt / jahr * 100) : 0;
+
+    // ---- RENDER ALT ----
+    document.getElementById('altEigen').textContent = fmt(jahr);
+    document.getElementById('altGrund').textContent = fmt(altGrund);
+    document.getElementById('altKinder').textContent = fmt(altKinder);
+    document.getElementById('altGesamt').textContent = fmt(altGesamt);
+    document.getElementById('altQuote').textContent = Math.round(altQuote) + ' %';
+    const altWarn = document.getElementById('altWarn');
+    if (altFaktor < 1) {
+      altWarn.style.display = 'block';
+      altWarn.textContent = '⚠ Eigenbeitrag unter Mindesteigenbeitrag (' + fmt(mindest) + '/Jahr) → Zulage anteilig gekürzt.';
+    } else { altWarn.style.display = 'none'; }
+
+    // ---- RENDER NEU ----
+    document.getElementById('neuEigen').textContent = fmt(jahr);
+    document.getElementById('neuGrund').textContent = fmt(neuGrund - (state.bonus?200:0));
+    document.getElementById('neuKinder').textContent = fmt(neuKinder);
+    document.getElementById('neuGesamt').textContent = fmt(neuGesamt);
+    document.getElementById('neuQuote').textContent = Math.round(neuQuote) + ' %';
+    const neuWarn = document.getElementById('neuWarn');
+    let warnMsg = [];
+    if (jahr < 120) warnMsg.push('⚠ Unter Mindestbeitrag 120 €/Jahr → keine Förderung.');
+    else if (jahr < 300 && totalKids > 0) warnMsg.push('ⓘ Kinderzulage anteilig – volle 300 €/Kind erst ab 300 €/Jahr (25 €/Monat).');
+    // Restdauer Kinderzulage: minimales Alter bis 25
+    if (state.kids > 0) {
+      const ueber = state.kinderAlter.filter(a => a >= KINDERGELD_BIS).length;
+      if (ueber > 0) warnMsg.push('ⓘ ' + ueber + ' Kind(er) ≥ ' + KINDERGELD_BIS + ' J. – keine Kinderzulage mehr.');
+      else {
+        const minRest = Math.min(...state.kinderAlter.map(a => KINDERGELD_BIS - a));
+        if (isFinite(minRest) && minRest <= 5) warnMsg.push('ⓘ Kinderzulage läuft in ' + minRest + ' J. für das älteste Kind aus.');
+      }
+    }
+    if (warnMsg.length) { neuWarn.style.display = 'block'; neuWarn.textContent = warnMsg.join(' '); }
+    else { neuWarn.style.display = 'none'; }
+
+    // ---- BANNER ----
+    const diff = neuGesamt - altGesamt;
+    const diffEl = document.getElementById('diffJahr');
+    diffEl.textContent = (diff >= 0 ? '+' : '–') + fmt0(Math.abs(diff)) + ' €';
+    diffEl.style.color = '#ffffff';
+    document.getElementById('maxBeitrag').textContent = '30 €';
+    const maxGrund = state.bonus ? 740 : 540;
+    document.getElementById('maxZulage').textContent = fmt0(maxGrund) + ' €';
+
+    // ---- BAUSPARSUMME ----
+    // Bestandsdaten
+    const bspAlt = parseFloat(document.getElementById('bspAlt').value) || 0;
+    const bspGuthaben = parseFloat(document.getElementById('bspGuthaben').value) || 0;
+    const bspBeitragAlt = parseFloat(document.getElementById('bspBeitragAlt').value) || 0;
+
+    // ---- Bisher ----
+    const altGesamtJahr = bspBeitragAlt * 12 + altGesamt;          // Eigenbeitrag + alte Zulage
+    const fuellAlt = bspAlt > 0 ? (bspGuthaben / bspAlt * 100) : 0;
+    document.getElementById('bspAltShow').textContent = fmt0(bspAlt) + ' €';
+    document.getElementById('bspGutShow').textContent = fmt0(bspGuthaben) + ' €';
+    document.getElementById('bspSparAlt').textContent = fmt0(altGesamtJahr) + ' €';
+    document.getElementById('bspFuellAlt').textContent = Math.round(fuellAlt) + ' %';
+
+    // ---- Neu empfohlen: gefördertes Jahresvolumen × Faktor ----
+    // Gefördertes Jahresvolumen = Eigenbeitrag (Regler) + neue Zulage
+    const gefoerdertesVolumen = jahr + neuGesamt;
+    // Bausparsumme = Volumen × Faktor (Standard ×20, im Termin einstellbar)
+    let bspNeuVal = gefoerdertesVolumen * state.faktor;
+    // nie unter Bestand
+    bspNeuVal = Math.max(bspNeuVal, bspAlt);
+    // auf 1.000 € runden
+    bspNeuVal = Math.round(bspNeuVal / 1000) * 1000;
+
+    document.getElementById('bspNeu').textContent = fmt0(bspNeuVal) + ' €';
+    document.getElementById('bspEigenNeu').textContent = fmt0(jahr) + ' €';
+    document.getElementById('bspZulageNeu').textContent = fmt0(neuGesamt) + ' €';
+    document.getElementById('bspGesamtNeu').textContent = fmt0(gefoerdertesVolumen) + ' €';
+
+    const steigerung = bspAlt > 0 ? Math.round((bspNeuVal / bspAlt - 1) * 100) : 0;
+    if (bspNeuVal > bspAlt) {
+      document.getElementById('bspHint').innerHTML =
+        '<strong>+' + steigerung + ' % ggü. bisher.</strong> Gefördertes Jahresvolumen ' + fmt0(gefoerdertesVolumen) + ' € (' + fmt0(jahr) + ' € Eigenbeitrag + ' + fmt0(neuGesamt) + ' € Zulage) × Faktor ' + state.faktor + ' = empfohlene Bausparsumme.';
+    } else {
+      document.getElementById('bspHint').innerHTML =
+        'Empfehlung entspricht dem Bestand. Beitrag erhöhen oder Faktor anpassen, um eine höhere Bausparsumme zu zeigen.';
+    }
+  }
+
+  // ---- EVENTS ----
+  const beitragSlider = document.getElementById('beitrag');
+  beitragSlider.addEventListener('input', e => {
+    state.beitrag = +e.target.value;
+    document.getElementById('beitragVal').textContent = state.beitrag + ' €';
+    document.getElementById('beitragJahr').textContent = state.beitrag * 12;
+    calc();
+  });
+
+  document.getElementById('einkommen').addEventListener('input', e => {
+    state.einkommen = +e.target.value || 0; calc();
+  });
+
+  document.getElementById('alterKunde').addEventListener('input', e => {
+    state.alterKunde = +e.target.value || 0;
+    // Berufseinsteiger-Bonus automatisch vorschlagen bei unter 25
+    if (state.alterKunde > 0 && state.alterKunde < 25 && !document.getElementById('bonusToggle').checked) {
+      // nicht erzwingen, nur Hinweis – Toggle bleibt manuell
+    }
+    calc();
+  });
+
+  // Kinder-Buttons: erzeugen dynamische Alter-Eingaben
+  function renderKinderAlter() {
+    const wrap = document.getElementById('kinderAlterWrap');
+    wrap.innerHTML = '';
+    for (let i = 0; i < state.kids; i++) {
+      const val = state.kinderAlter[i] != null ? state.kinderAlter[i] : 8;
+      state.kinderAlter[i] = val;
+      const div = document.createElement('div');
+      div.innerHTML = '<label style="font-size:11px;font-weight:600;display:block;margin-bottom:4px">Kind ' + (i+1) + ' – Alter</label>' +
+        '<input type="number" class="mini-input" style="width:100%" min="0" max="40" value="' + val + '" data-idx="' + i + '">';
+      wrap.appendChild(div);
+    }
+    state.kinderAlter.length = state.kids;
+    wrap.querySelectorAll('input').forEach(inp => {
+      inp.addEventListener('input', e => {
+        state.kinderAlter[+e.target.dataset.idx] = +e.target.value || 0;
+        calc();
+      });
+    });
+  }
+
+  document.querySelectorAll('#kidsBtns button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#kidsBtns button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.kids = +btn.dataset.k;
+      const detail = document.getElementById('kinderDetail');
+      if (state.kids > 0) { detail.classList.remove('hidden'); renderKinderAlter(); }
+      else { detail.classList.add('hidden'); state.kinderAlter = []; }
+      calc();
+    });
+  });
+
+  document.getElementById('bonusToggle').addEventListener('change', e => { state.bonus = e.target.checked; calc(); });
+
+  document.getElementById('bspToggle').addEventListener('change', e => {
+    document.getElementById('bspPanel').style.display = e.target.checked ? 'block' : 'none';
+  });
+  document.getElementById('bspAlt').addEventListener('input', calc);
+  document.getElementById('bspGuthaben').addEventListener('input', calc);
+  document.getElementById('bspBeitragAlt').addEventListener('input', calc);
+  document.getElementById('faktor').addEventListener('input', e => {
+    state.faktor = +e.target.value;
+    document.getElementById('faktorVal').textContent = '×' + state.faktor;
+    calc();
+  });
+
+  calc();
+</script>
+</body>
+</html>
+diffEl.style.color = '#ffffff';
+</script>
+
+</body>
+</html>
+
