@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>VD / ZK Vergleich</title>
+
+<style>
+body{font-family:Arial;background:#f2f2f2;padding:30px}
+
+.container{max-width:1000px;margin:auto;background:white;border-radius:12px;overflow:hidden}
+
+/* ✅ HEADER WIE RIESTER */
+.header{
+ background:#ff4d0d;
+ color:white;
+ padding:22px 30px;
+ font-size:22px;
+ font-weight:600;
+ text-align:center;
+ position:relative;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+}
+
+/* ✅ BACK BUTTON */
+.backBtn{
+ position:absolute;
+ left:20px;
+ width:34px;
+ height:34px;
+ border-radius:50%;
+ background:rgba(255,255,255,0.25);
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ text-decoration:none;
+ transition:.2s;
+}
+.backBtn svg{width:18px;height:18px;fill:#fff}
+.backBtn:hover{background:#fff}
+.backBtn:hover svg{fill:#ff4d0d}
+
+/* TOP */
+.topSplit{display:flex;gap:20px;padding:20px}
+
+.box{
+flex:1;
+background:#eaeaea;
+border-radius:10px;
+padding:15px;
+}
+
+.box h3{
+margin-top:0;
+margin-bottom:10px;
+}
+
+.rowInput{
+display:flex;
+justify-content:space-between;
+margin-bottom:10px;
+align-items:center;
+}
+
+.value{
+width:100px;
+padding:8px;
+font-size:16px;
+font-weight:bold;
+border-radius:10px;
+border:1px solid #ccc;
+text-align:right;
+}
+
+.value:focus{
+outline:none;
+border:2px solid #ff4d0d;
+}
+
+/* Cards */
+.cards{display:flex;gap:20px;padding:20px}
+
+.card{
+flex:1;
+border-radius:10px;
+background:#f9f9f9;
+overflow:hidden;
+box-shadow:0 6px 14px rgba(0,0,0,0.06);
+transition:0.15s;
+}
+
+/* Hover */
+.card:hover{
+transform:translateY(-3px);
+box-shadow:0 10px 18px rgba(0,0,0,0.08);
+}
+
+.cardHead{
+padding:12px;
+font-weight:bold;
+background:#ddd;
+}
+
+.card.good .cardHead{
+background:#bfe8cf;
+}
+
+.cardBody{
+padding:12px;
+}
+
+.row{
+display:flex;
+justify-content:space-between;
+height:34px;
+align-items:center;
+border-bottom:1px solid #eee;
+}
+
+/* Summary */
+.summary{
+background:#ff4d0d;
+color:white;
+padding:20px;
+display:flex;
+justify-content:space-around;
+}
+
+.big{font-size:22px;font-weight:bold}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- ✅ NEUER HEADER -->
+<div class="header">
+  <a href="index.html" class="backBtn">
+    <svg viewBox="0 0 24 24">
+      <path d="M15 18l-6-6 6-6"/>
+    </svg>
+  </a>
+  Vorfinanzierung / Zwischenkredit Vergleich
+</div>
+
+<div class="topSplit">
+
+<div class="box">
+<h3>Ausgangsdaten</h3>
+
+<div class="rowInput">
+<span>Bausparsumme</span>
+<input id="A_bss" class="value" value="25000">
+</div>
+
+<div class="rowInput">
+<span>Guthaben</span>
+<input id="B_gut" class="value" value="7500">
+</div>
+
+<div class="rowInput">
+<span>Darlehensbedarf</span>
+<input id="C_bedarf" class="value" value="50000">
+</div>
+
+</div>
+
+<div class="box">
+<h3>Konditionen</h3>
+
+<div class="rowInput">
+<span>Zins VD</span>
+<input id="D_zinsVD" class="value" value="4,7">
+</div>
+
+<div class="rowInput">
+<span>Zins ZK</span>
+<input id="E_zinsZK" class="value" value="7,39">
+</div>
+
+<div class="rowInput">
+<span>Gebühr %</span>
+<input id="F_geb" class="value" value="1,6">
+</div>
+
+</div>
+
+<div class="box">
+<h3>Laufzeit</h3>
+
+<div class="rowInput">
+<span>VD (Monate)</span>
+<input id="G_vd" class="value" value="24">
+</div>
+
+<div class="rowInput">
+<span>ZK (Monate)</span>
+<input id="H_zk" class="value" value="24">
+</div>
+
+</div>
+
+</div>
+
+<div class="cards">
+
+<div class="card" id="card_I">
+<div class="cardHead">Vorausdarlehen</div>
+<div class="cardBody">
+
+<div class="row"><span>Darlehen</span><b id="IA"></b></div>
+<div class="row"><span>Gebühr</span><b id="IB"></b></div>
+<div class="row"><span>Zins / Monat</span><b id="IC"></b></div>
+<div class="row"><span>Gesamt</span><b id="ID"></b></div>
+
+</div>
+</div>
+
+<div class="card" id="card_J">
+<div class="cardHead">Zwischenkredit</div>
+<div class="cardBody">
+
+<div class="row"><span>Bausparsumme</span><b id="JA"></b></div>
+<div class="row"><span>Gebühr</span><b id="JB"></b></div>
+<div class="row"><span>Zins / Monat</span><b id="JC"></b></div>
+<div class="row"><span>Gesamt</span><b id="JD"></b></div>
+
+</div>
+</div>
+
+</div>
+
+<div class="summary">
+
+<div>
+<div>Kostendifferenz</div>
+<div class="big" id="diff"></div>
+</div>
+
+<div>
+<div>Besser</div>
+<div class="big" id="winner"></div>
+</div>
+
+</div>
+
+</div>
+
+<script>
+const num = v => parseFloat(String(v).replace(",",".").replace(/[^\d.]/g,""))||0;
+const euro = x => Math.round(x).toLocaleString("de-DE")+" €";
+
+function calcBSS(C,B,A,F){
+ let ziel=(C-B)*2;
+ for(let i=0;i<30;i++){
+  let r=Math.ceil(ziel/1000)*1000;
+  let g=(r-A)*F;
+  let neu=(C-(B-g))*2;
+  if(Math.ceil(neu/1000)*1000===r) break;
+  ziel=neu;
+ }
+ let bss=Math.ceil(ziel/1000)*1000;
+ return {bss,geb:(bss-A)*F};
+}
+
+function update(){
+let A=num(A_bss.value);
+let B=num(B_gut.value);
+let C=num(C_bedarf.value);
+let D=num(D_zinsVD.value)/100;
+let E=num(E_zinsZK.value)/100;
+let F=num(F_geb.value)/100;
+let G=num(G_vd.value);
+let H=num(H_zk.value);
+
+// VD
+let vdGeb=(C-A)*F;
+let vdMon=C*D/12;
+let vdSum=vdMon*G+vdGeb;
+
+// ZK
+let res=calcBSS(C,B,A,F);
+let kredit=res.bss/2-B;
+let zkMon=kredit*E/12;
+let zkSum=zkMon*H;
+
+// Anzeige
+IA.innerText=euro(C);
+IB.innerText=euro(vdGeb);
+IC.innerText=euro(vdMon);
+ID.innerText=euro(vdSum);
+
+JA.innerText=euro(res.bss);
+JB.innerText=euro(res.geb);
+JC.innerText=euro(zkMon);
+JD.innerText=euro(zkSum);
+
+diff.innerText=euro(Math.abs(vdSum-zkSum));
+
+// Gewinner
+card_I.classList.remove("good","bad");
+card_J.classList.remove("good","bad");
+
+if(vdSum < zkSum){
+ winner.innerText="Vorausdarlehen";
+ card_I.classList.add("good");
+ card_J.classList.add("bad");
+}else{
+ winner.innerText="Zwischenkredit";
+ card_J.classList.add("good");
+ card_I.classList.add("bad");
+}
+}
+
+// Events
+document.querySelectorAll("input").forEach(i=>{
+ i.addEventListener("input",update);
+ i.addEventListener("focus",()=>i.select());
+});
+
+update();
+</script>
+
+</body>
+</html>

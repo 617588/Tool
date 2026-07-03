@@ -1,0 +1,423 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Rendite Vergleich</title>
+
+<style>
+body{
+ font-family:Arial;
+ background:#f2f2f2;
+ margin:0;
+ padding:20px;
+}
+
+.wrapper{
+ max-width:1100px;
+ margin:auto;
+ display:flex;
+ gap:10px;
+ align-items:flex-start;
+}
+
+/* ALTER HEADER-BUTTON (BLEIBT UNGENUTZT, NICHT ENTFERNT) */
+.headerBtn{
+ width:34px;
+ height:34px;
+ border-radius:50%;
+ background:rgba(0,0,0,0.10);
+ cursor:pointer;
+ margin-top:22px;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ transition:.2s;
+ text-decoration:none;
+}
+.headerBtn:hover{background:#ff4d0d;}
+.headerBtn svg{width:18px;height:18px;fill:#333;}
+.headerBtn:hover svg{fill:white;}
+
+.container{
+ flex:1;
+ background:white;
+ border-radius:12px;
+ overflow:hidden;
+}
+
+/* ===== HEADER (WIE RIESTER) ===== */
+.header{
+ background:#ff4d0d;
+ color:white;
+ padding:22px 30px;
+ font-size:22px;
+ font-weight:600;
+ text-align:center;
+ position:relative;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+}
+
+/* ZURÜCK BUTTON WIE RIESTER */
+.backBtn{
+ position:absolute;
+ left:20px;
+ width:34px;
+ height:34px;
+ border-radius:50%;
+ background:rgba(255,255,255,0.25);
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ text-decoration:none;
+ transition:.2s;
+}
+.backBtn svg{width:18px;height:18px;fill:#fff}
+.backBtn:hover{background:#fff}
+.backBtn:hover svg{fill:#ff4d0d}
+
+/* ===== REST ORIGINAL ===== */
+.cards{
+ display:flex;
+ gap:20px;
+ padding:20px;
+}
+.card{
+ flex:1;
+ border-radius:16px;
+ background:#f9f9f9;
+ box-shadow:0 6px 14px rgba(0,0,0,0.06);
+ overflow:hidden;
+ transition:all .3s ease;
+ position:relative;
+}
+.card:hover{
+ transform:translateY(-5px) !important;
+ box-shadow:0 14px 22px rgba(0,0,0,0.15) !important;
+ z-index:5;
+}
+
+/* ETF */
+.etf{
+ flex:0;
+ max-width:0;
+ opacity:0;
+ transform:translateX(60px);
+ pointer-events:none;
+ transition:all .35s ease;
+}
+.cards.showETF .etf{
+ flex:1;
+ max-width:100%;
+ opacity:1;
+ transform:translateX(0);
+ pointer-events:auto;
+}
+.cards.showETF .etf:hover{
+ transform:translateY(-5px) translateX(0) !important;
+}
+.cards.showETF .card{flex:1}
+
+/* HEAD */
+.cardHead{
+ padding:14px;
+ font-weight:bold;
+ text-align:center;
+}
+.left .cardHead{background:#ddd}
+.right .cardHead{background:#bfe8cf}
+.etf .cardHead{background:#cfe8ff}
+.etf{background:#eef6ff}
+
+.row{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ height:40px;
+ border-bottom:1px solid #eee;
+}
+
+/* INPUT */
+.inputGroup{
+ display:flex;
+ align-items:center;
+ gap:6px;
+}
+.unit{
+ font-size:13px;
+ color:#666;
+}
+input{
+ width:140px;
+ height:34px;
+ border-radius:20px;
+ border:1px solid #ddd;
+ text-align:right;
+ padding:0 10px;
+ background:#fafafa;
+}
+.inputWrap{
+ position:relative;
+}
+.inputWrap input{
+ padding-right:22px;
+}
+.inputWrap::after{
+ content:"%";
+ position:absolute;
+ right:10px;
+ top:50%;
+ transform:translateY(-50%);
+}
+
+/* BUTTONS */
+.durationRow{
+ display:flex;
+ align-items:center;
+ gap:8px;
+}
+.durationBtn{
+ padding:4px 10px;
+ border-radius:14px;
+ background:#e5e5e5;
+ cursor:pointer;
+ font-weight:bold;
+ font-size:13px;
+}
+.durationBtn.active{
+ background:#ff4d0d;
+ color:white;
+}
+
+/* SWITCH */
+.switch{
+ width:50px;
+ height:26px;
+ background:#ccc;
+ border-radius:20px;
+ position:relative;
+ cursor:pointer;
+}
+.switch::after{
+ content:"";
+ width:22px;
+ height:22px;
+ background:white;
+ position:absolute;
+ top:2px;
+ left:2px;
+ border-radius:50%;
+ transition:.2s;
+}
+.switch.active{background:#ff4d0d}
+.switch.active::after{left:26px}
+
+.controlRow{
+ display:flex;
+ justify-content:space-between;
+ padding:10px 20px;
+}
+
+.summary{
+ background:#ff4d0d;
+ color:white;
+ padding:18px;
+ margin:20px;
+ border-radius:12px;
+ display:flex;
+ justify-content:space-around;
+}
+.big{font-size:18px;font-weight:bold}
+canvas{width:100%;height:320px}
+</style>
+</head>
+
+<body>
+
+<div class="wrapper">
+
+<div class="container">
+
+<!-- HEADER (EINZIGE HTML-ÄNDERUNG) -->
+<div class="header">
+  <a href="index.html" class="backBtn">
+    <svg viewBox="0 0 24 24">
+      <path d="M15 18l-6-6 6-6"/>
+    </svg>
+  </a>
+  Rendite Vergleich
+</div>
+
+
+<div class="container">
+
+<div class="cards" id="cards">
+
+<!-- ALT -->
+<div class="card left">
+<div class="cardHead">Bestehender Vertrag</div>
+<div style="padding:12px">
+
+<div class="row"><span>Zins</span>
+<div class="inputWrap"><input id="zinsAlt" value="0,5"></div></div>
+
+<div class="row"><span>Guthaben</span>
+<div class="inputGroup"><input id="startAlt" value="10.000"><span class="unit">€</span></div></div>
+
+<div class="row"><span>Rate</span>
+<div class="inputGroup"><input id="rateAlt" value="100"><span class="unit">€</span></div></div>
+
+<div class="row"><span>Laufzeit</span>
+<div class="inputGroup"><input id="laufzeit" value="7"><span class="unit">J</span></div></div>
+
+<div class="row"><span>Gewinn</span><b id="ergAlt"></b></div>
+</div>
+</div>
+
+<!-- TREND -->
+<div class="card right">
+<div class="cardHead">Trend Bausparvertrag</div>
+<div style="padding:12px">
+<div class="row"><span>Zins</span><div class="inputWrap"><input id="zinsNeu" value="2,16"></div></div>
+<div class="row"><span>Guthaben</span><b id="startNeu"></b></div>
+<div class="row"><span>Rate</span><b id="rateNeu"></b></div>
+<div class="row"><span>Laufzeit</span><b id="laufzeitNeu"></b></div>
+<div class="row"><span>Gewinn</span><b id="ergNeu"></b></div>
+</div>
+</div>
+
+<!-- ETF -->
+<div class="card etf">
+<div class="cardHead">ETF Sparplan</div>
+<div style="padding:12px">
+<div class="row"><span>Rendite</span><b>8 %</b></div>
+<div class="row"><span>Guthaben</span><b id="startEtf"></b></div>
+<div class="row"><span>Rate</span><b id="rateEtf"></b></div>
+<div class="row"><span>Laufzeit</span><b id="laufzeitEtf"></b></div>
+<div class="row"><span>Gewinn</span><b id="ergEtf"></b></div>
+</div>
+</div>
+
+</div>
+
+<div class="controlRow">
+
+<div class="durationRow">
+<b>Laufzeit:</b>
+<div class="durationBtn active" onclick="setDuration(7)">7</div>
+<div class="durationBtn" onclick="setDuration(15)">15</div>
+<div class="durationBtn" onclick="setDuration(20)">20</div>
+<div class="durationBtn" onclick="setDuration(30)">30</div>
+<div class="durationBtn" onclick="setDuration(40)">40</div>
+<div class="durationBtn" onclick="setDuration(50)">50</div>
+</div>
+
+<div>
+<span>Alternative</span>
+<div class="switch" id="toggleBtn" onclick="toggleETF()"></div>
+</div>
+
+</div>
+
+<div style="padding:20px">
+<canvas id="chart"></canvas>
+</div>
+
+<div class="summary">
+<div><div>Alt</div><div class="big" id="sumAlt"></div></div>
+<div><div>Trend</div><div class="big" id="sumNeu"></div></div>
+<div id="etfSummary" style="display:none">
+<div>ETF</div>
+<div class="big" id="sumEtf"></div>
+</div>
+</div>
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+let showETF=false;
+
+function euro(x){return Math.round(x).toLocaleString("de-DE")+" €";}
+function num(v){return parseFloat(String(v).replace(/\./g,"").replace(",","."))}
+
+function calcOne(start, rate, z, l){
+ let g=start, arr=[start], sum=rate*12;
+ for(let i=1;i<=l;i++){g=(g+sum)*(1+z);arr.push(g);}
+ return {arr,gain:g-(start+sum*l)};
+}
+
+function toggleETF(){
+ showETF=!showETF;
+ toggleBtn.classList.toggle("active");
+ cards.classList.toggle("showETF");
+ etfSummary.style.display=showETF?"block":"none";
+ update();
+}
+
+function setDuration(val){
+ laufzeit.value=val;
+ document.querySelectorAll(".durationBtn").forEach(b=>b.classList.remove("active"));
+ event.target.classList.add("active");
+ update();
+}
+
+function format(g){ return "+ "+euro(g); }
+
+function update(){
+ let start=num(startAlt.value||0);
+ let rate=num(rateAlt.value||0);
+ let lauf=num(laufzeit.value||0);
+
+ startNeu.innerText=euro(start);
+ rateNeu.innerText=euro(rate);
+ laufzeitNeu.innerText=lauf+" J";
+
+ startEtf.innerText=euro(start);
+ rateEtf.innerText=euro(rate);
+ laufzeitEtf.innerText=lauf+" J";
+
+ let alt=calcOne(start,rate,num(zinsAlt.value)/100,lauf);
+ let neu=calcOne(start,rate,num(zinsNeu.value)/100,lauf);
+ let etf=calcOne(start,rate,0.08,lauf);
+
+ ergAlt.innerText=format(alt.gain);
+ ergNeu.innerText=format(neu.gain);
+ ergEtf.innerText=format(etf.gain);
+
+ sumAlt.innerText=format(alt.gain);
+ sumNeu.innerText=format(neu.gain);
+ sumEtf.innerText=format(etf.gain);
+
+ if(window.c) c.destroy();
+
+ let ctx=chart.getContext("2d");
+ window.c=new Chart(ctx,{
+  type:"line",
+  data:{
+    labels:[...Array(lauf+1).keys()],
+    datasets:[
+      {label:"Alt",data:alt.arr,borderColor:"#888"},
+      {label:"Trend",data:neu.arr,borderColor:"#34a853"},
+      ...(showETF ? [{label:"ETF",data:etf.arr,borderColor:"#3399ff"}] : [])
+    ]
+  }
+ });
+}
+
+document.querySelectorAll("input").forEach(i=>{
+ i.addEventListener("keydown",e=>{
+  if(e.key==="Enter"){ update(); i.blur();}
+ });
+ i.addEventListener("input",update);
+});
+
+update();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Zinsvergleich</title>
+
+<style>
+body{font-family:Arial;background:#f2f2f2;padding:30px}
+.container{max-width:1000px;margin:auto;background:white;border-radius:12px;overflow:hidden}
+
+/* ✅ HEADER WIE RIESTER */
+.header{
+ background:#ff4d0d;
+ color:white;
+ padding:22px 30px;
+ font-size:22px;
+ font-weight:600;
+ text-align:center;
+ position:relative;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+}
+
+/* ✅ BACK BUTTON */
+.backBtn{
+ position:absolute;
+ left:20px;
+ width:34px;
+ height:34px;
+ border-radius:50%;
+ background:rgba(255,255,255,0.25);
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ text-decoration:none;
+ transition:.2s;
+}
+.backBtn svg{width:18px;height:18px;fill:#fff}
+.backBtn:hover{background:#fff}
+.backBtn:hover svg{fill:#ff4d0d}
+
+/* TOP */
+.topSplit{display:flex;padding:20px}
+.leftSide{flex:1;text-align:center;border-right:1px solid #ddd}
+.rightSide{flex:1;display:flex;flex-direction:column;align-items:center}
+
+.labelBig{font-size:20px;font-weight:bold;margin-bottom:10px}
+
+.value{
+ width:110px;
+ padding:10px;
+ font-size:20px;
+ font-weight:bold;
+ border-radius:10px;
+ border:1px solid #ccc;
+ text-align:right;
+}
+.value:focus{
+ outline:none;
+ border:2px solid #ff4d0d;
+}
+
+/* Controls */
+.controlRow{display:flex;align-items:center;gap:25px}
+
+.switch{display:flex;gap:18px}
+.switch button{
+ padding:10px 14px;
+ border:none;
+ border-radius:8px;
+ background:#eee;
+ cursor:pointer;
+}
+.switch .active{background:#ff4d0d;color:white}
+
+input[type=range]{width:70%;margin-top:10px}
+
+/* Divider */
+.divider{height:1px;background:#ddd}
+
+/* Cards */
+.cards{display:flex;gap:20px;padding:20px}
+.card{
+ flex:1;
+ border-radius:10px;
+ background:#f9f9f9;
+ overflow:hidden;
+ box-shadow:0 6px 14px rgba(0,0,0,0.06);
+ transition:transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Hover */
+.card:hover{
+ transform:translateY(-3px);
+ box-shadow:0 10px 18px rgba(0,0,0,0.08);
+}
+
+/* Header */
+.cardHead{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ padding:12px;
+ font-weight:bold;
+ height:50px;
+}
+.green .cardHead{background:#bfe8cf;color:black}
+.grey .cardHead{background:#ddd;color:black}
+
+.zinsBox{
+ width:80px;
+ padding:10px;
+ border-radius:10px;
+ text-align:right;
+ background:#e6f7ec;
+}
+
+/* Gewinner */
+.good{box-shadow:0 0 0 2px #2ecc71}
+.bad{opacity:0.8}
+
+/* Body */
+.cardBody{padding:12px}
+
+.zinsButtons{display:flex;gap:10px;margin-bottom:10px}
+.zinsButtons button{
+ flex:1;
+ padding:8px;
+ border-radius:10px;
+ border:1px solid transparent;
+ background:#eee;
+ cursor:pointer;
+}
+.zinsButtons button:hover{
+ border:1px solid #ff4d0d;
+}
+.zinsButtons .active{
+ background:#ff4d0d;
+ color:white;
+}
+
+/* Rows */
+.rowLine{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ height:34px;
+ border-bottom:1px solid #eee;
+}
+
+/* Summary */
+.summary{
+ background:#ff4d0d;
+ color:white;
+ padding:20px;
+ display:flex;
+ justify-content:space-around;
+}
+
+.big{font-size:22px;font-weight:bold}
+#argument{text-align:center;margin-top:10px;font-weight:bold}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+  <a href="index.html" class="backBtn">
+    <svg viewBox="0 0 24 24">
+      <path d="M15 18l-6-6 6-6"/>
+    </svg>
+  </a>
+  Zinsvergleich
+</div>
+
+<div class="topSplit">
+
+<div class="leftSide">
+<div class="labelBig">Finanzierungsbedarf</div>
+<input id="darlehen" class="value" value="300000">
+</div>
+
+<div class="rightSide">
+
+<div class="controlRow">
+<div class="switch">
+<button id="btnRate" class="active">Rate</button>
+<button id="btnTilg">Tilgung</button>
+</div>
+<input id="inputValue" class="value">
+</div>
+
+<input type="range" id="slider">
+
+</div>
+</div>
+
+<div class="divider"></div>
+
+<div class="cards">
+
+<div class="card green" id="card0">
+<div class="cardHead">
+<span>Bausparzins</span>
+<span id="z1Val" class="zinsBox"></span>
+</div>
+
+<div class="cardBody">
+<div class="zinsButtons">
+<button onclick="setZins1(0.45,this)">K 0,45</button>
+<button onclick="setZins1(1.95,this)">K 1,95</button>
+<button onclick="setZins1(1.25,this)">P 1,25</button>
+<button onclick="setZins1(2.0,this)">P 2,00</button>
+</div>
+
+<div class="rowLine"><span>Rate</span><b class="r0"></b></div>
+<div class="rowLine"><span>Laufzeit</span><b class="l0"></b></div>
+<div class="rowLine"><span>Agio</span><b id="agio1"></b></div>
+<div class="rowLine"><span>Zinskosten</span><b class="k0"></b></div>
+<div class="rowLine"><span>Gesamtkosten</span><b id="total1"></b></div>
+</div>
+</div>
+
+<div class="card grey" id="card1">
+<div class="cardHead">
+<span>Vergleichszins</span>
+<input id="zins2" class="value" style="width:80px;">
+</div>
+
+<div class="cardBody">
+<input type="range" id="slider2" min="3" max="10" step="0.01">
+<div class="rowLine"><span>Rate</span><b class="r1"></b></div>
+<div class="rowLine"><span>Laufzeit</span><b class="l1"></b></div>
+<div class="rowLine"><span>Zinskosten</span><b class="k1"></b></div>
+</div>
+</div>
+
+</div>
+
+<div class="summary">
+<div>
+<div>Kostendifferenz</div>
+<div class="big" id="diff"></div>
+</div>
+<div>
+<div>Monatlich</div>
+<div class="big" id="monatDiff"></div>
+</div>
+</div>
+
+<div id="argument"></div>
+</div>
+
+<script>
+let mode="rate";
+let z1=0.45;
+let z2=3;
+let fixedRatePercent=null;
+
+function euro(x){return Math.round(x).toLocaleString("de-DE")+" €";}
+
+function num(v){
+ return parseFloat(String(v).replace(/\./g,"").replace(",",".").replace(/[^\d.]/g,""))||0;
+}
+
+btnRate.onclick=()=>{mode="rate";btnRate.classList.add("active");btnTilg.classList.remove("active");setup();update();}
+btnTilg.onclick=()=>{mode="tilgung";btnTilg.classList.add("active");btnRate.classList.remove("active");setup();update();}
+
+function setZins1(val,btn){
+ z1=val;
+ if(val===0.45){fixedRatePercent=1;}
+ else if(val===1.95){fixedRatePercent=0.35;}
+ else{fixedRatePercent=null;}
+ document.querySelectorAll(".zinsButtons button").forEach(b=>b.classList.remove("active"));
+ btn.classList.add("active");
+ update();
+}
+
+function setup(){
+ if(mode==="rate"){slider.min=40;slider.max=4000;slider.step=10;}
+ else{slider.min=0;slider.max=15;slider.step=0.01;}
+}
+
+function calc(d,rate,z){
+ let i=z/100/12,rest=d,m=0,sum=0;
+ while(rest>0&&m<600){
+  let zins=rest*i,tilg=rate-zins;
+  if(rest<=tilg)tilg=rest;
+  rest-=tilg;
+  sum+=zins;
+  m++;
+ }
+ return {l:m/12,k:sum};
+}
+
+function update(){
+ let d=num(darlehen.value);
+ darlehen.value=d.toLocaleString("de-DE");
+ let input=parseFloat(slider.value)||0;
+
+ let rateValue;
+ if(fixedRatePercent!==null){rateValue=d*fixedRatePercent/100;}
+ else{rateValue=mode==="rate"?input:d*(z1+input)/100/12;}
+
+ inputValue.value=mode==="rate"?euro(rateValue):input.toFixed(2)+" %";
+
+ z2=parseFloat(slider2.value)||0;
+ zins2.value=z2.toFixed(2)+" %";
+ z1Val.innerText=z1.toFixed(2)+" %";
+
+ let agio=0;
+ if(z1===0.45) agio=d*0.02;
+ if(z1===1.95) agio=d*0.01;
+ agio1.innerText=euro(agio);
+
+ let res=[];
+ [z1,z2].forEach((z,i)=>{
+  let rate = (i===0)?rateValue:(mode==="rate"?parseFloat(slider.value):d*(z+input)/100/12);
+  let c=calc(d,rate,z);
+  document.querySelector(".r"+i).innerText=euro(rate);
+  document.querySelector(".l"+i).innerText=c.l.toFixed(1)+" Jahre";
+  document.querySelector(".k"+i).innerText=euro(c.k);
+  res.push(c);
+ });
+
+ let vd=res[0].k+agio;
+ let zk=res[1].k;
+
+ total1.innerText=euro(vd);
+
+ let diffVal=zk-vd;
+ diff.innerText=euro(diffVal);
+
+ let monate=res[0].l*12;
+ monatDiff.innerText=euro(diffVal/monate)+" mtl.";
+
+ card0.classList.remove("good","bad");
+ card1.classList.remove("good","bad");
+
+ if(vd<zk){
+  argument.innerText="Mit dem Bausparmodell zahlen Sie rund "+euro(diffVal)+" weniger.";
+  card0.classList.add("good");
+  card1.classList.add("bad");
+ }else{
+  argument.innerText="Der Vergleichszins ist aktuell günstiger.";
+  card1.classList.add("good");
+  card0.classList.add("bad");
+ }
+}
+
+slider.oninput=update;
+slider2.oninput=update;
+inputValue.onblur=()=>{let v=num(inputValue.value); if(v){slider.value=v;update();}};
+zins2.onblur=()=>{let v=num(zins2.value); if(v){slider2.value=v;update();}};
+darlehen.onblur=()=>update();
+
+document.querySelectorAll("input").forEach(i=>{
+ i.addEventListener("keydown",e=>{if(e.key==="Enter") i.blur();});
+ i.addEventListener("focus",()=>i.select());
+});
+
+setup();
+setZins1(0.45, document.querySelector(".zinsButtons button"));
+slider2.value=3;
+update();
+</script>
+
+</body>
+</html>
