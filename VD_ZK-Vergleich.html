@@ -56,6 +56,44 @@ margin-top:0;
 margin-bottom:10px;
 }
 
+.boxHeader{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:12px;
+}
+
+.boxHeader h3{
+margin:0;
+}
+
+.updateBtn{
+background:#ff4d0d;
+color:#fff;
+border:none;
+padding:8px 14px;
+border-radius:10px;
+font-weight:600;
+cursor:pointer;
+transition:.2s;
+box-shadow:0 3px 8px rgba(0,0,0,.15);
+}
+
+.updateBtn:hover{
+background:#e64404;
+transform:translateY(-1px);
+}
+
+.updateBtn:active{
+transform:translateY(0);
+}
+
+input[readonly]{
+background:#f7f7f7;
+color:#555;
+cursor:default;
+}
+
 .rowInput{
 display:flex;
 justify-content:space-between;
@@ -168,16 +206,26 @@ justify-content:space-around;
 </div>
 
 <div class="box">
-<h3>Konditionen</h3>
+
+    <div class="boxHeader">
+        <h3>Konditionen</h3>
+    </div>
+
+    <div id="versionInfo"
+         style="
+         font-size:12px;
+         color:#666;
+         margin-bottom:10px;">
+    </div>
 
 <div class="rowInput">
 <span>Zins VD</span>
-<input id="D_zinsVD" class="value" value="4,7">
+<input id="D_zinsVD" class="value" readonly>
 </div>
 
 <div class="rowInput">
 <span>Zins ZK</span>
-<input id="E_zinsZK" class="value" value="7,39">
+<input id="E_zinsZK" class="value" readonly>
 </div>
 
 <div class="rowInput">
@@ -249,8 +297,77 @@ justify-content:space-around;
 </div>
 
 <script>
-const num = v => parseFloat(String(v).replace(",",".").replace(/[^\d.]/g,""))||0;
-const euro = x => Math.round(x).toLocaleString("de-DE")+" €";
+
+const num = v =>
+ parseFloat(
+   String(v)
+   .replace(",",".")
+   .replace(/[^\d.]/g,"")
+ ) || 0;
+
+const euro = x =>
+ Math.round(x).toLocaleString("de-DE")+" €";
+
+let KONDITIONEN = {};
+
+async function loadKonditionen(){
+
+    try{
+
+        const response =
+            await fetch("konditionen.json");
+
+        KONDITIONEN =
+            await response.json();
+
+        versionInfo.innerText =
+          `PV ${KONDITIONEN.meta.version} | gültig ab ${KONDITIONEN.meta.gueltigAb}`;
+
+        update();
+
+    }catch(error){
+
+        console.error(error);
+
+        alert(
+          "Konditionen konnten nicht geladen werden."
+        );
+
+    }
+}
+
+function getVDZins(darlehen,laufzeit){
+
+ let tabelle;
+
+ if(laufzeit <= 35){
+   tabelle = KONDITIONEN.vd["24-35"];
+ }
+ else if(laufzeit <= 47){
+   tabelle = KONDITIONEN.vd["36-47"];
+ }
+ else if(laufzeit <= 60){
+   tabelle = KONDITIONEN.vd["48-60"];
+ }
+ else if(laufzeit <= 120){
+   tabelle = KONDITIONEN.vd["61-120"];
+ }
+ else{
+   tabelle = KONDITIONEN.vd["121-180"];
+ }
+
+ if(darlehen < 25000) return tabelle[0];
+ if(darlehen < 50000) return tabelle[1];
+ if(darlehen < 100000) return tabelle[2];
+ if(darlehen < 200000) return tabelle[3];
+ if(darlehen < 500000) return tabelle[4];
+
+ return tabelle[5];
+}
+
+function getZKZins(){
+ return KONDITIONEN.zk;
+}
 
 function calcBSS(C,B,A,F){
  let ziel=(C-B)*2;
@@ -266,14 +383,24 @@ function calcBSS(C,B,A,F){
 }
 
 function update(){
+
 let A=num(A_bss.value);
 let B=num(B_gut.value);
 let C=num(C_bedarf.value);
-let D=num(D_zinsVD.value)/100;
-let E=num(E_zinsZK.value)/100;
+
 let F=num(F_geb.value)/100;
 let G=num(G_vd.value);
 let H=num(H_zk.value);
+
+let vdZins = getVDZins(C,G);
+let zkZins = getZKZins();
+
+let D = vdZins/100;
+let E = zkZins/100;
+
+D_zinsVD.value = vdZins.toFixed(2).replace(".",",") + " %";
+E_zinsZK.value = zkZins.toFixed(2).replace(".",",") + " %";
+
 
 // VD
 let vdGeb=(C-A)*F;
@@ -315,12 +442,12 @@ if(vdSum < zkSum){
 }
 
 // Events
-document.querySelectorAll("input").forEach(i=>{
+document.querySelectorAll("input:not([readonly])").forEach(i=>{
  i.addEventListener("input",update);
  i.addEventListener("focus",()=>i.select());
 });
 
-update();
+loadKonditionen();
 </script>
 
 </body>
