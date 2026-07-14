@@ -2,370 +2,442 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Zinsvergleich</title>
-
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-body{font-family:Arial;background:#f2f2f2;padding:30px}
-.container{max-width:1000px;margin:auto;background:white;border-radius:12px;overflow:hidden}
-
-/* ✅ HEADER WIE RIESTER */
-.header{
- background:#ff4d0d;
- color:white;
- padding:22px 30px;
- font-size:22px;
- font-weight:600;
- text-align:center;
- position:relative;
- display:flex;
- align-items:center;
- justify-content:center;
+:root{
+  --brand:#ff4d0d;--brand-ink:#c73a08;--brand-tint:#ffece4;
+  --ink:#20232a;--muted:#6b7280;--line:#e4e7ec;
+  --bg:#eceef1;--card:#ffffff;
+  --green:#4e9070;--green-tint:#eaf5ef;
+  --grey:#9aa0a6;--radius:16px;
 }
-
-/* ✅ BACK BUTTON */
-.backBtn{
- position:absolute;
- left:20px;
- width:34px;
- height:34px;
- border-radius:50%;
- background:rgba(255,255,255,0.25);
- display:flex;
- align-items:center;
- justify-content:center;
- text-decoration:none;
- transition:.2s;
-}
-.backBtn svg{width:18px;height:18px;fill:#fff}
+*{box-sizing:border-box}
+body{margin:0;padding:24px;background:var(--bg);color:var(--ink);
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:auto}
+.header{position:relative;height:74px;background:var(--brand);color:#fff;border-radius:var(--radius) var(--radius) 0 0;
+  display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700}
+.backBtn{position:absolute;left:16px;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.2);text-decoration:none;transition:.2s}
 .backBtn:hover{background:#fff}
-.backBtn:hover svg{fill:#ff4d0d}
+.backBtn svg{width:18px;height:18px;fill:#fff}
+.backBtn:hover svg{fill:var(--brand)}
+.sheet{background:var(--card);border-radius:0 0 var(--radius) var(--radius);padding:24px;box-shadow:0 12px 40px rgba(20,23,42,.08)}
 
-/* TOP */
-.topSplit{display:flex;padding:20px}
-.leftSide{flex:1;text-align:center;border-right:1px solid #ddd}
-.rightSide{flex:1;display:flex;flex-direction:column;align-items:center}
+/* Eingabe */
+.setup{border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:20px}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.setupGrid{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:end}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px}
+.field label .hint{font-weight:500;text-transform:none;letter-spacing:0}
+.iw{position:relative}
+.iw input{width:100%;height:44px;border:1px solid var(--line);border-radius:11px;padding:0 34px 0 12px;
+  font-size:16px;font-weight:600;font-family:inherit;color:var(--ink);background:#fafbfc;text-align:right;font-variant-numeric:tabular-nums}
+.iw input:focus{outline:none;border:2px solid var(--brand);background:#fff}
+.iw .u{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--muted);font-weight:600;pointer-events:none}
+.tarifRow{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.tarifRow .lbl{font-size:12px;font-weight:600;color:var(--muted);flex-basis:100%;margin-bottom:-2px}
+.tbtn{border:1px solid var(--line);background:#fff;padding:9px 16px;border-radius:20px;font-size:14px;font-weight:600;
+  font-family:inherit;color:var(--ink);cursor:pointer;transition:.15s;white-space:nowrap}
+.tbtn:hover{border-color:var(--brand)}
+.tbtn.active{background:var(--brand);border-color:var(--brand);color:#fff}
+.tarifInfo{font-size:12px;color:var(--muted);margin-top:10px;line-height:1.5}
+.tarifInfo b{color:var(--ink)}
 
-.labelBig{font-size:20px;font-weight:bold;margin-bottom:10px}
+/* Rate-Steuerung */
+.rateControl{border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:20px}
+.rcTop{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.rcTop .lbl{font-size:13px;font-weight:600;color:var(--muted)}
+.modeBtns{display:flex;gap:6px}
+.modeBtn{border:1px solid var(--line);background:#fff;padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;
+  font-family:inherit;color:var(--ink);cursor:pointer;transition:.15s}
+.modeBtn.active{background:var(--brand);border-color:var(--brand);color:#fff}
+.sliderWrap{margin-top:14px;display:flex;align-items:center;gap:14px}
+.sliderWrap input[type=range]{flex:1;accent-color:var(--brand)}
+.sliderVal{min-width:100px;font-size:16px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
 
-.value{
- width:110px;
- padding:10px;
- font-size:20px;
- font-weight:bold;
- border-radius:10px;
- border:1px solid #ccc;
- text-align:right;
+/* Vergleichskarten */
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.cCard{border:1px solid var(--line);border-radius:14px;overflow:hidden;transition:.15s}
+.cCard:hover{box-shadow:0 8px 18px rgba(0,0,0,.06)}
+.cCard.bsp{border-top:4px solid var(--green)}
+.cCard.mkt{border-top:4px solid var(--grey)}
+.cCard.winner{box-shadow:0 0 0 2px var(--green)}
+.cHead{padding:14px 18px;display:flex;justify-content:space-between;align-items:center}
+.cHead .name{font-size:15px;font-weight:700}
+.cCard.bsp .name{color:var(--green)}
+.cCard.mkt .name{color:var(--muted)}
+.zinsInput{width:80px;height:38px;border:1px solid var(--line);border-radius:10px;text-align:right;padding:0 8px;
+  font-size:15px;font-weight:700;font-family:inherit;background:#fafbfc;color:var(--ink);font-variant-numeric:tabular-nums}
+.zinsInput:focus{outline:none;border:2px solid var(--brand);background:#fff}
+.zinsFest{font-size:18px;font-weight:800;color:var(--green);font-variant-numeric:tabular-nums}
+.cBody{padding:0 18px 18px}
+.stat{display:flex;justify-content:space-between;padding:9px 0;font-size:14px;border-bottom:1px solid var(--line)}
+.stat:last-child{border:none}
+.stat dt{color:var(--muted)}
+.stat dd{margin:0;font-weight:600;font-variant-numeric:tabular-nums}
+
+/* Zinsregler Markt */
+.mktSlider{margin-top:8px}
+.mktSlider input[type=range]{width:100%;accent-color:var(--grey)}
+
+/* Ersparnis */
+.savings{background:var(--green-tint);border:2px solid var(--green);border-radius:14px;padding:22px;text-align:center;margin-bottom:20px}
+.savings .val{font-size:clamp(36px,7vw,56px);font-weight:800;color:var(--green);line-height:1;font-variant-numeric:tabular-nums}
+.savings .lbl{font-size:15px;font-weight:600;color:var(--green);margin-top:6px;opacity:.9}
+.savings .sub{font-size:13px;color:var(--muted);margin-top:8px}
+
+/* Sicherheitshinweis */
+.lockBox{display:flex;align-items:flex-start;gap:12px;background:#f7f8fa;border-radius:12px;padding:16px;margin-bottom:22px}
+.lockBox svg{flex:none;width:22px;height:22px;fill:var(--green)}
+.lockBox p{margin:0;font-size:13px;line-height:1.5;color:var(--muted)}
+.lockBox b{color:var(--ink)}
+
+/* Historischer Chart */
+.histBlock{border:1px solid var(--line);border-radius:14px;padding:18px}
+.histBlock h3{font-size:16px;margin:0 0 4px}
+.histBlock .lead{font-size:13px;color:var(--muted);margin:0 0 14px}
+.histWrap{position:relative;height:clamp(220px,32vh,300px)}
+.histNote{font-size:12px;color:var(--muted);margin-top:12px;line-height:1.5}
+
+@media(max-width:700px){
+  body{padding:14px}
+  .setupGrid,.cards{grid-template-columns:1fr}
+  .rcTop{flex-direction:column;align-items:flex-start}
 }
-.value:focus{
- outline:none;
- border:2px solid #ff4d0d;
-}
-
-/* Controls */
-.controlRow{display:flex;align-items:center;gap:25px}
-
-.switch{display:flex;gap:18px}
-.switch button{
- padding:10px 14px;
- border:none;
- border-radius:8px;
- background:#eee;
- cursor:pointer;
-}
-.switch .active{background:#ff4d0d;color:white}
-
-input[type=range]{width:70%;margin-top:10px}
-
-/* Divider */
-.divider{height:1px;background:#ddd}
-
-/* Cards */
-.cards{display:flex;gap:20px;padding:20px}
-.card{
- flex:1;
- border-radius:10px;
- background:#f9f9f9;
- overflow:hidden;
- box-shadow:0 6px 14px rgba(0,0,0,0.06);
- transition:transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-/* Hover */
-.card:hover{
- transform:translateY(-3px);
- box-shadow:0 10px 18px rgba(0,0,0,0.08);
-}
-
-/* Header */
-.cardHead{
- display:flex;
- justify-content:space-between;
- align-items:center;
- padding:12px;
- font-weight:bold;
- height:50px;
-}
-.green .cardHead{background:#bfe8cf;color:black}
-.grey .cardHead{background:#ddd;color:black}
-
-.zinsBox{
- width:80px;
- padding:10px;
- border-radius:10px;
- text-align:right;
- background:#e6f7ec;
-}
-
-/* Gewinner */
-.good{box-shadow:0 0 0 2px #2ecc71}
-.bad{opacity:0.8}
-
-/* Body */
-.cardBody{padding:12px}
-
-.zinsButtons{display:flex;gap:10px;margin-bottom:10px}
-.zinsButtons button{
- flex:1;
- padding:8px;
- border-radius:10px;
- border:1px solid transparent;
- background:#eee;
- cursor:pointer;
-}
-.zinsButtons button:hover{
- border:1px solid #ff4d0d;
-}
-.zinsButtons .active{
- background:#ff4d0d;
- color:white;
-}
-
-/* Rows */
-.rowLine{
- display:flex;
- justify-content:space-between;
- align-items:center;
- height:34px;
- border-bottom:1px solid #eee;
-}
-
-/* Summary */
-.summary{
- background:#ff4d0d;
- color:white;
- padding:20px;
- display:flex;
- justify-content:space-around;
-}
-
-.big{font-size:22px;font-weight:bold}
-#argument{text-align:center;margin-top:10px;font-weight:bold}
 </style>
 </head>
-
 <body>
+<div class="wrap">
+  <div class="header">
+    <a href="index.html" class="backBtn" aria-label="Zurück"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></a>
+    Zinsvergleich
+  </div>
+  <div class="sheet">
 
-<div class="container">
+    <!-- EINGABE -->
+    <div class="setup">
+      <div class="eyebrow">Ihre Finanzierung</div>
+      <div class="setupGrid">
+        <div class="field">
+          <label for="darlehen">Finanzierungsbedarf</label>
+          <div class="iw"><input id="darlehen" value="300.000" inputmode="decimal"><span class="u">€</span></div>
+        </div>
+        <div class="field">
+          <label>Bauspartarif <span class="hint">(bestimmt den Zins)</span></label>
+          <div class="tarifRow">
+            <button class="tbtn active" data-z="0.45" data-agio="0.02" data-fixrate="10">K 0,45 %</button>
+            <button class="tbtn" data-z="1.95" data-agio="0.01" data-fixrate="3.5">K 1,95 %</button>
+            <button class="tbtn" data-z="1.25" data-agio="0" data-fixrate="">P 1,25 %</button>
+            <button class="tbtn" data-z="2.00" data-agio="0" data-fixrate="">P 2,00 %</button>
+          </div>
+        </div>
+      </div>
+      <div class="tarifInfo" id="tarifInfo">
+        <b>K 0,45 %</b> – feste Rate 10 ‰ der Bausparsumme · Agio 2 %
+      </div>
+    </div>
 
-<div class="header">
-  <a href="index.html" class="backBtn">
-    <svg viewBox="0 0 24 24">
-      <path d="M15 18l-6-6 6-6"/>
-    </svg>
-  </a>
-  Zinsvergleich
+    <!-- RATE -->
+    <div class="rateControl" id="rateControl">
+      <div class="rcTop">
+        <span class="rcTop lbl" id="rateLabel">Monatliche Rate (fest durch Tarif)</span>
+        <div class="modeBtns" id="modeBtns" style="display:none">
+          <button class="modeBtn active" data-mode="rate">Rate</button>
+          <button class="modeBtn" data-mode="tilg">Tilgung</button>
+        </div>
+      </div>
+      <div class="sliderWrap">
+        <input type="range" id="slider" min="40" max="4000" step="10" value="1500">
+        <span class="sliderVal" id="sliderVal">–</span>
+      </div>
+    </div>
+
+    <!-- KARTEN -->
+    <div class="cards">
+      <div class="cCard bsp" id="cardBsp">
+        <div class="cHead">
+          <span class="name">Bauspardarlehen</span>
+          <span class="zinsFest" id="bspZins">0,45 %</span>
+        </div>
+        <div class="cBody">
+          <dl>
+            <div class="stat"><dt>Monatliche Rate</dt><dd id="bspRate">–</dd></div>
+            <div class="stat"><dt>Laufzeit</dt><dd id="bspLauf">–</dd></div>
+            <div class="stat"><dt>Agio (Gebühr)</dt><dd id="bspAgio">–</dd></div>
+            <div class="stat"><dt>Zinskosten</dt><dd id="bspKosten">–</dd></div>
+            <div class="stat"><dt>Gesamtkosten</dt><dd id="bspGesamt">–</dd></div>
+          </dl>
+        </div>
+      </div>
+
+      <div class="cCard mkt" id="cardMkt">
+        <div class="cHead">
+          <span class="name">Marktzins (Bank)</span>
+          <input class="zinsInput" id="mktZinsInput" value="3,80">
+        </div>
+        <div class="cBody">
+          <div class="mktSlider">
+            <input type="range" id="mktSlider" min="1" max="10" step="0.05" value="3.80">
+          </div>
+          <dl>
+            <div class="stat"><dt>Monatliche Rate</dt><dd id="mktRate">–</dd></div>
+            <div class="stat"><dt>Laufzeit</dt><dd id="mktLauf">–</dd></div>
+            <div class="stat"><dt>Zinskosten</dt><dd id="mktKosten">–</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+
+    <!-- ERSPARNIS -->
+    <div class="savings">
+      <div class="val" id="savingsVal">0 €</div>
+      <div class="lbl" id="savingsLbl">sparen Sie mit dem Bausparmodell</div>
+      <div class="sub" id="savingsSub">–</div>
+    </div>
+
+    <!-- ZINSSICHERHEIT -->
+    <div class="lockBox">
+      <svg viewBox="0 0 24 24"><path d="M12 1C8.7 1 6 3.7 6 7v3H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7c0-3.3-2.7-6-6-6zm-4 9V7a4 4 0 1 1 8 0v3H8zm4 5.1a2 2 0 1 1 0 3.8 2 2 0 0 1 0-3.8z"/></svg>
+      <p><b>Ihr Vorteil: Zinssicherheit.</b> Der Bauspar-Zinssatz steht heute schon fest – egal, wie sich der Markt entwickelt. So wissen Sie von Anfang an, was Sie zahlen. Kein Zinsänderungsrisiko bei der Anschlussfinanzierung.</p>
+    </div>
+
+    <!-- HISTORISCHE ZINSEN -->
+    <div class="histBlock">
+      <h3>Marktzinsen im Rückblick</h3>
+      <p class="lead">Bauzinsen für 10 Jahre Zinsbindung, Jahresdurchschnitte. Quellen: FMH-Finanzberatung, Interhyp, Bundesbank.</p>
+      <div class="histWrap"><canvas id="histChart"></canvas></div>
+      <p class="histNote">
+        Die historisch niedrigen Zinsen von 2015–2021 waren eine Ausnahmephase. Der langfristige Durchschnitt liegt bei rund 5,5 %.
+        Der feste Bausparzins schützt Sie unabhängig davon, wohin sich der Markt bewegt.
+      </p>
+    </div>
+
+  </div>
 </div>
 
-<div class="topSplit">
-
-<div class="leftSide">
-<div class="labelBig">Finanzierungsbedarf</div>
-<input id="darlehen" class="value" value="300000">
-</div>
-
-<div class="rightSide">
-
-<div class="controlRow">
-<div class="switch">
-<button id="btnRate" class="active">Rate</button>
-<button id="btnTilg">Tilgung</button>
-</div>
-<input id="inputValue" class="value">
-</div>
-
-<input type="range" id="slider">
-
-</div>
-</div>
-
-<div class="divider"></div>
-
-<div class="cards">
-
-<div class="card green" id="card0">
-<div class="cardHead">
-<span>Bausparzins</span>
-<span id="z1Val" class="zinsBox"></span>
-</div>
-
-<div class="cardBody">
-<div class="zinsButtons">
-<button onclick="setZins1(0.45,this)">K 0,45</button>
-<button onclick="setZins1(1.95,this)">K 1,95</button>
-<button onclick="setZins1(1.25,this)">P 1,25</button>
-<button onclick="setZins1(2.0,this)">P 2,00</button>
-</div>
-
-<div class="rowLine"><span>Rate</span><b class="r0"></b></div>
-<div class="rowLine"><span>Laufzeit</span><b class="l0"></b></div>
-<div class="rowLine"><span>Agio</span><b id="agio1"></b></div>
-<div class="rowLine"><span>Zinskosten</span><b class="k0"></b></div>
-<div class="rowLine"><span>Gesamtkosten</span><b id="total1"></b></div>
-</div>
-</div>
-
-<div class="card grey" id="card1">
-<div class="cardHead">
-<span>Vergleichszins</span>
-<input id="zins2" class="value" style="width:80px;">
-</div>
-
-<div class="cardBody">
-<input type="range" id="slider2" min="3" max="10" step="0.01">
-<div class="rowLine"><span>Rate</span><b class="r1"></b></div>
-<div class="rowLine"><span>Laufzeit</span><b class="l1"></b></div>
-<div class="rowLine"><span>Zinskosten</span><b class="k1"></b></div>
-</div>
-</div>
-
-</div>
-
-<div class="summary">
-<div>
-<div>Kostendifferenz</div>
-<div class="big" id="diff"></div>
-</div>
-<div>
-<div>Monatlich</div>
-<div class="big" id="monatDiff"></div>
-</div>
-</div>
-
-<div id="argument"></div>
-</div>
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-let mode="rate";
-let z1=0.45;
-let z2=3;
-let fixedRatePercent=null;
+const BRAND='#ff4d0d',GREEN='#4e9070',GREY='#9aa0a6';
+const $=id=>document.getElementById(id);
+const euro=x=>Math.round(x).toLocaleString('de-DE')+' €';
+const num=v=>parseFloat(String(v).replace(/\./g,'').replace(',','.').replace(/[^\d.\-]/g,''))||0;
+const komma=n=>String(n).replace('.',',');
 
-function euro(x){return Math.round(x).toLocaleString("de-DE")+" €";}
+/* --- State --- */
+let bspZins=0.45, bspAgio=0.02, fixedPromille=10, mode='rate';
 
-function num(v){
- return parseFloat(String(v).replace(/\./g,"").replace(",",".").replace(/[^\d.]/g,""))||0;
-}
+/* --- Tarif-Buttons --- */
+document.querySelectorAll('.tbtn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.tbtn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    bspZins=parseFloat(b.dataset.z);
+    bspAgio=parseFloat(b.dataset.agio);
+    fixedPromille=b.dataset.fixrate?parseFloat(b.dataset.fixrate):0;
 
-btnRate.onclick=()=>{mode="rate";btnRate.classList.add("active");btnTilg.classList.remove("active");setup();update();}
-btnTilg.onclick=()=>{mode="tilgung";btnTilg.classList.add("active");btnRate.classList.remove("active");setup();update();}
+    /* Tarif-Info aktualisieren */
+    const name=b.textContent.trim();
+    const parts=[name];
+    if(fixedPromille) parts.push('feste Rate '+komma(fixedPromille)+' ‰ der Bausparsumme');
+    if(bspAgio>0) parts.push('Agio '+(bspAgio*100).toFixed(0)+' %');
+    else parts.push('kein Agio');
+    $('tarifInfo').innerHTML='<b>'+parts[0]+'</b> – '+parts.slice(1).join(' · ');
 
-function setZins1(val,btn){
- z1=val;
- if(val===0.45){fixedRatePercent=1;}
- else if(val===1.95){fixedRatePercent=0.35;}
- else{fixedRatePercent=null;}
- document.querySelectorAll(".zinsButtons button").forEach(b=>b.classList.remove("active"));
- btn.classList.add("active");
- update();
-}
-
-function setup(){
- if(mode==="rate"){slider.min=40;slider.max=4000;slider.step=10;}
- else{slider.min=0;slider.max=15;slider.step=0.01;}
-}
-
-function calc(d,rate,z){
- let i=z/100/12,rest=d,m=0,sum=0;
- while(rest>0&&m<600){
-  let zins=rest*i,tilg=rate-zins;
-  if(rest<=tilg)tilg=rest;
-  rest-=tilg;
-  sum+=zins;
-  m++;
- }
- return {l:m/12,k:sum};
-}
-
-function update(){
- let d=num(darlehen.value);
- darlehen.value=d.toLocaleString("de-DE");
- let input=parseFloat(slider.value)||0;
-
- let rateValue;
- if(fixedRatePercent!==null){rateValue=d*fixedRatePercent/100;}
- else{rateValue=mode==="rate"?input:d*(z1+input)/100/12;}
-
- inputValue.value=mode==="rate"?euro(rateValue):input.toFixed(2)+" %";
-
- z2=parseFloat(slider2.value)||0;
- zins2.value=z2.toFixed(2)+" %";
- z1Val.innerText=z1.toFixed(2)+" %";
-
- let agio=0;
- if(z1===0.45) agio=d*0.02;
- if(z1===1.95) agio=d*0.01;
- agio1.innerText=euro(agio);
-
- let res=[];
- [z1,z2].forEach((z,i)=>{
-  let rate = (i===0)?rateValue:(mode==="rate"?parseFloat(slider.value):d*(z+input)/100/12);
-  let c=calc(d,rate,z);
-  document.querySelector(".r"+i).innerText=euro(rate);
-  document.querySelector(".l"+i).innerText=c.l.toFixed(1)+" Jahre";
-  document.querySelector(".k"+i).innerText=euro(c.k);
-  res.push(c);
- });
-
- let vd=res[0].k+agio;
- let zk=res[1].k;
-
- total1.innerText=euro(vd);
-
- let diffVal=zk-vd;
- diff.innerText=euro(diffVal);
-
- let monate=res[0].l*12;
- monatDiff.innerText=euro(diffVal/monate)+" mtl.";
-
- card0.classList.remove("good","bad");
- card1.classList.remove("good","bad");
-
- if(vd<zk){
-  argument.innerText="Mit dem Bausparmodell zahlen Sie rund "+euro(diffVal)+" weniger.";
-  card0.classList.add("good");
-  card1.classList.add("bad");
- }else{
-  argument.innerText="Der Vergleichszins ist aktuell günstiger.";
-  card1.classList.add("good");
-  card0.classList.add("bad");
- }
-}
-
-slider.oninput=update;
-slider2.oninput=update;
-inputValue.onblur=()=>{let v=num(inputValue.value); if(v){slider.value=v;update();}};
-zins2.onblur=()=>{let v=num(zins2.value); if(v){slider2.value=v;update();}};
-darlehen.onblur=()=>update();
-
-document.querySelectorAll("input").forEach(i=>{
- i.addEventListener("keydown",e=>{if(e.key==="Enter") i.blur();});
- i.addEventListener("focus",()=>i.select());
+    /* Rate-Steuerung: bei K-Tarifen fest, bei P frei */
+    if(fixedPromille){
+      $('rateLabel').textContent='Monatliche Rate (fest durch Tarif)';
+      $('modeBtns').style.display='none';
+      $('slider').disabled=true;
+      $('slider').style.opacity='.4';
+    }else{
+      $('rateLabel').textContent='Monatliche Rate einstellen';
+      $('modeBtns').style.display='flex';
+      $('slider').disabled=false;
+      $('slider').style.opacity='1';
+    }
+    update();
+  });
 });
 
-setup();
-setZins1(0.45, document.querySelector(".zinsButtons button"));
-slider2.value=3;
+/* --- Mode (Rate/Tilgung) --- */
+document.querySelectorAll('.modeBtn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.modeBtn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    mode=b.dataset.mode;
+    if(mode==='rate'){$('slider').min=40;$('slider').max=4000;$('slider').step=10;$('slider').value=1500;}
+    else{$('slider').min=0;$('slider').max=15;$('slider').step=0.01;$('slider').value=2;}
+    update();
+  });
+});
+
+/* --- Annuitätenrechnung --- */
+function calc(d,rate,z){
+  if(rate<=0) return {l:0,k:0};
+  let i=z/100/12,rest=d,m=0,sum=0;
+  while(rest>0.01&&m<600){
+    let zins=rest*i,tilg=rate-zins;
+    if(tilg<=0) return {l:50,k:sum+rest*i*600}; // Rate reicht nie
+    if(rest<=tilg) tilg=rest;
+    rest-=tilg; sum+=zins; m++;
+  }
+  return {l:m/12,k:sum};
+}
+
+/* --- Update --- */
+function update(){
+  const d=num($('darlehen').value);
+  $('darlehen').value=d.toLocaleString('de-DE');
+
+  /* BSP-Rate bestimmen */
+  let bspRate;
+  if(fixedPromille){
+    bspRate=d*fixedPromille/1000;
+    $('sliderVal').textContent=euro(bspRate)+' /Monat';
+    $('slider').value=bspRate;
+  }else{
+    const sv=parseFloat($('slider').value)||0;
+    bspRate=mode==='rate'?sv:d*(bspZins+sv)/100/12;
+    $('sliderVal').textContent=mode==='rate'?euro(bspRate)+' /Monat':komma(sv.toFixed(2))+' % Tilgung';
+  }
+
+  /* BSP-Ergebnis */
+  const agioVal=d*bspAgio;
+  const bsp=calc(d,bspRate,bspZins);
+  const bspTotal=bsp.k+agioVal;
+
+  $('bspZins').textContent=komma(bspZins.toFixed(2))+' %';
+  $('bspRate').textContent=euro(bspRate);
+  $('bspLauf').textContent=bsp.l.toFixed(1)+' Jahre';
+  $('bspAgio').textContent=agioVal>0?euro(agioVal):'–';
+  $('bspKosten').textContent=euro(bsp.k);
+  $('bspGesamt').textContent=euro(bspTotal);
+
+  /* Markt-Ergebnis (gleiche Rate wie BSP) */
+  const mktZ=parseFloat($('mktSlider').value)||3.8;
+  $('mktZinsInput').value=komma(mktZ.toFixed(2));
+  const mkt=calc(d,bspRate,mktZ);
+
+  $('mktRate').textContent=euro(bspRate);
+  $('mktLauf').textContent=mkt.l>=50?'tilgt nie':mkt.l.toFixed(1)+' Jahre';
+  $('mktKosten').textContent=euro(mkt.k);
+
+  /* Ersparnis */
+  const diff=mkt.k-bspTotal;
+  if(diff>0){
+    $('savingsVal').textContent=euro(diff);
+    $('savingsLbl').textContent='sparen Sie mit dem Bausparmodell';
+    $('savingsSub').textContent='bei gleicher Monatsrate von '+euro(bspRate);
+    $('cardBsp').classList.add('winner');$('cardMkt').classList.remove('winner');
+  }else{
+    $('savingsVal').textContent=euro(Math.abs(diff));
+    $('savingsLbl').textContent='günstiger aktuell der Marktzins';
+    $('savingsSub').textContent='aber ohne Zinssicherheit für die Zukunft';
+    $('cardMkt').classList.add('winner');$('cardBsp').classList.remove('winner');
+  }
+}
+
+/* Events */
+$('slider').addEventListener('input',update);
+$('mktSlider').addEventListener('input',update);
+$('mktZinsInput').addEventListener('blur',()=>{const v=num($('mktZinsInput').value);if(v){$('mktSlider').value=v;update();}});
+$('darlehen').addEventListener('blur',update);
+document.querySelectorAll('input').forEach(i=>{
+  i.addEventListener('keydown',e=>{if(e.key==='Enter') i.blur();});
+  i.addEventListener('focus',()=>{if(i.type!=='range') i.select();});
+});
+
+/* --- Historischer Chart --- */
+const HIST = {
+  labels:[2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026],
+  data: [3.9, 2.9, 2.7, 2.2, 1.6, 1.3, 1.5, 1.5, 1.0, 0.8, 0.9, 3.0, 3.9, 3.5, 3.6, 3.8]
+};
+
+new Chart($('histChart').getContext('2d'),{
+  type:'line',
+  data:{
+    labels:HIST.labels,
+    datasets:[{
+      label:'Bauzins 10 J. fest',
+      data:HIST.data,
+      borderColor:GREY,
+      backgroundColor:'rgba(154,160,166,.12)',
+      borderWidth:2.5,
+      fill:true,
+      tension:.35,
+      pointRadius:3,
+      pointBackgroundColor:HIST.data.map(v=>v<=1.5?'#e08600':'#9aa0a6'),
+      pointBorderColor:'#fff',
+      pointBorderWidth:1.5
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    interaction:{mode:'index',intersect:false},
+    plugins:{
+      legend:{display:false},
+      tooltip:{
+        backgroundColor:'#20232a',padding:10,cornerRadius:8,titleFont:{family:'Inter'},bodyFont:{family:'Inter'},
+        callbacks:{label:c=>c.parsed.y.toFixed(2)+' % p. a.'}
+      },
+      annotation: undefined
+    },
+    scales:{
+      x:{grid:{display:false},ticks:{color:'#6b7280',font:{family:'Inter',size:12}}},
+      y:{
+        min:0, max:5,
+        grid:{color:'#eef0f3'},border:{display:false},
+        ticks:{color:'#6b7280',font:{family:'Inter'},callback:v=>v.toFixed(1)+' %'}
+      }
+    }
+  }
+});
+
 update();
+</script>
+
+<!-- === Kundendaten-Übernahme aus dem Index =====================================
+     Liest die im Index eingegebenen Kundendaten aus dem Browser-Speicher
+     (localStorage) und traegt sie in die passenden Felder dieses Tools ein.
+     Es wird KEINE Datei angelegt – die Daten liegen nur in diesem Browser
+     und werden ueber den Reset-Button im Index geloescht.
+     ============================================================================ -->
+<script>
+(function(){
+  var k;
+  try { k = JSON.parse(localStorage.getItem('beratung_kunde')) || {}; }
+  catch(e){ return; }
+  if(!k) return;
+
+  var voll = [k.vorname, k.nachname].filter(Boolean).join(' ').trim();
+
+  // Geburtsdatum -> Feld #dob (z. B. 2-Welten, Rendite-Vergleich)
+  var dob = document.getElementById('dob');
+  if(dob && k.geburtsdatum && !dob.value){
+    dob.value = k.geburtsdatum;
+    dob.dispatchEvent(new Event('change', {bubbles:true}));
+  }
+
+  // Voller Name -> Feld #kundenName (z. B. Finanzierungs-Check)
+  var kn = document.getElementById('kundenName');
+  if(kn && voll && !kn.value){
+    kn.value = voll;
+    kn.dispatchEvent(new Event('input', {bubbles:true}));
+  }
+
+  // Getrennte Namensfelder -> p1Vorname / p1Nachname (Riester)
+  var pv = document.getElementById('p1Vorname');
+  var pn = document.getElementById('p1Nachname');
+  var touched = false;
+  if(pv && k.vorname && !pv.value){ pv.value = k.vorname; touched = true; }
+  if(pn && k.nachname && !pn.value){ pn.value = k.nachname; touched = true; }
+  if(touched && typeof calculate === 'function'){ calculate(); }
+})();
 </script>
 
 </body>

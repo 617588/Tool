@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dein Zukunftsplan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --brand:#ff4d0d; --brand-ink:#c73a08; --brand-tint:#ffece4;
+  --ink:#20232a; --muted:#6b7280; --line:#e4e7ec; --bg:#eceef1; --card:#fff;
+  --blue:#2f6f8f; --blue-ink:#1f4a60; --blue-tint:#e8f1f5;
+  --pos:#188038; --pos-tint:#e6f4ea; --green:#4e9070; --radius:16px;
+}
+*{box-sizing:border-box;}
+body{margin:0;padding:24px;background:var(--bg);color:var(--ink);
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:940px;margin:auto;}
+.header{position:relative;height:74px;background:var(--brand);color:#fff;border-radius:var(--radius) var(--radius) 0 0;
+  display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;}
+.backBtn{position:absolute;left:16px;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.2);text-decoration:none;transition:.2s;}
+.backBtn:hover{background:#fff;} .backBtn svg{width:18px;height:18px;fill:#fff;} .backBtn:hover svg{fill:var(--brand);}
+.topTools{position:absolute;right:14px;display:flex;gap:8px;}
+.iconBtn{height:36px;border:none;border-radius:20px;padding:0 14px;background:rgba(255,255,255,.2);color:#fff;
+  font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:6px;}
+.iconBtn:hover{background:#fff;color:var(--brand);} .iconBtn svg{width:15px;height:15px;fill:currentColor;}
+.sheet{background:var(--card);border-radius:0 0 var(--radius) var(--radius);box-shadow:0 12px 40px rgba(20,23,42,.08);}
+
+.stepper{display:flex;border-bottom:1px solid var(--line);}
+.stepBtn{flex:1;background:none;border:none;font-family:inherit;cursor:pointer;padding:16px 10px;font-size:14px;font-weight:600;
+  color:var(--muted);display:flex;align-items:center;justify-content:center;gap:9px;border-bottom:3px solid transparent;transition:.15s;}
+.stepBtn .n{width:24px;height:24px;border-radius:50%;background:var(--line);color:var(--muted);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex:none;transition:.15s;}
+.stepBtn.active{color:var(--ink);border-bottom-color:var(--brand);}
+.stepBtn.active .n{background:var(--brand);color:#fff;}
+.stepBtn.done .n{background:var(--green);color:#fff;}
+@media(max-width:640px){.stepBtn .lbl{display:none;}}
+
+.body{padding:26px;}
+.step{display:none;} .step.active{display:block;animation:fade .25s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+.stepTitle{font-size:20px;font-weight:800;margin:0 0 4px;letter-spacing:-.3px;}
+.stepLead{font-size:14px;color:var(--muted);margin:0 0 22px;}
+
+.block{border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:16px;}
+.block h3{font-size:14px;margin:0 0 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.block h3 .tag{font-size:11px;font-weight:600;color:var(--muted);}
+label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;}
+.ib{position:relative;}
+.ib input{width:100%;height:44px;border:1px solid var(--line);border-radius:10px;padding:0 34px 0 12px;
+  font-size:16px;font-weight:600;font-family:inherit;color:var(--ink);background:#fafbfc;text-align:right;font-variant-numeric:tabular-nums;}
+.ib input[type=date]{text-align:left;}
+.ib input:focus{outline:none;border:2px solid var(--brand);background:#fff;}
+.ib .sfx{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--muted);font-weight:600;pointer-events:none;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+
+/* Slider-Feld */
+.sliderField{margin-top:4px;}
+.sfHead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px;}
+.sfHead .lbl{font-size:12px;font-weight:600;color:var(--muted);}
+.sfHead .sfVal{font-variant-numeric:tabular-nums;font-weight:600;font-size:14px;color:var(--muted);}
+.sfHead .sfVal b{font-size:22px;color:var(--brand-ink);font-weight:800;}
+.slider{-webkit-appearance:none;appearance:none;width:100%;height:8px;border-radius:8px;background:var(--line);cursor:pointer;outline:none;}
+.slider::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:#fff;border:3px solid var(--brand);box-shadow:0 2px 6px rgba(0,0,0,.25);cursor:grab;margin-top:0;}
+.slider::-webkit-slider-thumb:active{cursor:grabbing;transform:scale(1.08);}
+.slider::-moz-range-thumb{width:22px;height:22px;border:3px solid var(--brand);border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.25);cursor:grab;}
+.slider:focus-visible{box-shadow:0 0 0 3px rgba(255,77,13,.25);}
+.sfEnds{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:8px;}
+.sfEnds .rec{color:var(--pos);font-weight:700;}
+.betragOut{text-align:center;margin-top:16px;padding-top:16px;border-top:1px solid var(--line);}
+.betragOut .v{font-size:34px;font-weight:800;color:var(--brand-ink);font-variant-numeric:tabular-nums;line-height:1;}
+.betragOut .l{font-size:12px;color:var(--muted);margin-top:4px;}
+
+.goalOpts{display:flex;gap:10px;flex-wrap:wrap;}
+.goalOpt{flex:1;min-width:140px;cursor:pointer;border:2px solid var(--line);border-radius:12px;padding:14px;text-align:center;font-weight:600;font-size:14px;transition:.15s;background:#fff;}
+.goalOpt:hover{border-color:var(--brand);}
+.goalOpt.active{border-color:var(--brand);background:var(--brand-tint);color:var(--brand-ink);}
+.goalOpt .g-emoji{font-size:22px;display:block;margin-bottom:6px;}
+.goalMsg{margin-top:14px;font-size:14px;font-weight:500;line-height:1.5;background:#f7f8fa;border-radius:10px;padding:12px 14px;}
+
+.presets{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.preset{flex:1;min-width:150px;border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 13px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:.15s;text-align:left;line-height:1.3;}
+.preset:hover{border-color:var(--brand);}
+.preset.active{border-color:var(--brand);background:var(--brand-tint);color:var(--brand-ink);}
+.preset small{display:block;font-weight:500;color:var(--muted);font-size:11px;margin-top:2px;}
+.preset.active small{color:var(--brand-ink);}
+.allocCards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;}
+.aCard{border-radius:12px;padding:14px 16px;color:#fff;}
+.aCard.eigen{background:var(--brand);} .aCard.etf{background:var(--blue);}
+.aCard .tg{font-size:12px;font-weight:600;opacity:.92;display:flex;align-items:center;gap:6px;}
+.aCard .amt{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums;margin:4px 0 2px;}
+.aCard .role{font-size:11.5px;opacity:.92;line-height:1.35;}
+
+.pills{display:flex;gap:6px;flex-wrap:wrap;}
+.pill{border:1px solid var(--line);background:#fff;padding:9px 16px;border-radius:20px;font-size:14px;font-weight:600;font-family:inherit;color:var(--ink);cursor:pointer;transition:.15s;}
+.pill:hover{border-color:var(--brand);} .pill.active{background:var(--brand);border-color:var(--brand);color:#fff;}
+
+.nav{display:flex;justify-content:space-between;gap:12px;padding:18px 26px;border-top:1px solid var(--line);}
+.btn{border:none;border-radius:26px;padding:12px 28px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:.15s;}
+.btn.primary{background:var(--brand);color:#fff;margin-left:auto;} .btn.primary:hover{background:var(--brand-ink);}
+.btn.ghost{background:#f1f2f4;color:var(--ink);} .btn.ghost:hover{background:#e6e8eb;}
+.btn.hidden{display:none;}
+
+/* Paket */
+.pkg{border:2px solid var(--brand);border-radius:18px;overflow:hidden;margin-bottom:16px;}
+.pkgHead{background:var(--brand);color:#fff;padding:14px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.pkgHead .t{font-size:16px;font-weight:800;} .pkgHead .tag{font-size:12px;font-weight:600;opacity:.92;margin-left:auto;}
+.pkgBig{padding:20px 20px 8px;text-align:center;}
+.pkgBigVal{font-size:clamp(32px,6vw,48px);font-weight:800;letter-spacing:-1px;color:var(--brand-ink);font-variant-numeric:tabular-nums;line-height:1;}
+.pkgBigSub{font-size:13px;color:var(--muted);margin-top:6px;}
+.blocks{display:grid;grid-template-columns:1fr 1fr;}
+.blk{padding:18px 20px;}
+.blk.eigen{border-top:3px solid var(--brand);}
+.blk.etf{border-top:3px solid var(--blue);border-left:1px solid var(--line);}
+.blkTag{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;margin-bottom:4px;}
+.blk.eigen .blkTag{color:var(--brand-ink);} .blk.etf .blkTag{color:var(--blue);}
+.dot{width:9px;height:9px;border-radius:50%;flex:none;} .blk.eigen .dot{background:var(--brand);} .blk.etf .dot{background:var(--blue);}
+.blkNum{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.5px;margin:2px 0;}
+.blkRows{margin:10px 0 0;display:flex;flex-direction:column;gap:7px;}
+.rw{display:flex;justify-content:space-between;font-size:12.5px;} .rw dt{color:var(--muted);} .rw dd{margin:0;font-weight:600;font-variant-numeric:tabular-nums;} .rw dd.pos{color:var(--pos);}
+.foerderPill{display:inline-block;margin-top:10px;background:var(--pos-tint);color:var(--pos);font-size:12px;font-weight:700;padding:5px 11px;border-radius:20px;}
+.blkNote{font-size:11px;color:var(--muted);line-height:1.45;margin-top:9px;}
+
+/* Klappfelder */
+details.d{border:1px solid var(--line);border-radius:14px;margin-bottom:12px;overflow:hidden;}
+details.d>summary{list-style:none;cursor:pointer;padding:16px 18px;font-weight:700;font-size:15px;display:flex;align-items:center;gap:10px;}
+details.d>summary::-webkit-details-marker{display:none;}
+details.d .chev{margin-left:auto;width:17px;height:17px;fill:var(--muted);transition:transform .2s;flex:none;}
+details.d[open] .chev{transform:rotate(180deg);}
+details.d .hint{font-size:12px;font-weight:500;color:var(--muted);margin-left:2px;}
+.dBody{padding:0 18px 18px;}
+details.d.hl{border-color:var(--brand);box-shadow:0 0 0 1px var(--brand);}
+details.d.hl>summary{color:var(--brand-ink);}
+
+.kv{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;padding:8px 0;border-bottom:1px dashed var(--line);}
+.kv:last-of-type{border-bottom:none;}
+.kv .k{color:var(--muted);} .kv .val{font-weight:800;font-variant-numeric:tabular-nums;}
+.kv .val.big{font-size:20px;color:var(--brand-ink);} .kv .val.blue{color:var(--blue-ink);}
+.miniFields{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;}
+.miniFields label{font-size:11px;margin-bottom:4px;}
+.miniFields input{width:100%;height:38px;border:1px solid var(--line);border-radius:9px;padding:0 24px 0 10px;font-family:inherit;font-weight:600;text-align:right;background:#fafbfc;font-variant-numeric:tabular-nums;}
+.miniFields .ib .sfx{font-size:12px;right:8px;}
+.chartWrap{position:relative;height:320px;}
+.note{font-size:12px;color:var(--muted);line-height:1.5;margin:10px 2px 0;}
+.disc{font-size:11px;color:var(--muted);line-height:1.55;margin:14px 2px 0;}
+.warn{font-size:12.5px;color:var(--blue-ink);background:var(--blue-tint);border-radius:9px;padding:9px 12px;margin-top:10px;}
+
+@media (max-width:640px){body{padding:14px;} .grid2,.blocks,.allocCards{grid-template-columns:1fr;} .blk.etf{border-left:none;border-top:3px solid var(--blue);}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
+@media print{@page{margin:14mm;} body{background:#fff;padding:0;}
+  .header,.backBtn,.topTools,.stepper,.nav,.slider,.presets,.pills,.goalOpts,.miniFields{display:none!important;}
+  .sheet{box-shadow:none;} .body{padding:0;}
+  .step{display:none!important;} .step[data-step="3"]{display:block!important;}
+  details.d{border-color:var(--line)!important;box-shadow:none!important;} details.d .chev{display:none;}
+  .pkg,details.d,.block{break-inside:avoid;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <a href="index.html" class="backBtn" aria-label="Zurück"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></a>
+    Dein Zukunftsplan
+    <div class="topTools"><button class="iconBtn" id="printBtn"><svg viewBox="0 0 24 24"><path d="M6 9V2h12v7h3v9h-4v3H7v-3H3V9h3zm2-5v5h8V4H8zm8 12H8v4h8v-4z"/></svg>PDF</button></div>
+  </div>
+
+  <div class="sheet">
+    <div class="stepper">
+      <button class="stepBtn active" data-goto="1"><span class="n">1</span><span class="lbl">Über dich</span></button>
+      <button class="stepBtn" data-goto="2"><span class="n">2</span><span class="lbl">Dein Beitrag</span></button>
+      <button class="stepBtn" data-goto="3"><span class="n">3</span><span class="lbl">Dein Plan</span></button>
+    </div>
+
+    <div class="body">
+
+      <!-- STEP 1 -->
+      <section class="step active" data-step="1">
+        <h2 class="stepTitle">Über dich</h2>
+        <p class="stepLead">Dein Ziel und dein Alter – daraus ergibt sich der Rest.</p>
+        <div class="block">
+          <h3>Wovon träumst du?</h3>
+          <div class="goalOpts" id="goalOpts">
+            <div class="goalOpt" data-goal="home"><span class="g-emoji">🏠</span>Eigenes Zuhause</div>
+            <div class="goalOpt" data-goal="wealth"><span class="g-emoji">📈</span>Kapital aufbauen</div>
+            <div class="goalOpt active" data-goal="open"><span class="g-emoji">⭐</span>Weiß ich noch nicht</div>
+          </div>
+          <div class="goalMsg" id="goalMsg"></div>
+        </div>
+        <div class="block">
+          <h3>Dein Geburtsdatum <span class="tag">für die Hochrechnung bis 67</span></h3>
+          <div style="max-width:220px"><div class="ib"><input id="dob" type="date"></div></div>
+          <div class="note" id="dobHint" style="margin-top:8px">Damit rechnen wir dein Kapital bis zum Renteneintritt (67) hoch.</div>
+        </div>
+      </section>
+
+      <!-- STEP 2 -->
+      <section class="step" data-step="2">
+        <h2 class="stepTitle">Dein Beitrag</h2>
+        <p class="stepLead">Wie viel legst du zurück – und wie teilen wir es klug auf?</p>
+
+        <div class="block">
+          <h3>Einkommen &amp; Vorsorge-Anteil</h3>
+          <label for="brutto">Brutto-Einkommen mtl.</label>
+          <div class="ib" style="max-width:220px"><input id="brutto" value="3.500"><span class="sfx">€</span></div>
+          <div class="sliderField" style="margin-top:18px">
+            <div class="sfHead"><span class="lbl">Davon für die Vorsorge</span><span class="sfVal"><b id="pctVal">10</b> %</span></div>
+            <input type="range" class="slider" id="pctSlider" min="5" max="20" step="1" value="10">
+            <div class="sfEnds"><span>5 %</span><span class="rec">empfohlen: 10 %</span><span>20 %</span></div>
+          </div>
+          <div class="betragOut"><div class="v" id="betragVal">350 €</div><div class="l">monatlich für deine Vorsorge</div></div>
+        </div>
+
+        <div class="block">
+          <h3>Aufteilung <span class="tag">Bausparen bis 150 € = volle Förderung</span></h3>
+          <div class="presets" id="presets">
+            <button class="preset" data-preset="best">Beste Förderquote<small>30 € Bausparen · 50 % · 180 €/Jahr geschenkt</small></button>
+            <button class="preset active" data-preset="max">Maximale Förderung<small>150 € Bausparen · 540 €/Jahr geschenkt</small></button>
+          </div>
+          <div class="sliderField">
+            <div class="sfHead"><span class="lbl">Davon ins Bausparen</span><span class="sfVal"><b id="allocVal">150</b> €</span></div>
+            <input type="range" class="slider" id="allocSlider" min="0" max="150" step="5" value="150">
+            <div class="sfEnds"><span>0 €</span><span id="allocMaxLbl">max. 150 €</span></div>
+          </div>
+          <div class="allocCards">
+            <div class="aCard eigen"><div class="tg">🏠 Bausparen</div><div class="amt" id="allocBauspar">150 €</div><div class="role">holt die volle staatliche Förderung + Recht auf günstiges Darlehen</div></div>
+            <div class="aCard etf"><div class="tg">📈 ETF</div><div class="amt" id="allocEtf">200 €</div><div class="role">dein Renditemotor – hier wächst dein Vermögen</div></div>
+          </div>
+        </div>
+
+        <div class="block">
+          <h3>Ansparphase</h3>
+          <div class="pills" id="pills">
+            <button class="pill" data-jahre="10">10 J.</button>
+            <button class="pill" data-jahre="15">15 J.</button>
+            <button class="pill active" data-jahre="20">20 J.</button>
+            <button class="pill" data-jahre="25">25 J.</button>
+            <button class="pill" data-jahre="30">30 J.</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 3 -->
+      <section class="step" data-step="3">
+        <h2 class="stepTitle">Dein Plan</h2>
+        <p class="stepLead">Zwei Bausteine, die zusammenspielen – für jeden Weg, den du wählst.</p>
+
+        <div class="pkg">
+          <div class="pkgHead"><span class="t">Dein Konzept</span><span class="tag">Bausparen &amp; ETF – zusammen gedacht</span></div>
+          <div class="pkgBig"><div class="pkgBigVal" id="pkgTotal">0 €</div>
+            <div class="pkgBigSub">mögliche Perspektive nach <span class="jahre">20</span> Jahren · beide Bausteine zusammen</div></div>
+          <div class="blocks">
+            <div class="blk eigen">
+              <div class="blkTag"><span class="dot"></span>Bausparen · Förderung &amp; Eigenkapital</div>
+              <div class="blkNum" id="eigenNum">0 €</div>
+              <dl class="blkRows">
+                <div class="rw"><dt>Eigene Einzahlung</dt><dd id="eigenEin">0 €</dd></div>
+                <div class="rw"><dt>Staatliche Förderung</dt><dd id="eigenFoerder" class="pos">0 €</dd></div>
+              </dl>
+              <span class="foerderPill" id="eigenQuote">30 % sofort obendrauf</span>
+            </div>
+            <div class="blk etf">
+              <div class="blkTag"><span class="dot"></span>ETF · dein Renditemotor</div>
+              <div class="blkNum" id="etfNum">0 €</div>
+              <dl class="blkRows">
+                <div class="rw"><dt>Eingezahlt</dt><dd id="etfEin">0 €</dd></div>
+                <div class="rw"><dt>Kurschance (8 % p. a.)</dt><dd id="etfErtrag" class="pos">0 €</dd></div>
+              </dl>
+              <div class="blkNote" style="margin-top:29px">Beispielannahme 8 % p. a. – schwankt, nicht garantiert.</div>
+            </div>
+          </div>
+        </div>
+
+        <details class="d" id="chartD">
+          <summary>📈 So wächst dein Vermögen <span class="hint">– Verlauf ansehen</span><svg class="chev" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></summary>
+          <div class="dBody">
+            <div class="chartWrap"><canvas id="chart"></canvas></div>
+            <p class="note">Die untere Fläche ist dein Bausparen (Eigenkapital + Förderung), oben stapelt sich dein ETF-Vermögen. Die obere Linie ist beides zusammen.</p>
+          </div>
+        </details>
+
+        <details class="d" id="homeD">
+          <summary>🔑 Dein Weg ins Eigenheim <span class="hint">– Eigenkapital &amp; Darlehen</span><svg class="chev" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></summary>
+          <div class="dBody">
+            <p class="note" style="margin-top:0">Dein angespartes Guthaben ist dein Eigenkapital – darauf gibt's ein zinsgünstiges Darlehen.</p>
+            <div class="kv"><span class="k">Eigenkapital (30 %)</span><span class="val" id="eqCap">0 €</span></div>
+            <div class="kv"><span class="k">Bauspardarlehen (<span id="loanRateLbl">2,00</span> %)</span><span class="val blue" id="loanAmt">0 €</span></div>
+            <div class="kv"><span class="k">Verfügbar für dein Zuhause</span><span class="val big" id="totalHome">0 €</span></div>
+            <div class="miniFields">
+              <div><label for="loanRate">gesicherter Zins</label><div class="ib"><input id="loanRate" value="2,00"><span class="sfx">%</span></div></div>
+              <div><label for="marketRate">Marktzins heute</label><div class="ib"><input id="marketRate" value="4,00"><span class="sfx">%</span></div></div>
+            </div>
+            <div class="note" id="loanSaveNote"></div>
+          </div>
+        </details>
+
+        <details class="d" id="wealthD">
+          <summary>🌍 Doch kein Eigenheim? <span class="hint">– Kapital bis 67 anlegen</span><svg class="chev" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></summary>
+          <div class="dBody">
+            <p class="note" style="margin-top:0">Dann legst du dein angespartes Kapital einmalig in einen ETF (8 %) bis zur Rente – förderneutral.</p>
+            <div class="kv"><span class="k">Kapital nach Ansparphase</span><span class="val" id="umStart">0 €</span></div>
+            <div class="kv"><span class="k">Jahre bis 67</span><span class="val" id="umYears">–</span></div>
+            <div class="kv"><span class="k">daraus mit 67</span><span class="val big" id="umResult">0 €</span></div>
+            <div class="warn" id="umWarn" style="display:none">Bitte gib dein Geburtsdatum in Schritt 1 an, dann rechnen wir bis 67.</div>
+            <div class="blkNote">Förderneutral nur ins geförderte Produkt (Riester/Altersvorsorgedepot, ggf. extra Vertrag). Auszahlung in ein freies Depot wäre förderschädlich; Kapital bleibt altersvorsorge-gebunden.</div>
+          </div>
+        </details>
+
+        <p class="disc" id="disc"></p>
+      </section>
+
+    </div>
+
+    <div class="nav">
+      <button class="btn ghost hidden" id="btnBack" onclick="go(-1)">Zurück</button>
+      <button class="btn primary" id="btnNext" onclick="go(1)">Weiter</button>
+    </div>
+  </div>
+</div>
+
+<script src="konditionen.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const BRAND='#ff4d0d', BLUE='#2f6f8f';
+const FILL_BRAND='rgba(255,77,13,.18)', FILL_BLUE='rgba(47,111,143,.16)';
+const ETF_RATE=0.08, GUTHABEN=0.0001, RETIRE=67, EK_QUOTE=0.30;
+const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+let schritt=1, goal='open', brutto=3500, pct=10, betrag=350, bauspar=150, allocMode='max', dauer=20, ageNow=null, chart=null;
+let lastA=[], lastB=[];
+
+const $=id=>document.getElementById(id);
+const euro=x=>Math.round(x).toLocaleString('de-DE')+' €';
+const num=v=>{const n=parseFloat(String(v).replace(/\./g,'').replace(',','.').replace(/[^\d.\-]/g,''));return isNaN(n)?0:n;};
+const dec2=x=>x.toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+function fillSlider(el){const mn=+el.min||0,mx=+el.max||100,v=+el.value;const p=mx>mn?(v-mn)/(mx-mn)*100:0;
+  el.style.background='linear-gradient(90deg,'+BRAND+' '+p+'%, var(--line) '+p+'%)';}
+
+function zulage(aB){return Math.min(aB,360)*0.5 + Math.max(0,Math.min(aB,1800)-360)*0.25;}
+function bausparSeries(mtl,years){const aB=mtl*12,z=zulage(aB);let g=0;const a=[0];for(let i=1;i<=years;i++){g=(g+aB+z)*(1+GUTHABEN);a.push(g);}return a;}
+function bausparLeg(mtl,years){const a=bausparSeries(mtl,years),aB=mtl*12,z=zulage(aB);return{arr:a,end:a[years],eingezahlt:aB*years,foerderung:z*years,annualB:aB,zJahr:z};}
+function etfSeries(mtl,years){let g=0;const a=[0];const s=mtl*12;for(let i=1;i<=years;i++){g=(g+s)*(1+ETF_RATE);a.push(g);}return a;}
+function etfLeg(mtl,years){const a=etfSeries(mtl,years);return{arr:a,end:a[years],eingezahlt:mtl*12*years,ertrag:a[years]-mtl*12*years};}
+
+const goalMsgs={
+  home:'🏠 Klare Sache: Für dieses Ziel legt der Staat bares Geld drauf – und du sicherst dir einen günstigen Darlehenszins fürs Eigenkapital. Der ETF baut nebenbei Vermögen auf.',
+  wealth:'📈 Stark: Dein ETF ist der Renditemotor, die Förderung nimmst du als Rentenbaustein mit. Willst du später doch kaufen, ist dein Eigenkapital schon da.',
+  open:'⭐ Genau dafür hältst du dir beides offen: Kaufst du, zieht die Förderung + das Darlehen. Baust du Kapital auf, wächst dein ETF – und die Förderung geht nie verloren.'
+};
+
+function ageFromDOB(str){if(!str)return null;const d=new Date(str);if(isNaN(d))return null;const t=new Date();let a=t.getFullYear()-d.getFullYear();const m=t.getMonth()-d.getMonth();if(m<0||(m===0&&t.getDate()<d.getDate()))a--;return(a>=0&&a<120)?a:null;}
+
+function animateNumber(el,to,fmt){const from=el.__v||0;if(reduceMotion||from===to){el.textContent=fmt(to);el.__v=to;return;}const t0=performance.now();(function f(t){const p=Math.min(1,(t-t0)/460),e=1-Math.pow(1-p,3);el.textContent=fmt(from+(to-from)*e);if(p<1)requestAnimationFrame(f);else el.__v=to;})(t0);}
+
+let markers=[];
+function roundRect(c,x,y,w,h,r){if(c.roundRect){c.beginPath();c.roundRect(x,y,w,h,r);return;}c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
+const markerPlugin={id:'m',afterDatasetsDraw(c){markers.forEach(m=>{const meta=c.getDatasetMeta(m.idx);if(!meta)return;const p=meta.data[meta.data.length-1];if(!p)return;const x=c.ctx;x.save();x.font='700 12px Inter';const tw=x.measureText(m.text).width,bw=tw+14;let bx=p.x+8;if(bx+bw>c.width-2)bx=p.x-8-bw;x.fillStyle=m.color;roundRect(x,bx,p.y-10,bw,20,6);x.fill();x.fillStyle='#fff';x.textAlign='left';x.textBaseline='middle';x.fillText(m.text,bx+7,p.y+1);x.restore();});}};
+
+function recalcBetrag(){betrag=Math.max(0,Math.round(brutto*pct/100));}
+function applyAlloc(){
+  const cap=Math.min(150,betrag);
+  if(allocMode==='best')bauspar=Math.min(30,betrag);
+  else if(allocMode==='max')bauspar=cap;
+  else bauspar=Math.min(bauspar,cap);
+  const sl=$('allocSlider'); sl.max=cap; sl.value=bauspar; fillSlider(sl);
+}
+
+function update(){
+  recalcBetrag(); applyAlloc();
+  const etfM=Math.max(0,betrag-bauspar);
+  $('betragVal').textContent=euro(betrag);
+  $('pctVal').textContent=pct;
+  $('allocVal').textContent=bauspar;
+  $('allocMaxLbl').textContent='max. '+Math.min(150,betrag)+' €';
+  $('allocBauspar').textContent=euro(bauspar);
+  $('allocEtf').textContent=euro(etfM);
+  fillSlider($('pctSlider'));
+  document.querySelectorAll('.preset').forEach(p=>p.classList.toggle('active',
+     (p.dataset.preset==='best'&&bauspar===Math.min(30,betrag))||(p.dataset.preset==='max'&&bauspar===Math.min(150,betrag))));
+
+  const bs=bausparLeg(bauspar,dauer), ef=etfLeg(etfM,dauer);
+  lastA=bs.arr; lastB=ef.arr;
+
+  animateNumber($('pkgTotal'),bs.end+ef.end,euro);
+  animateNumber($('eigenNum'),bs.end,euro);
+  $('eigenEin').textContent=euro(bs.eingezahlt);
+  $('eigenFoerder').textContent='+ '+euro(bs.foerderung);
+  $('eigenQuote').textContent=(bs.annualB>0?Math.round(bs.zJahr/bs.annualB*100):0)+' % sofort obendrauf';
+  animateNumber($('etfNum'),ef.end,euro);
+  $('etfEin').textContent=euro(ef.eingezahlt);
+  $('etfErtrag').textContent='+ '+euro(ef.ertrag);
+  document.querySelectorAll('.jahre').forEach(e=>e.textContent=dauer);
+
+  const eq=bs.end, bausparsumme=eq/EK_QUOTE, darlehen=bausparsumme-eq;
+  const lr=num($('loanRate').value)/100, mr=num($('marketRate').value)/100;
+  $('eqCap').textContent=euro(eq);
+  $('loanRateLbl').textContent=dec2(lr*100);
+  $('loanAmt').textContent=euro(darlehen);
+  $('totalHome').textContent=euro(bausparsumme);
+  $('loanSaveNote').innerHTML='Gegenüber '+dec2(mr*100)+' % Marktzins sparst du rund <b style="color:var(--pos)">'+euro(Math.max(0,(mr-lr)*darlehen))+'</b> Zinsen pro Jahr.';
+
+  if(ageNow!=null){
+    const yrs=Math.max(0,RETIRE-(ageNow+dauer));
+    $('umWarn').style.display='none';
+    $('umStart').textContent=euro(bs.end);
+    $('umYears').textContent=yrs+' J.';
+    $('umResult').textContent=euro(bs.end*Math.pow(1+ETF_RATE,yrs));
+  }else{
+    $('umWarn').style.display='block';
+    $('umStart').textContent=euro(bs.end);
+    $('umYears').textContent='–'; $('umResult').textContent='–';
+  }
+
+  $('homeD').classList.toggle('hl', goal==='home');
+  $('wealthD').classList.toggle('hl', goal==='wealth');
+
+  refreshChart();
+
+  $('disc').innerHTML='Unverbindliche Beispielrechnung, keine Anlageberatung. Förderung ab 2027: 50 % auf die ersten 360 €/Jahr, 25 % bis 1.800 €/Jahr (max. 540 € Grundzulage), zzgl. bis 300 €/Kind. Eigenkapital-/Darlehensrechnung vereinfacht (Guthaben = 30 % der Bausparsumme); die konkrete Zuteilung hängt vom Tarif ab. Die Eigenheim-Förderung setzt selbst genutztes Wohneigentum voraus; sonst läuft das Guthaben als nachgelagert besteuerte Rente oder wandert förderneutral in einen geförderten ETF. <b>Im Alter fällt auf die geförderten Beträge Einkommensteuer an.</b> Der ETF-Wert beruht auf angenommenen 8 % p. a. und ist nicht garantiert (Kursverluste möglich). Bausparen und ETF sind zwei eigenständige Produkte mit eigenen Kosten und Bedingungen.';
+}
+
+function refreshChart(){ if($('chartD').open) drawChart(lastA,lastB); }
+function drawChart(a,b){
+  const labels=Array.from({length:a.length},(_,i)=>i);
+  const total=a.map((v,i)=>v+(b[i]||0));
+  const ds=[
+    {label:'Bausparen (Eigenkapital + Förderung)',data:a,borderColor:BRAND,backgroundColor:FILL_BRAND,borderWidth:2.5,fill:'origin',tension:.25,pointRadius:0,order:2},
+    {label:'Gesamt (Bausparen + ETF)',data:total,borderColor:BLUE,backgroundColor:FILL_BLUE,borderWidth:3,fill:'-1',tension:.3,pointRadius:0,order:1}
+  ];
+  markers=[{idx:1,text:euro(total[total.length-1]),color:BLUE},{idx:0,text:euro(a[a.length-1]),color:BRAND}];
+  if(chart)chart.destroy();
+  chart=new Chart($('chart').getContext('2d'),{type:'line',data:{labels,datasets:ds},plugins:[markerPlugin],
+    options:{responsive:true,maintainAspectRatio:false,layout:{padding:{right:70}},interaction:{mode:'index',intersect:false},
+      animation:reduceMotion?false:{duration:600},
+      plugins:{legend:{position:'top',align:'start',labels:{usePointStyle:true,pointStyle:'line',boxWidth:24,padding:14,font:{family:'Inter',size:12,weight:'600'}}},
+        tooltip:{backgroundColor:'#20232a',padding:12,cornerRadius:8,callbacks:{title:i=>'Jahr '+i[0].label,label:c=>c.dataset.label+': '+euro(c.parsed.y)}}},
+      scales:{x:{grid:{display:false},ticks:{color:'#6b7280',font:{family:'Inter'}}},
+        y:{beginAtZero:true,grid:{color:'#eef0f3'},border:{display:false},ticks:{color:'#6b7280',font:{family:'Inter'},callback:v=>euro(v)}}}}});
+}
+
+function showStep(n){
+  schritt=n;
+  document.querySelectorAll('.step').forEach(s=>s.classList.toggle('active',+s.dataset.step===n));
+  document.querySelectorAll('.stepBtn').forEach(b=>{const t=+b.dataset.goto;b.classList.toggle('active',t===n);b.classList.toggle('done',t<n);});
+  $('btnBack').classList.toggle('hidden',n===1);
+  $('btnNext').textContent=n===3?'Als PDF speichern':'Weiter';
+  if(n===3)update();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function preparePrint(){document.querySelectorAll('details.d').forEach(d=>d.open=true);update();setTimeout(()=>window.print(),260);}
+function go(dir){ if(schritt===3&&dir>0){preparePrint();return;} showStep(Math.min(3,Math.max(1,schritt+dir))); }
+document.querySelectorAll('.stepBtn').forEach(b=>b.addEventListener('click',()=>showStep(+b.dataset.goto)));
+
+document.querySelectorAll('.goalOpt').forEach(o=>o.addEventListener('click',()=>{
+  document.querySelectorAll('.goalOpt').forEach(x=>x.classList.remove('active'));o.classList.add('active');
+  goal=o.dataset.goal;$('goalMsg').innerHTML=goalMsgs[goal];
+  $('homeD').classList.toggle('hl',goal==='home');$('wealthD').classList.toggle('hl',goal==='wealth');}));
+
+$('dob').addEventListener('change',()=>{ageNow=ageFromDOB($('dob').value);
+  $('dobHint').textContent=ageNow!=null?('Aktuell '+ageNow+' Jahre.'):'Bitte gültiges Datum wählen.';update();});
+
+function bindNum(id,cb){const el=$(id);el.addEventListener('input',cb);el.addEventListener('focus',()=>el.select());el.addEventListener('keydown',e=>{if(e.key==='Enter')el.blur();});}
+bindNum('brutto',()=>{brutto=Math.max(0,num($('brutto').value));update();});
+$('brutto').addEventListener('blur',()=>{$('brutto').value=num($('brutto').value).toLocaleString('de-DE');});
+$('pctSlider').addEventListener('input',()=>{pct=+$('pctSlider').value;update();});
+$('allocSlider').addEventListener('input',()=>{bauspar=+$('allocSlider').value;allocMode='custom';update();});
+document.querySelectorAll('.preset').forEach(p=>p.addEventListener('click',()=>{allocMode=p.dataset.preset;update();}));
+['loanRate','marketRate'].forEach(id=>bindNum(id,update));
+document.querySelectorAll('.pill').forEach(p=>p.addEventListener('click',()=>{
+  document.querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));p.classList.add('active');dauer=+p.dataset.jahre;update();}));
+
+$('chartD').addEventListener('toggle',()=>{if($('chartD').open)drawChart(lastA,lastB);});
+$('printBtn').addEventListener('click',()=>{showStep(3);setTimeout(preparePrint,180);});
+
+$('goalMsg').innerHTML=goalMsgs[goal];
+fillSlider($('pctSlider')); fillSlider($('allocSlider'));
+update();
+</script>
+
+<!-- === Kundendaten-Übernahme aus dem Index =====================================
+     Liest die im Index eingegebenen Kundendaten aus dem Browser-Speicher
+     (localStorage) und traegt sie in die passenden Felder dieses Tools ein.
+     Es wird KEINE Datei angelegt – die Daten liegen nur in diesem Browser
+     und werden ueber den Reset-Button im Index geloescht.
+     ============================================================================ -->
+<script>
+(function(){
+  var k;
+  try { k = JSON.parse(localStorage.getItem('beratung_kunde')) || {}; }
+  catch(e){ return; }
+  if(!k) return;
+
+  var voll = [k.vorname, k.nachname].filter(Boolean).join(' ').trim();
+
+  // Geburtsdatum -> Feld #dob (z. B. 2-Welten, Rendite-Vergleich)
+  var dob = document.getElementById('dob');
+  if(dob && k.geburtsdatum && !dob.value){
+    dob.value = k.geburtsdatum;
+    dob.dispatchEvent(new Event('change', {bubbles:true}));
+  }
+
+  // Voller Name -> Feld #kundenName (z. B. Finanzierungs-Check)
+  var kn = document.getElementById('kundenName');
+  if(kn && voll && !kn.value){
+    kn.value = voll;
+    kn.dispatchEvent(new Event('input', {bubbles:true}));
+  }
+
+  // Getrennte Namensfelder -> p1Vorname / p1Nachname (Riester)
+  var pv = document.getElementById('p1Vorname');
+  var pn = document.getElementById('p1Nachname');
+  var touched = false;
+  if(pv && k.vorname && !pv.value){ pv.value = k.vorname; touched = true; }
+  if(pn && k.nachname && !pn.value){ pn.value = k.nachname; touched = true; }
+  if(touched && typeof calculate === 'function'){ calculate(); }
+})();
+</script>
+
+</body>
+</html>

@@ -3,549 +3,1143 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Riester / Wohnriester – Förderrechner alt vs. neu</title>
+<title>Riester / Wohnriester – Eigenheimrente</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
-  :root {
-    --gruen: #ff4d0d;
-    --gruen-dunkel: #ff4d0d;
-    --gruen-hell: #fff1eb;
-    --neu-kachel: #bfe8cf;
-    --grau: #f4f5f6;
-    --grau-mittel: #d8dbde;
-    --text: #1c2521;
-    --text-grau: #5a6560;
-    --rot: #c0392b;
-    --gold: #b8860b;
+:root{
+  --brand:#ff4d0d; --brand-ink:#c73a08; --brand-tint:#ffece4;
+  --ink:#20232a; --muted:#6b7280; --line:#e4e7ec; --bg:#eceef1; --card:#fff;
+  --blue:#2f6f8f; --blue-ink:#1f4a60; --blue-tint:#e8f1f5;
+  --pos:#188038; --pos-tint:#e6f4ea; --grey:#9aa0a6; --radius:16px;
+  /* Farben Tortendiagramm */
+  --pie-eigen:#20232a; --pie-riester:#9aa0a6; --pie-foerder:#188038; --pie-darlehen:#ff4d0d;
+}
+*{box-sizing:border-box;}
+body{margin:0;padding:24px;background:var(--bg);color:var(--ink);
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:1180px;margin:auto;}
+.hidden{display:none !important;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+.animate-fadeIn{animation:fadeIn .22s ease;}
 
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-    background: #eceef0;
-    color: var(--text);
-    line-height: 1.5;
-    padding: 20px;
-  }
-  .wrap { max-width: 1180px; margin: 0 auto; }
-  header {
-    background: var(--gruen);
-    color: #fff;
-    padding: 22px 30px;
-    border-radius: 10px 10px 0 0;
-    display: flex; justify-content: space-between; align-items: center;
-  }
-  header h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.3px; }
-  header .sub { font-size: 13px; opacity: 0.9; margin-top: 3px; }
-  .badge { background: rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+/* Header */
+.header{position:relative;height:74px;background:var(--brand);color:#fff;border-radius:var(--radius) var(--radius) 0 0;
+  display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;letter-spacing:.2px;}
+.backBtn{position:absolute;left:16px;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.2);text-decoration:none;transition:.2s;}
+.backBtn:hover{background:#fff;} .backBtn svg{width:18px;height:18px;fill:#fff;} .backBtn:hover svg{fill:var(--brand);}
+.topTools{position:absolute;right:14px;display:flex;gap:8px;}
+.iconBtn{height:36px;border:none;border-radius:20px;padding:0 14px;background:rgba(255,255,255,.2);color:#fff;
+  font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:6px;}
+.iconBtn:hover{background:#fff;color:var(--brand);}
+.sheet{background:var(--card);border-radius:0 0 var(--radius) var(--radius);box-shadow:0 12px 40px rgba(20,23,42,.08);overflow:hidden;}
 
-  .panel { background: #fff; padding: 26px 30px; }
-  .panel + .panel { border-top: 1px solid var(--grau-mittel); }
-  .panel:last-child { border-radius: 0 0 10px 10px; }
+/* zweispaltiges Layout */
+.rgrid{display:grid;grid-template-columns:1fr 1fr;}
+.col-in{padding:22px;background:var(--bg);border-right:1px solid var(--line);}
+.col-out{padding:22px;background:var(--card);display:flex;flex-direction:column;justify-content:space-between;}
+@media(max-width:900px){.rgrid{grid-template-columns:1fr;} .col-in{border-right:none;border-bottom:1px solid var(--line);}}
 
-  .section-title { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-grau); font-weight: 700; margin-bottom: 18px; }
+.col-in h2{font-size:19px;font-weight:800;letter-spacing:-.3px;margin:0 0 3px;}
+.col-in .lead{font-size:12.5px;color:var(--muted);margin:0 0 16px;}
 
-  /* Eingabe-Grid */
-  .inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 26px 40px; }
-  .field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
-  .field .val { color: var(--gruen-dunkel); font-weight: 700; }
-  input[type=range] { width: 100%; accent-color: var(--gruen); height: 6px; cursor: pointer; }
-  .range-row { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-grau); margin-top: 3px; }
+/* Karten-Bloecke */
+.block{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px 16px;margin-bottom:14px;}
+.block .btag{font-size:11px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;display:block;margin-bottom:11px;}
+.btag.k1{color:var(--brand-ink);} .btag.k2{color:var(--blue-ink);}
 
-  .kids { display: flex; gap: 8px; flex-wrap: wrap; }
-  .kids button {
-    flex: 1; min-width: 44px; padding: 10px 0; border: 1.5px solid var(--grau-mittel);
-    background: #fff; border-radius: 7px; font-size: 15px; font-weight: 600; cursor: pointer;
-    transition: all .15s;
-  }
-  .kids button.active { background: var(--gruen); color: #fff; border-color: var(--gruen); }
-  .kids button:hover:not(.active) { border-color: var(--gruen); }
+/* Formularelemente */
+label.fl{display:block;font-size:10.5px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+.rin,select.rin{width:100%;height:40px;border:1px solid var(--line);border-radius:10px;padding:0 11px;
+  font-family:inherit;font-size:13.5px;font-weight:600;color:var(--ink);background:#fafbfc;}
+.rin:focus,select.rin:focus{outline:none;border:2px solid var(--brand);background:#fff;}
+.block.pk2 .rin:focus,.block.pk2 select.rin:focus{border-color:var(--blue);}
+select.rin{cursor:pointer;-webkit-appearance:none;appearance:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 6l4 4 4-4'/></svg>");
+  background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;}
+.divH{border-top:1px solid var(--line);margin:13px 0;}
+.divH.dash{border-top:1px dashed var(--line);}
 
-  .income-input { width: 100%; padding: 11px 12px; border: 1.5px solid var(--grau-mittel); border-radius: 7px; font-size: 15px; font-weight: 600; }
-  .income-input:focus { outline: none; border-color: var(--gruen); }
+/* Checkbox-Zeile */
+.chk{display:flex;align-items:center;gap:9px;}
+.chk input[type=checkbox]{width:17px;height:17px;accent-color:var(--brand);cursor:pointer;flex:none;}
+.block.pk2 .chk input[type=checkbox]{accent-color:var(--blue);}
+.chk label{font-size:12.5px;font-weight:600;color:var(--ink);cursor:pointer;}
 
-  .toggle-row { display: flex; align-items: center; gap: 10px; margin-top: 4px; font-size: 13px; }
-  .switch { position: relative; width: 44px; height: 24px; }
-  .switch input { opacity: 0; width: 0; height: 0; }
-  .slider-sw { position: absolute; cursor: pointer; inset: 0; background: var(--grau-mittel); border-radius: 24px; transition: .2s; }
-  .slider-sw:before { content: ""; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: .2s; }
-  .switch input:checked + .slider-sw { background: var(--gruen); }
-  .switch input:checked + .slider-sw:before { transform: translateX(20px); }
+/* Betrag-Inline (Riesteruebertrag) */
+.inlineAmt{display:flex;align-items:center;gap:6px;background:#fafbfc;border:1px solid var(--line);border-radius:10px;padding:7px 10px;margin-top:9px;}
+.inlineAmt .lbl{font-size:10.5px;font-weight:700;color:var(--muted);white-space:nowrap;}
+.inlineAmt input{flex:1;border:none;background:transparent;text-align:right;font-family:inherit;font-weight:700;font-size:13.5px;color:var(--ink);}
+.inlineAmt input:focus{outline:none;} .inlineAmt .eur{font-weight:700;font-size:13px;}
 
-  .kinder-detail { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; padding: 14px; background: var(--grau); border-radius: 8px; }
-  .kinder-detail.hidden { display: none; }
-  .kinder-detail .field label { font-size: 12px; }
-  .mini-input { width: 60px; padding: 7px; border: 1.5px solid var(--grau-mittel); border-radius: 6px; text-align: center; font-weight: 600; }
+/* Eigenbeitrag + Slider */
+.amtHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;}
+.amtHead .t{font-size:12.5px;font-weight:700;color:var(--ink);}
+.amtHead .box{display:flex;align-items:center;gap:6px;}
+.amtHead .box input{width:66px;height:34px;border:1px solid var(--line);border-radius:9px;text-align:right;
+  font-family:inherit;font-weight:700;font-size:13px;padding:0 8px;background:#fafbfc;}
+.amtHead .box input:focus{outline:none;border:2px solid var(--brand);}
+.block.pk2 .amtHead .box input:focus{border-color:var(--blue);}
+.slider{-webkit-appearance:none;appearance:none;width:100%;height:7px;border-radius:8px;background:var(--line);cursor:pointer;outline:none;}
+.slider::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;border:3px solid var(--brand);box-shadow:0 2px 6px rgba(0,0,0,.25);cursor:grab;}
+.slider::-moz-range-thumb{width:20px;height:20px;border:3px solid var(--brand);border-radius:50%;background:#fff;cursor:grab;}
+.block.pk2 .slider::-webkit-slider-thumb{border-color:var(--blue);}
+.block.pk2 .slider::-moz-range-thumb{border-color:var(--blue);}
+.slider.big{height:8px;}
+.sEnds{display:flex;justify-content:space-between;font-size:10px;font-weight:600;color:var(--muted);margin-top:6px;}
 
-  /* Vergleich */
-  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
-  .card { border: 1px solid var(--grau-mittel); border-radius: 10px; overflow: hidden; }
-  .card.alt .card-head { background: #d8dbde; }
-  .card.neu .card-head { background: var(--neu-kachel); }
-  .card-head { color: #000; padding: 14px 20px; }
-  .card-head h3 { font-size: 17px; font-weight: 600; }
-  .card-head .tag { font-size: 11px; opacity: 0.9; }
-  .card-body { padding: 20px; }
-  .row { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px dashed #e4e7ea; font-size: 14px; }
-  .row:last-child { border-bottom: none; }
-  .row .lbl { color: var(--text-grau); }
-  .row .num { font-weight: 600; }
-  .row.total { margin-top: 6px; padding-top: 13px; border-top: 2px solid var(--text); border-bottom: none; font-size: 16px; }
-  .row.total .num { color: var(--gruen-dunkel); font-size: 20px; }
-  .quote { background: var(--gruen-hell); border-radius: 8px; padding: 12px 14px; margin-top: 14px; font-size: 13px; }
-  .quote .q-num { font-size: 24px; font-weight: 700; color: var(--gruen-dunkel); }
-  .quote .q-lbl { font-size: 11px; color: var(--text-grau); text-transform: uppercase; letter-spacing: 0.5px; }
-  .warn { color: var(--rot); font-size: 12px; margin-top: 8px; }
+/* Verheiratet-Umschalter */
+.marryBar{display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;border:1px solid var(--line);
+  border-radius:14px;padding:12px;margin-bottom:14px;}
+.marryBar label{font-size:12.5px;font-weight:700;cursor:pointer;}
+.marryBar input{width:17px;height:17px;accent-color:var(--brand);cursor:pointer;}
 
-  /* Differenz-Banner */
-  .diff-banner { background: var(--gruen-dunkel); color: #fff; padding: 18px 24px; border-radius: 10px; margin-top: 22px; display: flex; justify-content: space-around; text-align: center; }
-  .diff-banner .item .big { font-size: 26px; font-weight: 700; }
-  .diff-banner .item .lbl { font-size: 12px; opacity: 0.85; }
+/* Jahre-Block */
+.yearsHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;}
+.yearsHead .t{font-size:11px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--ink);}
+.yearsHead .v{font-size:15px;font-weight:800;color:var(--brand-ink);}
 
-  /* Bausparsumme */
-  .bausparsumme { margin-top: 22px; }
-  .bsp-bestand { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
-  .bsp-field label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-grau); display: block; margin-bottom: 8px; }
-  .bsp-field .bsp-input { width: 100%; }
-  .bsp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
-  .bsp-card { background: var(--grau); border-radius: 9px; padding: 18px 20px; }
-  .bsp-card.neu { background: var(--gruen-hell); border: 1.5px solid var(--gruen); }
-  .bsp-card label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-grau); display: block; margin-bottom: 8px; }
-  .bsp-card .bsp-input { width: 100%; padding: 12px; border: 1.5px solid var(--grau-mittel); border-radius: 7px; font-size: 19px; font-weight: 700; }
-  .bsp-card .bsp-empf { font-size: 26px; font-weight: 700; color: var(--gruen-dunkel); }
-  .bsp-card .bsp-hint { font-size: 12px; color: var(--text-grau); margin-top: 6px; }
+/* Kinder */
+.childHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;}
+.childHead .t{font-size:11px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--ink);}
+.addChild{background:var(--brand);color:#fff;border:none;font-family:inherit;font-size:12px;font-weight:700;
+  padding:7px 13px;border-radius:20px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:.15s;}
+.addChild:hover{background:var(--brand-ink);}
+.childList{display:flex;flex-direction:column;gap:8px;max-height:220px;overflow-y:auto;}
+.childRow{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:end;
+  background:#fafbfc;border:1px solid var(--line);border-radius:10px;padding:9px;}
+.childRow label{display:block;font-size:9px;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:3px;text-align:center;}
+.childRow input,.childRow select{width:100%;height:32px;border:1px solid var(--line);border-radius:8px;background:#fff;
+  font-family:inherit;font-weight:700;font-size:12px;text-align:center;color:var(--ink);}
+.childRow input:focus,.childRow select:focus{outline:none;border:2px solid var(--brand);}
+.childRow .del{align-self:center;background:none;border:none;color:#d33;font-weight:800;font-size:15px;cursor:pointer;padding:4px;}
+.childRow .del:hover{color:#a00;}
 
-  .footer-note { font-size: 11px; color: var(--text-grau); margin-top: 20px; padding: 0 4px; }
-  .print-btn { background: var(--gruen); color: #fff; border: none; padding: 11px 22px; border-radius: 7px; font-size: 14px; font-weight: 600; cursor: pointer; }
-  .print-btn:hover { background: var(--gruen-dunkel); }
+.footNote{font-size:9.5px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:var(--muted);
+  margin-top:14px;padding-top:11px;border-top:1px solid var(--line);}
 
-  @media (max-width: 760px) {
-    .inputs, .compare, .bsp-grid, .bsp-bestand, .kinder-detail { grid-template-columns: 1fr; }
-    .diff-banner { flex-direction: column; gap: 12px; }
-  }
-  @media print {
-    body { background: #fff; padding: 0; }
-    .no-print { display: none !important; }
-    header { border-radius: 0; }
-  }
+/* ---------- Ergebnisseite ---------- */
+.rtabs{display:flex;gap:8px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:5px;margin-bottom:14px;}
+.rtab{flex:1;text-align:center;padding:9px;font-family:inherit;font-size:12.5px;font-weight:700;border:none;border-radius:9px;
+  background:transparent;color:var(--muted);cursor:pointer;transition:.15s;}
+.rtab.active{background:var(--brand);color:#fff;}
+.rtab.active.k2{background:var(--blue);}
 
-  /* Zurück-Button */
-  .backBtn{
-  width:34px;
-  height:34px;
-  border-radius:50%;
-  background:rgba(255,255,255,0.25);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-decoration:none;
-  transition:.2s;
-  flex-shrink:0;
-  }
-  .backBtn:hover{background:#fff}
-  .backBtn svg{width:18px;height:18px;fill:#fff}
-  .backBtn:hover svg{fill:#ff4d0d}
-  }
+.offerTitle{font-size:20px;font-weight:800;letter-spacing:-.3px;margin:0 0 3px;}
+.offerSub{font-size:11px;color:var(--muted);margin:0 0 14px;line-height:1.5;}
+
+.hero{padding:12px 14px;background:var(--brand-tint);border-radius:12px;border-left:4px solid var(--brand);margin-bottom:9px;}
+.hero .k{font-size:10px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--brand-ink);}
+.hero .v{font-size:22px;font-weight:800;letter-spacing:-.4px;margin-top:2px;}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px;}
+.mini{padding:11px;border:1px solid var(--line);border-radius:11px;text-align:center;}
+.mini .k{font-size:10px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;color:var(--muted);}
+.mini .v{font-size:17px;font-weight:800;margin-top:3px;}
+
+/* Tortendiagramm-Block */
+.pieBlock{padding:13px;border:1px solid var(--line);border-radius:12px;margin-bottom:12px;}
+.pieBlock .h{font-size:10px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--ink);
+  padding-bottom:8px;border-bottom:1px solid var(--line);margin-bottom:11px;}
+.pieWrap{display:flex;align-items:center;gap:16px;flex-wrap:wrap;justify-content:center;}
+.pieWrap svg{width:132px;height:132px;flex:none;}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:5px 12px;font-size:11px;font-weight:700;color:var(--ink);}
+.legend .li{display:flex;align-items:center;gap:6px;}
+.legend .sw{width:11px;height:11px;border-radius:3px;flex:none;}
+.sw.eigen{background:var(--pie-eigen);} .sw.riester{background:var(--pie-riester);}
+.sw.foerder{background:var(--pie-foerder);} .sw.darlehen{background:var(--pie-darlehen);}
+
+/* Hinweisbox */
+.rnote{padding:10px 12px;border-radius:11px;border:1px solid;font-size:12px;font-weight:600;line-height:1.45;margin-bottom:11px;}
+.rnote.warn{background:#fff7ed;border-color:#fdba74;color:#9a3412;}
+.rnote.err{background:#fef2f2;border-color:#fca5a5;color:#991b1b;}
+.rnote.info{background:#f3f4f6;border-color:#d1d5db;color:#374151;}
+
+/* Foerderturbo */
+.turbo{padding:11px;border:1px solid var(--line);border-radius:12px;margin-bottom:12px;}
+.turbo .h{font-size:10px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;color:var(--ink);margin-bottom:9px;display:flex;align-items:center;gap:6px;}
+.turboGrid{display:grid;grid-template-columns:1.1fr 2fr;gap:8px;}
+.quote{background:var(--pos-tint);border:1px solid #bfe3ca;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px;text-align:center;}
+.quote .k{font-size:9px;font-weight:800;text-transform:uppercase;color:var(--muted);}
+.quote .v{font-size:20px;font-weight:800;color:var(--pos);margin-top:2px;}
+.turboSub{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
+.tcell{background:#fafbfc;border:1px solid var(--line);border-radius:9px;padding:7px;text-align:center;}
+.tcell .k{font-size:8.5px;font-weight:800;text-transform:uppercase;color:var(--muted);display:block;line-height:1.2;}
+.tcell .v{font-size:12.5px;font-weight:800;color:var(--ink);margin-top:3px;display:block;}
+.turboTotal{text-align:right;font-size:12px;font-weight:800;margin-top:9px;padding-top:8px;border-top:1px solid var(--line);}
+.turboTotal b{color:var(--pos);font-size:14px;}
+
+/* Tabelle */
+.rtable{width:100%;border-collapse:collapse;border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:12px;margin-bottom:12px;}
+.rtable th{background:#fafbfc;text-align:left;font-size:9.5px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;color:var(--ink);padding:9px 12px;}
+.rtable th.r,.rtable td.r{text-align:right;}
+.rtable td{padding:7px 12px;border-top:1px solid var(--line);}
+.rtable td.lbl{color:var(--muted);} .rtable td.val{font-weight:700;text-align:right;}
+.rtable .pos td{color:var(--pos);} .rtable .neg td{color:var(--brand-ink);}
+.rtable .sum td{background:#f7f8fa;font-weight:800;border-top:2px solid var(--ink);}
+.rtable .sum .pos{color:var(--pos);}
+
+.discReq{font-size:9.5px;color:var(--muted);line-height:1.5;border-top:1px solid var(--line);padding-top:10px;margin-bottom:11px;}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.btn{border:none;border-radius:24px;padding:12px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:.15s;}
+.btn.ghost{background:#fff;border:1px solid var(--line);color:var(--ink);} .btn.ghost:hover{border-color:var(--brand);color:var(--brand-ink);}
+.btn.primary{background:var(--brand);color:#fff;} .btn.primary:hover{background:var(--brand-ink);}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
+@media print{body{background:#fff;padding:0;} .header,.col-in,.rtabs,.actions{display:none!important;} .sheet{box-shadow:none;} .rgrid{grid-template-columns:1fr;}}
 </style>
 </head>
+
 <body>
 <div class="wrap">
-  <header>
-  <a href="index.html" class="backBtn" title="Zurück">
-    <svg viewBox="0 0 24 24">
-      <path d="M15 18l-6-6 6-6"/>
-    </svg>
-  </a>
 
-  <div>
-    <h1>Riester / Wohnriester – Fördervergleich</h1>
-    <div class="sub">Altes System vs. Reform ab 01.01.2027</div>
+  <div class="header">
+    <a href="index.html" class="backBtn" aria-label="Zurück zur Übersicht"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></a>
+    Riester / Wohnriester – Eigenheimrente
+    <div class="topTools">
+      <button type="button" class="iconBtn" onclick="toggleFullscreen()">⛶ Vollbild</button>
+    </div>
   </div>
 
-  <div class="badge">Beratungstool</div>
-</header>
+  <div class="sheet">
+    <div class="rgrid">
 
-  <!-- EINGABE -->
-  <div class="panel no-print">
-    <div class="section-title">Eingaben</div>
-    <div class="inputs">
+      <!-- ============ EINGABEN ============ -->
+      <div class="col-in">
+        <h2>HeimVorteil sichern mit der Eigenheimrente</h2>
+        <p class="lead">Ermitteln Sie schnell die optimale, maßgeschneiderte Förderstrategie.</p>
 
-      <div class="field">
-        <label>Monatlicher Eigenbeitrag: <span class="val" id="beitragVal">25 €</span> <span style="color:var(--text-grau);font-weight:400">(= <span id="beitragJahr">300</span> € / Jahr)</span></label>
-        <input type="range" id="beitrag" min="10" max="150" step="5" value="25">
-        <div class="range-row"><span>10 €</span><span>150 €</span></div>
-      </div>
-
-      <div class="field">
-        <label>Jahresbruttoeinkommen (Vorjahr) &amp; Alter des Kunden</label>
-        <div style="display:flex;gap:12px">
-          <input type="number" class="income-input" id="einkommen" value="35000" step="1000" style="flex:2">
-          <input type="number" class="income-input" id="alterKunde" value="40" min="18" max="67" style="flex:1" title="Alter des Kunden">
-        </div>
-        <div class="range-row"><span>Bruttoeinkommen / Jahr</span><span>Alter (Jahre)</span></div>
-      </div>
-
-      <div class="field">
-        <label>Anzahl Kinder (kindergeldberechtigt)</label>
-        <div class="kids" id="kidsBtns">
-          <button data-k="0" class="active">0</button>
-          <button data-k="1">1</button>
-          <button data-k="2">2</button>
-          <button data-k="3">3</button>
-          <button data-k="4">4</button>
-          <button data-k="5">5</button>
-        </div>
-        <div class="kinder-detail hidden" id="kinderDetail">
-          <div style="grid-column:1/-1;font-size:11px;color:var(--text-grau);margin-bottom:2px">
-            ⓘ Alter je Kind eingeben. Bestimmt die Restdauer der Kinderzulage (Kindergeldbezug, längstens bis 25). Das Geburtsjahr für die alte 185-€/300-€-Staffel wird automatisch abgeleitet.
+        <!-- Kunde 1 -->
+        <div class="block">
+          <span class="btag k1">Daten Kunde 1</span>
+          <div class="grid3">
+            <select id="p1Anrede" onchange="calculate()" class="rin">
+              <option value="">– Anrede –</option><option value="Herr">Herr</option><option value="Frau">Frau</option>
+            </select>
+            <input type="text" id="p1Vorname" placeholder="Vorname" oninput="calculate()" class="rin">
+            <input type="text" id="p1Nachname" placeholder="Nachname" oninput="calculate()" class="rin">
           </div>
-          <div id="kinderAlterWrap" style="grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:10px"></div>
-        </div>
-      </div>
+          <input type="email" id="p1Email" placeholder="E-Mail-Adresse (optional)" oninput="calculate()" class="rin" style="margin-top:9px">
 
-      <div class="field">
-        <label>Optionen</label>
-        <div class="toggle-row">
-          <label class="switch"><input type="checkbox" id="bspToggle"><span class="slider-sw"></span></label>
-          <span>Bausparsumme-Empfehlung anzeigen</span>
-        </div>
-        <div class="toggle-row" style="margin-top:12px">
-          <label class="switch"><input type="checkbox" id="bonusToggle"><span class="slider-sw"></span></label>
-          <span>Berufseinsteiger-Bonus (200 €, unter 25)</span>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- VERGLEICH -->
-  <div class="panel">
-    <div class="section-title">Förderung im Vergleich</div>
-    <div class="compare">
-
-      <div class="card alt">
-        <div class="card-head">
-          <h3>Bisher (Altvertrag)</h3>
-          <div class="tag">bis 31.12.2026 · Bestandsschutz</div>
-        </div>
-        <div class="card-body">
-          <div class="row"><span class="lbl">Eigenbeitrag / Jahr</span><span class="num" id="altEigen">300 €</span></div>
-          <div class="row"><span class="lbl">Grundzulage</span><span class="num" id="altGrund">175 €</span></div>
-          <div class="row"><span class="lbl">Kinderzulage <span style="font-size:11px;color:var(--text-grau)">(185 €/300 € je Geburtsjahr)</span></span><span class="num" id="altKinder">0 €</span></div>
-          <div class="row total"><span class="lbl">Zulage gesamt</span><span class="num" id="altGesamt">175 €</span></div>
-          <div class="quote">
-            <div class="q-lbl">Förderquote</div>
-            <span class="q-num" id="altQuote">58 %</span>
-            <span style="font-size:12px;color:var(--text-grau)"> der Einzahlung als Zulage</span>
+          <div class="divH"></div>
+          <div class="grid2">
+            <div>
+              <label class="fl">Berufliche Tätigkeit</label>
+              <select id="p1Status" onchange="onStatusChange(1)" class="rin">
+                <option value="">– Bitte wählen –</option>
+                <option value="Arbeitnehmer">Arbeitnehmer / -in</option>
+                <option value="Beamter">Beamter / Beamtin</option>
+                <option value="Selbständiger">Selbstständiger / -in</option>
+                <option value="Hausmann">Hausfrau / Hausmann</option>
+                <option value="NichtAufgefuehrt">Nicht aufgeführt</option>
+              </select>
+            </div>
+            <div>
+              <label class="fl">Zulagenberechtigung (ab 2027)</label>
+              <select id="p1Foerder" onchange="calculate()" class="rin">
+                <option value="unmittelbar">Unmittelbar berechtigt</option>
+                <option value="mittelbar">Mittelbar berechtigt</option>
+                <option value="keins">Nicht förderfähig</option>
+              </select>
+            </div>
           </div>
-          <div class="warn" id="altWarn" style="display:none"></div>
-        </div>
-      </div>
-
-      <div class="card neu">
-        <div class="card-head">
-          <h3>Neu (ab 2027)</h3>
-          <div class="tag">50 ct/€ bis 360 € · 25 ct/€ bis 1.800 €</div>
-        </div>
-        <div class="card-body">
-          <div class="row"><span class="lbl">Eigenbeitrag / Jahr</span><span class="num" id="neuEigen">300 €</span></div>
-          <div class="row"><span class="lbl">Grundzulage</span><span class="num" id="neuGrund">150 €</span></div>
-          <div class="row"><span class="lbl">Kinderzulage <span style="font-size:11px;color:var(--text-grau)">(300 €/Kind, einheitlich)</span></span><span class="num" id="neuKinder">0 €</span></div>
-          <div class="row total"><span class="lbl">Zulage gesamt</span><span class="num" id="neuGesamt">150 €</span></div>
-          <div class="quote">
-            <div class="q-lbl">Förderquote</div>
-            <span class="q-num" id="neuQuote">50 %</span>
-            <span style="font-size:12px;color:var(--text-grau)"> der Einzahlung als Zulage</span>
+          <div class="chk" style="margin-top:12px">
+            <input type="checkbox" id="p1RiesterCheck" onchange="toggleRiesterInput(1)">
+            <label for="p1RiesterCheck">Riesterübertrag vorhanden?</label>
           </div>
-          <div class="warn" id="neuWarn" style="display:none"></div>
+          <div id="p1RiesterContainer" class="inlineAmt hidden">
+            <span class="lbl">Übertragungsbetrag:</span>
+            <input type="number" id="p1Riester" value="0" min="0" step="100" oninput="calculate()">
+            <span class="eur">€</span>
+          </div>
+
+          <div class="divH"></div>
+          <div class="chk">
+            <input type="checkbox" id="p1BonusCheck" onchange="calculate()">
+            <label for="p1BonusCheck">Berufseinsteiger? (unter 25 Jahre)</label>
+          </div>
+
+          <div class="divH"></div>
+          <div class="amtHead">
+            <span class="t">Monatlicher Eigenbeitrag</span>
+            <span class="box"><input type="number" id="p1NumEigen" value="150" min="10" max="570" step="10"> <span style="font-weight:700;font-size:13px">€</span></span>
+          </div>
+          <input type="range" id="p1SlideEigen" min="10" max="570" step="10" value="150" class="slider">
+          <div class="sEnds"><span>10 €</span><span>570 €</span></div>
+
+          <div class="divH dash"></div>
+          <div class="grid2">
+            <div>
+              <label class="fl">Sollzins-Variante</label>
+              <select id="p1BaseZins" onchange="calculate()" class="rin">
+                <option value="1.50">1,25% / 1,50%</option>
+                <option value="2.25" selected>2,00% / 2,25%</option>
+              </select>
+            </div>
+            <div>
+              <label class="fl">Tilgungsbeitrag</label>
+              <select id="p1TilgungsPromille" onchange="calculate()" class="rin">
+                <option value="4">4 ‰</option><option value="5">5 ‰</option><option value="6" selected>6 ‰</option><option value="7">7 ‰</option><option value="8">8 ‰</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Verheiratet -->
+        <div class="marryBar">
+          <input type="checkbox" id="checkVerheiratet" onchange="togglePartnerView()">
+          <label for="checkVerheiratet">💍 Verheiratet / Lebenspartnerschaft</label>
+        </div>
+
+        <!-- Kunde 2 -->
+        <div id="partner2Container" class="block pk2 hidden">
+          <span class="btag k2">Daten Kunde 2 (Partner)</span>
+          <div class="grid3">
+            <select id="p2Anrede" onchange="calculate()" class="rin">
+              <option value="">– Anrede –</option><option value="Herr">Herr</option><option value="Frau">Frau</option>
+            </select>
+            <input type="text" id="p2Vorname" placeholder="Vorname" oninput="calculate()" class="rin">
+            <input type="text" id="p2Nachname" placeholder="Nachname" oninput="calculate()" class="rin">
+          </div>
+          <input type="email" id="p2Email" placeholder="E-Mail-Adresse Partner (optional)" oninput="calculate()" class="rin" style="margin-top:9px">
+
+          <div class="divH"></div>
+          <div class="grid2">
+            <div>
+              <label class="fl">Berufliche Tätigkeit</label>
+              <select id="p2Status" onchange="onStatusChange(2)" class="rin">
+                <option value="">– Bitte wählen –</option>
+                <option value="Arbeitnehmer">Arbeitnehmer / -in</option>
+                <option value="Beamter">Beamter / Beamtin</option>
+                <option value="Selbständiger">Selbstständiger / -in</option>
+                <option value="Hausmann">Hausfrau / Hausmann</option>
+                <option value="NichtAufgefuehrt">Nicht aufgeführt</option>
+              </select>
+            </div>
+            <div>
+              <label class="fl">Zulagenberechtigung (ab 2027)</label>
+              <select id="p2Foerder" onchange="calculate()" class="rin">
+                <option value="unmittelbar">Unmittelbar berechtigt</option>
+                <option value="mittelbar">Mittelbar berechtigt</option>
+                <option value="keins">Nicht förderfähig</option>
+              </select>
+            </div>
+          </div>
+          <div class="chk" style="margin-top:12px">
+            <input type="checkbox" id="p2RiesterCheck" onchange="toggleRiesterInput(2)">
+            <label for="p2RiesterCheck">Riesterübertrag vorhanden?</label>
+          </div>
+          <div id="p2RiesterContainer" class="inlineAmt hidden">
+            <span class="lbl">Übertragungsbetrag:</span>
+            <input type="number" id="p2Riester" value="0" min="0" step="100" oninput="calculate()">
+            <span class="eur">€</span>
+          </div>
+
+          <div class="divH"></div>
+          <div class="chk">
+            <input type="checkbox" id="p2BonusCheck" onchange="calculate()">
+            <label for="p2BonusCheck">Berufseinsteiger? (Partner unter 25 Jahre)</label>
+          </div>
+
+          <div class="divH"></div>
+          <div class="amtHead">
+            <span class="t">Monatlicher Eigenbeitrag</span>
+            <span class="box"><input type="number" id="p2NumEigen" value="150" min="10" max="570" step="10"> <span style="font-weight:700;font-size:13px">€</span></span>
+          </div>
+          <input type="range" id="p2SlideEigen" min="10" max="570" step="10" value="150" class="slider">
+          <div class="sEnds"><span>10 €</span><span>570 €</span></div>
+
+          <div class="divH dash"></div>
+          <div class="grid2">
+            <div>
+              <label class="fl">Sollzins-Variante</label>
+              <select id="p2BaseZins" onchange="calculate()" class="rin">
+                <option value="1.50">1,25% / 1,50%</option>
+                <option value="2.25" selected>2,00% / 2,25%</option>
+              </select>
+            </div>
+            <div>
+              <label class="fl">Tilgungsbeitrag</label>
+              <select id="p2TilgungsPromille" onchange="calculate()" class="rin">
+                <option value="4">4 ‰</option><option value="5">5 ‰</option><option value="6" selected>6 ‰</option><option value="7">7 ‰</option><option value="8">8 ‰</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Berechnungszeitraum -->
+        <div class="block">
+          <div class="yearsHead">
+            <span class="t">Berechnungszeitraum (gemeinsame Sparphase)</span>
+            <span class="v"><span id="lblJahreValLeft">20</span> Jahre</span>
+          </div>
+          <input type="range" id="slideJahre" min="5" max="35" step="5" value="20" class="slider big">
+          <div class="sEnds"><span>5 J.</span><span>35 J.</span></div>
+        </div>
+
+        <!-- Kinderzulagen -->
+        <div class="block">
+          <div class="childHead">
+            <span class="t">Staatliche Kinderzulagen</span>
+            <button type="button" class="addChild" onclick="addChildRow()"><span style="font-size:15px;line-height:1">+</span> Kind hinzufügen</button>
+          </div>
+          <div id="kinderListContainer" class="childList"></div>
+        </div>
+
+        <div class="footNote">Sämtliche Berechnungen erfolgen individuell pro Person auf Basis gesetzlicher Zulagenregelungen.</div>
+      </div>
+
+      <!-- ============ ERGEBNIS ============ -->
+      <div class="col-out" id="pdf-content">
+        <div>
+          <div id="partnerTabsHeader" class="rtabs hidden">
+            <button onclick="switchActivePartner(1)" id="tabP1" class="rtab">Kunde 1</button>
+            <button onclick="switchActivePartner(2)" id="tabP2" class="rtab">Kunde 2 (Partner)</button>
+          </div>
+
+          <h3 class="offerTitle" id="lblDynamicOfferTitle">Ihre persönliche Eigenheimrente</h3>
+          <p class="offerSub" id="lblDynamicParametersSummary">Sparrate: 150 € | Sparzeit: 20 Jahre</p>
+
+          <div class="hero">
+            <div class="k">Empfohlene Bausparsumme</div>
+            <div class="v" id="outBausparsumme">0 €</div>
+          </div>
+          <div class="duo">
+            <div class="mini">
+              <div class="k">Netto-Guthaben (<span id="outGuthabenPct">0%</span>)</div>
+              <div class="v" id="outGuthabenNetto">0 €</div>
+            </div>
+            <div class="mini">
+              <div class="k">Darlehensanspruch (<span id="outDarlehenPct">0%</span>)</div>
+              <div class="v" id="outDarlehen">0 €</div>
+            </div>
+          </div>
+
+          <div class="pieBlock">
+            <div class="h">Struktur der empfohlenen Bausparsumme</div>
+            <div class="pieWrap">
+              <svg viewBox="0 0 200 200" id="svgPieContainer"></svg>
+              <div class="legend">
+                <div class="li"><span class="sw eigen"></span> Eigenanteil (<span id="lblLegEigen">0%</span>)</div>
+                <div class="li"><span class="sw riester"></span> Übertrag (<span id="lblLegRiester">0%</span>)</div>
+                <div class="li"><span class="sw foerder"></span> Förderung (<span id="lblLegFoerder">0%</span>)</div>
+                <div class="li"><span class="sw darlehen"></span> Darlehen (<span id="lblLegDarlehen">0%</span>)</div>
+              </div>
+            </div>
+          </div>
+
+          <div id="mittelbarNoticeBox" class="rnote hidden"></div>
+
+          <div class="turbo">
+            <div class="h">🚀 Staatlicher Förderturbo</div>
+            <div class="turboGrid">
+              <div class="quote">
+                <span class="k">Förderquote</span>
+                <span class="v" id="lblFoerderQuote">0 %</span>
+              </div>
+              <div class="turboSub">
+                <div class="tcell"><span class="k">Grundzulage</span><span class="v" id="lblDetailGrund">0 €</span></div>
+                <div class="tcell"><span class="k">Kinderzulage</span><span class="v" id="lblDetailKinder">0 €</span></div>
+                <div class="tcell"><span class="k">Einsteigerbonus</span><span class="v" id="lblDetailBonus">0 €</span></div>
+              </div>
+            </div>
+            <div class="turboTotal">Zulagen über Laufzeit gesamt: <b id="lblDetailTotal">0 €</b></div>
+          </div>
+
+          <table class="rtable">
+            <thead>
+              <tr><th>Ihr Vermögensaufbau im Überblick (<span id="outJahreText">20</span> Jahre)</th><th class="r">Summe</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="lbl">Geleistete Eigenbeiträge gesamt</td><td class="val" id="tblEigen">0 €</td></tr>
+              <tr><td class="lbl">Übertragenes Kapital (Riesterübertrag)</td><td class="val" id="tblRiester">0 €</td></tr>
+              <tr class="pos"><td>Staatliche Zulagen gesamt</td><td class="val" id="tblFoerder">0 €</td></tr>
+              <tr><td class="lbl">Guthabenzinsen (0,01 % p.a.)</td><td class="val" id="tblZinsen">0 €</td></tr>
+              <tr class="neg"><td>Servicepauschalen (20 € p.a.)</td><td class="val" id="tblKonto">- 0 €</td></tr>
+              <tr class="neg"><td>Abschlussgebühr (1,0 % auf 5 Jahre)</td><td class="val" id="tblAbschlussGebuehr">- 0 €</td></tr>
+              <tr class="neg"><td>Variantenpreis (0,5 % auf 5 Jahre)</td><td class="val" id="tblVariantenpreis">- 0 €</td></tr>
+              <tr class="sum"><td class="pos">Gesamtes Netto-Guthaben (Auszahlung)</td><td class="val pos" id="tblTotalGuthaben">ca. 0 €</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div>
+          <div class="discReq">
+            <p>Sollzins im Darlehen: <span id="lblBrandedSollzins">2,25%</span> p.a. | Tilgung: <span id="lblBrandedTilgung">6</span>‰ v. BS monatlich.</p>
+            <p>Berechnungen basieren auf den gesetzlichen Förderrichtlinien ab 01.01.2027, sind unverbindlich und basieren auf den tariflichen Bestimmungen der Wüstenrot Bausparkasse AG (Tarif Premium RD 2020).</p>
+          </div>
+          <div class="actions" id="actionButtonsRow">
+            <button onclick="exportToPDF()" class="btn ghost">📄 1. PDF laden</button>
+            <button onclick="generateOutlookEmail()" class="btn primary">✉️ 2. Outlook öffnen</button>
+          </div>
         </div>
       </div>
 
     </div>
-
-    <div class="diff-banner">
-      <div class="item">
-        <div class="big" id="diffJahr">–25 €</div>
-        <div class="lbl">Differenz Zulage / Jahr</div>
-      </div>
-      <div class="item">
-        <div class="big" id="maxBeitrag">30 €</div>
-        <div class="lbl">Mtl. Beitrag für volle Grundzulage (neu)</div>
-      </div>
-      <div class="item">
-        <div class="big" id="maxZulage">540 €</div>
-        <div class="lbl">Max. mögliche Grundzulage (neu)</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- BAUSPARSUMME (ausblendbar) -->
-  <div class="panel bausparsumme" id="bspPanel" style="display:none">
-    <div class="section-title">Wohnriester – Bestandsvertrag & Empfehlung</div>
-
-    <div style="font-size:13px;color:var(--text-grau);margin-bottom:18px;padding:12px 14px;background:var(--grau);border-radius:8px">
-      ⓘ Daten des bestehenden Riester-Bausparvertrags eingeben. Der gewünschte zukünftige Monatsbeitrag wird oben über den Slider „Monatlicher Eigenbeitrag" eingestellt.
-    </div>
-
-    <div class="bsp-bestand">
-      <div class="bsp-field">
-        <label>Aktuelle Bausparsumme</label>
-        <input type="number" class="bsp-input" id="bspAlt" value="20000" step="1000">
-        <div class="bsp-hint">Vertragssumme bisher</div>
-      </div>
-      <div class="bsp-field">
-        <label>Aktuelles Guthaben</label>
-        <input type="number" class="bsp-input" id="bspGuthaben" value="6000" step="500">
-        <div class="bsp-hint">Bisher angespartes Saldo</div>
-      </div>
-      <div class="bsp-field">
-        <label>Bisheriger Monatsbeitrag</label>
-        <input type="number" class="bsp-input" id="bspBeitragAlt" value="5" step="1">
-        <div class="bsp-hint">Was der Kunde aktuell zahlt</div>
-      </div>
-    </div>
-
-    <div class="bsp-grid" style="margin-top:22px">
-      <div class="bsp-card">
-        <label>Bisherige Situation</label>
-        <div class="row" style="padding:7px 0;font-size:13px"><span class="lbl">Bausparsumme</span><span class="num" id="bspAltShow">20.000 €</span></div>
-        <div class="row" style="padding:7px 0;font-size:13px"><span class="lbl">Guthaben</span><span class="num" id="bspGutShow">6.000 €</span></div>
-        <div class="row" style="padding:7px 0;font-size:13px"><span class="lbl">Sparrate inkl. Zulage / Jahr</span><span class="num" id="bspSparAlt">235 €</span></div>
-        <div class="row" style="padding:7px 0;font-size:13px;border-bottom:none"><span class="lbl">Erfüllungsgrad</span><span class="num" id="bspFuellAlt">30 %</span></div>
-      </div>
-      <div class="bsp-card neu">
-        <label>Bausparsumme neu – empfohlen</label>
-        <div class="bsp-empf" id="bspNeu">– €</div>
-        <div class="bsp-hint" id="bspHint" style="margin-bottom:12px">Gefördertes Jahresvolumen × Faktor.</div>
-        <div class="row" style="padding:6px 0;font-size:12px"><span class="lbl">Eigenbeitrag / Jahr</span><span class="num" id="bspEigenNeu">300 €</span></div>
-        <div class="row" style="padding:6px 0;font-size:12px"><span class="lbl">+ Zulage neu / Jahr</span><span class="num" id="bspZulageNeu">150 €</span></div>
-        <div class="row" style="padding:6px 0;font-size:12px;border-bottom:none"><span class="lbl">= Gefördertes Volumen / Jahr</span><span class="num" id="bspGesamtNeu">450 €</span></div>
-        <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--grau-mittel)">
-          <label style="font-size:12px;font-weight:600;display:block;margin-bottom:6px">Faktor: <span id="faktorVal" style="color:var(--gruen-dunkel);font-weight:700">×20</span></label>
-          <input type="range" id="faktor" min="10" max="40" step="1" value="20">
-          <div class="range-row"><span>×10</span><span>×40</span></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="panel no-print" style="display:flex;justify-content:space-between;align-items:center">
-    <div class="footer-note">
-      Vereinfachte Modellrechnung, keine Steuer-/Anlageberatung. Steuervorteil (Sonderausgabenabzug) nicht berücksichtigt.
-      Werte alt: Grundzulage 175 €, Kind 185 €/300 €, Mindesteigenbeitrag 4 % – Zulagen, mind. 60 €.
-      Werte neu (Altersvorsorgereformgesetz): 50 ct/€ bis 360 €, 25 ct/€ bis 1.800 €, max. 540 € Grundzulage. Kinderzulage 1 € je gespartem Euro bis 300 €/Jahr, max. 300 € je Kind (einheitlich, ohne Geburtsjahr-Stichtag).
-      Bausparsummen-Empfehlung: gefördertes Jahresvolumen (Eigenbeitrag + Zulage) × einstellbarer Faktor. Kinderzulage nur für kindergeldberechtigte Kinder (längstens bis 25). Keine verbindliche Tarifkalkulation – konkrete Werte über das Wüstenrot-Angebotsprogramm.
-    </div>
-    <button class="print-btn" onclick="window.print()">Drucken / PDF</button>
   </div>
 </div>
 
+
 <script>
-  const state = { beitrag: 25, einkommen: 35000, kids: 0, bonus: false, alterKunde: 40, kinderAlter: [], faktor: 20 };
-  const JAHR_AKTUELL = 2026;     // Stichtag-Bezug für Geburtsjahr-Ableitung
-  const KINDERGELD_BIS = 25;     // Kinderzulage längstens bis 25 (Kindergeldbezug)
+        let childCounter = 0; 
+        let currentActivePartner = 1; 
+        let partnerData = {
+            1: { bs:10000, guthaben:0, darlehen:0, sollzins:2.25, foerderQuote:0, pctEigen:40.0, pctFoerder:0, pctRiester:0, pctDarlehen:60.0, sim:{}, childData:[], mtl:150, bonus:false, riester:0, promille:6 },
+            2: { bs:10000, guthaben:0, darlehen:0, sollzins:2.25, foerderQuote:0, pctEigen:40.0, pctFoerder:0, pctRiester:0, pctDarlehen:60.0, sim:{}, childData:[], mtl:150, bonus:false, riester:0, promille:6 }
+        };
 
-  const fmt = n => Math.round(n).toLocaleString('de-DE') + ' €';
-  const fmt0 = n => Math.round(n).toLocaleString('de-DE');
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('p1NumEigen').addEventListener('input', (e) => { document.getElementById('p1SlideEigen').value = e.target.value; calculate(); });
+            document.getElementById('p1SlideEigen').addEventListener('input', (e) => { document.getElementById('p1NumEigen').value = e.target.value; calculate(); });
+            document.getElementById('p2NumEigen').addEventListener('input', (e) => { document.getElementById('p2SlideEigen').value = e.target.value; calculate(); });
+            document.getElementById('p2SlideEigen').addEventListener('input', (e) => { document.getElementById('p2NumEigen').value = e.target.value; calculate(); });
+            
+            document.getElementById('slideJahre').addEventListener('input', (e) => {
+                document.getElementById('lblJahreValLeft').innerText = e.target.value;
+                calculate();
+            });
 
-  function calc() {
-    const jahr = state.beitrag * 12;
+            togglePartnerView(true); 
+            calculate();
+        });
 
-    // ---- ALT ----
-    // Grundzulage 175, Kinder: 185 (vor 2008 geb.) + 300 (ab 2008 geb.)
-    // Geburtsjahr aus Alter abgeleitet; nur Kinder unter Kindergeldgrenze zählen.
-    let kidsAlt = 0, kidsNeu = 0, kidsAktiv = 0;
-    state.kinderAlter.forEach(a => {
-      if (a < KINDERGELD_BIS) {          // noch kindergeldberechtigt
-        kidsAktiv++;
-        const geburtsjahr = JAHR_AKTUELL - a;
-        if (geburtsjahr < 2008) kidsAlt++; else kidsNeu++;
-      }
-    });
-    const altKinderZulage = kidsAlt * 185 + kidsNeu * 300;
-    const altZulageVoll = 175 + altKinderZulage;
-    const mindest = Math.max(state.einkommen * 0.04 - altZulageVoll, 60);
-    // Kürzung wenn Eigenbeitrag < Mindesteigenbeitrag
-    const altFaktor = Math.min(jahr / mindest, 1);
-    const altGrund = 175 * altFaktor;
-    const altKinder = altKinderZulage * altFaktor;
-    const altGesamt = altGrund + altKinder;
-    const altQuote = jahr > 0 ? (altGesamt / jahr * 100) : 0;
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`Fehler beim Aktivieren des Vollbildmodus: ${err.message}`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
 
-    // ---- NEU ----
-    // 50ct/€ bis 360, 25ct/€ bis 1800. Mindestbeitrag 120 €.
-    // Kinderzulage: nur Kinder unter Kindergeldgrenze (kidsAktiv).
-    const totalKids = kidsAktiv;
-    let neuGrund = 0;
-    if (jahr >= 120) {
-      const stufe1 = Math.min(jahr, 360) * 0.5;
-      const stufe2 = Math.max(Math.min(jahr, 1800) - 360, 0) * 0.25;
-      neuGrund = stufe1 + stufe2;
-    }
-    if (state.bonus) neuGrund += 200;
-    // Kinderzulage neu: 1 € je gespartem Euro bis 300 €/Jahr, max 300 € pro Kind.
-    // Anteilig bei weniger als 300 €/Jahr Eigenbeitrag. Voraussetzung: Mindestbeitrag 120 € erreicht.
-    const neuKinder = (jahr >= 120) ? totalKids * Math.min(jahr, 300) : 0;
-    const neuGesamt = neuGrund + neuKinder;
-    const neuQuote = jahr > 0 ? (neuGesamt / jahr * 100) : 0;
+        function addChildRow() {
+            childCounter++;
+            const container = document.getElementById('kinderListContainer');
+            const isMarried = document.getElementById('checkVerheiratet').checked;
+            
+            const row = document.createElement('div');
+            row.id = `childRow_${childCounter}`;
+            row.className = "childRow animate-fadeIn";
+            row.innerHTML = `
+                <div>
+                    <label>Alter</label>
+                    <input type="number" id="ageKind_${childCounter}" value="6" min="0" max="25" oninput="calculate()">
+                </div>
+                <div>
+                    <label>Bis Alter</label>
+                    <select id="limitKind_${childCounter}" onchange="calculate()">
+                        <option value="18" selected>18 J.</option>
+                        <option value="25">25 J.</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Zulage an</label>
+                    <select id="targetKind_${childCounter}" onchange="calculate()" ${!isMarried ? 'disabled' : ''}>
+                        <option value="1">Kunde 1</option>
+                        <option value="2">Kunde 2</option>
+                    </select>
+                </div>
+                <button type="button" class="del" onclick="removeChildRow(${childCounter})" aria-label="Kind entfernen">✕</button>
+            `;
+            container.appendChild(row);
+            calculate();
+        }
 
-    // ---- RENDER ALT ----
-    document.getElementById('altEigen').textContent = fmt(jahr);
-    document.getElementById('altGrund').textContent = fmt(altGrund);
-    document.getElementById('altKinder').textContent = fmt(altKinder);
-    document.getElementById('altGesamt').textContent = fmt(altGesamt);
-    document.getElementById('altQuote').textContent = Math.round(altQuote) + ' %';
-    const altWarn = document.getElementById('altWarn');
-    if (altFaktor < 1) {
-      altWarn.style.display = 'block';
-      altWarn.textContent = '⚠ Eigenbeitrag unter Mindesteigenbeitrag (' + fmt(mindest) + '/Jahr) → Zulage anteilig gekürzt.';
-    } else { altWarn.style.display = 'none'; }
+        function removeChildRow(id) {
+            const row = document.getElementById(`childRow_${id}`);
+            if (row) row.remove();
+            calculate();
+        }
 
-    // ---- RENDER NEU ----
-    document.getElementById('neuEigen').textContent = fmt(jahr);
-    document.getElementById('neuGrund').textContent = fmt(neuGrund - (state.bonus?200:0));
-    document.getElementById('neuKinder').textContent = fmt(neuKinder);
-    document.getElementById('neuGesamt').textContent = fmt(neuGesamt);
-    document.getElementById('neuQuote').textContent = Math.round(neuQuote) + ' %';
-    const neuWarn = document.getElementById('neuWarn');
-    let warnMsg = [];
-    if (jahr < 120) warnMsg.push('⚠ Unter Mindestbeitrag 120 €/Jahr → keine Förderung.');
-    else if (jahr < 300 && totalKids > 0) warnMsg.push('ⓘ Kinderzulage anteilig – volle 300 €/Kind erst ab 300 €/Jahr (25 €/Monat).');
-    // Restdauer Kinderzulage: minimales Alter bis 25
-    if (state.kids > 0) {
-      const ueber = state.kinderAlter.filter(a => a >= KINDERGELD_BIS).length;
-      if (ueber > 0) warnMsg.push('ⓘ ' + ueber + ' Kind(er) ≥ ' + KINDERGELD_BIS + ' J. – keine Kinderzulage mehr.');
-      else {
-        const minRest = Math.min(...state.kinderAlter.map(a => KINDERGELD_BIS - a));
-        if (isFinite(minRest) && minRest <= 5) warnMsg.push('ⓘ Kinderzulage läuft in ' + minRest + ' J. für das älteste Kind aus.');
-      }
-    }
-    if (warnMsg.length) { neuWarn.style.display = 'block'; neuWarn.textContent = warnMsg.join(' '); }
-    else { neuWarn.style.display = 'none'; }
+        // LÜCKENLOSE KONTROLLE ALLER VERSTECKTEN HILFSFUNKTIONEN (REPARIERT V0.5.2)
+        function updateChildTargetSelects() {
+            const isMarried = document.getElementById('checkVerheiratet').checked;
+            const selects = document.querySelectorAll('[id^="targetKind_"]');
+            selects.forEach(sel => {
+                if (!isMarried) {
+                    sel.value = "1";
+                    sel.disabled = true;
+                } else {
+                    sel.disabled = false;
+                }
+            });
+        }
 
-    // ---- BANNER ----
-    const diff = neuGesamt - altGesamt;
-    const diffEl = document.getElementById('diffJahr');
-    diffEl.textContent = (diff >= 0 ? '+' : '–') + fmt0(Math.abs(diff)) + ' €';
-    diffEl.style.color = '#ffffff';
-    document.getElementById('maxBeitrag').textContent = '30 €';
-    const maxGrund = state.bonus ? 740 : 540;
-    document.getElementById('maxZulage').textContent = fmt0(maxGrund) + ' €';
+        function updateStatusForPartner(id) {
+            const status = document.getElementById(`p${id}Status`).value;
+            const foerderSelect = document.getElementById(`p${id}Foerder`);
+            const isMarried = document.getElementById('checkVerheiratet').checked;
+            
+            if (status === 'Arbeitnehmer' || status === 'Beamter' || status === 'Selbständiger') {
+                foerderSelect.value = 'unmittelbar'; 
+            } else if (status === 'Hausmann') {
+                foerderSelect.value = isMarried ? 'mittelbar' : 'keins'; 
+            } else {
+                foerderSelect.value = 'keins';
+            }
+        }
 
-    // ---- BAUSPARSUMME ----
-    // Bestandsdaten
-    const bspAlt = parseFloat(document.getElementById('bspAlt').value) || 0;
-    const bspGuthaben = parseFloat(document.getElementById('bspGuthaben').value) || 0;
-    const bspBeitragAlt = parseFloat(document.getElementById('bspBeitragAlt').value) || 0;
+        function onStatusChange(id) {
+            updateStatusForPartner(id);
+            calculate();
+        }
 
-    // ---- Bisher ----
-    const altGesamtJahr = bspBeitragAlt * 12 + altGesamt;          // Eigenbeitrag + alte Zulage
-    const fuellAlt = bspAlt > 0 ? (bspGuthaben / bspAlt * 100) : 0;
-    document.getElementById('bspAltShow').textContent = fmt0(bspAlt) + ' €';
-    document.getElementById('bspGutShow').textContent = fmt0(bspGuthaben) + ' €';
-    document.getElementById('bspSparAlt').textContent = fmt0(altGesamtJahr) + ' €';
-    document.getElementById('bspFuellAlt').textContent = Math.round(fuellAlt) + ' %';
+        function toggleRiesterInput(id) {
+            const isChecked = document.getElementById(`p${id}RiesterCheck`).checked;
+            const container = document.getElementById(`p` + id + `RiesterContainer`);
+            const inputField = document.getElementById(`p${id}Riester`);
+            
+            if (isChecked) {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+                inputField.value = 0; 
+            }
+            calculate();
+        }
 
-    // ---- Neu empfohlen: gefördertes Jahresvolumen × Faktor ----
-    // Gefördertes Jahresvolumen = Eigenbeitrag (Regler) + neue Zulage
-    const gefoerdertesVolumen = jahr + neuGesamt;
-    // Bausparsumme = Volumen × Faktor (Standard ×20, im Termin einstellbar)
-    let bspNeuVal = gefoerdertesVolumen * state.faktor;
-    // nie unter Bestand
-    bspNeuVal = Math.max(bspNeuVal, bspAlt);
-    // auf 1.000 € runden
-    bspNeuVal = Math.round(bspNeuVal / 1000) * 1000;
+        function togglePartnerView(preventCalculate = false) {
+            const isMarried = document.getElementById('checkVerheiratet').checked;
+            const container = document.getElementById('partner2Container');
+            const tabs = document.getElementById('partnerTabsHeader');
+            
+            if(isMarried) {
+                container.classList.remove('hidden');
+                tabs.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+                tabs.classList.add('hidden');
+                currentActivePartner = 1;
+                document.getElementById('tabP1').className = "rtab active";
+                document.getElementById('tabP2').className = "rtab";
+            }
+            
+            updateStatusForPartner(1);
+            updateStatusForPartner(2);
+            updateChildTargetSelects();
 
-    document.getElementById('bspNeu').textContent = fmt0(bspNeuVal) + ' €';
-    document.getElementById('bspEigenNeu').textContent = fmt0(jahr) + ' €';
-    document.getElementById('bspZulageNeu').textContent = fmt0(neuGesamt) + ' €';
-    document.getElementById('bspGesamtNeu').textContent = fmt0(gefoerdertesVolumen) + ' €';
+            if (!preventCalculate) {
+                calculate();
+            }
+        }
 
-    const steigerung = bspAlt > 0 ? Math.round((bspNeuVal / bspAlt - 1) * 100) : 0;
-    if (bspNeuVal > bspAlt) {
-      document.getElementById('bspHint').innerHTML =
-        '<strong>+' + steigerung + ' % ggü. bisher.</strong> Gefördertes Jahresvolumen ' + fmt0(gefoerdertesVolumen) + ' € (' + fmt0(jahr) + ' € Eigenbeitrag + ' + fmt0(neuGesamt) + ' € Zulage) × Faktor ' + state.faktor + ' = empfohlene Bausparsumme.';
-    } else {
-      document.getElementById('bspHint').innerHTML =
-        'Empfehlung entspricht dem Bestand. Beitrag erhöhen oder Faktor anpassen, um eine höhere Bausparsumme zu zeigen.';
-    }
+        function switchActivePartner(id) {
+            currentActivePartner = id;
+            const tab1 = document.getElementById('tabP1');
+            const tab2 = document.getElementById('tabP2');
+            
+            if(id === 1) {
+                tab1.className = "rtab active";
+                tab2.className = "rtab";
+            } else {
+                tab1.className = "rtab";
+                tab2.className = "rtab active k2";
+            }
+            renderActiveResults();
+        }
+
+        function simulateTariffP(bs, mtlEigen, jahre, id, baseZinsChoice, promilleChoice, riesterUebertrag, foerderStatus, myChildren, isMarried, otherMtl, otherFoerderStatus) {
+            let mgh = (baseZinsChoice === 1.50) ? 0.4 : 0.3; 
+            let zf = (baseZinsChoice === 1.50) ? 0.503 : 0.286; 
+            
+            let nominalZins = baseZinsChoice;
+            if (bs >= 100000) {
+                nominalZins = (baseZinsChoice === 1.50) ? 1.25 : 2.00; 
+            }
+
+            let tb = (promilleChoice / 1000) * bs; 
+            let guthabenZinsSatz = 0.0001; 
+            
+            let balance = riesterUebertrag; 
+            let currentEigenbeitrag = 0;
+            let currentFoerderung = 0;
+            let currentZinsen = 0;
+            let currentKontogebuehren = 0;
+            let currentAbschlussgebuehren = 0;
+            let currentGrundzulageTotal = 0;
+            let currentKinderzulageTotal = 0;
+            
+            let shs = 0; 
+            let bz = 0;  
+            let totalMonths = jahre * 12;
+            
+            let eigenProJahr = mtlEigen * 12;
+            let grundzulageJahr = 0;
+            
+            if (foerderStatus === 'unmittelbar') {
+                if (eigenProJahr <= 360) grundzulageJahr = eigenProJahr * 0.5;
+                else grundzulageJahr = 180 + (Math.min(eigenProJahr - 360, 1440) * 0.25);
+            } else if (foerderStatus === 'mittelbar') {
+                let otherEigenProJahr = otherMtl * 12;
+                let reductionFactor = Math.min(1, otherEigenProJahr / 1800);
+                if (isMarried && otherFoerderStatus === 'unmittelbar') {
+                    grundzulageJahr = 175 * reductionFactor; 
+                }
+            }
+
+            let accruedInterestThisYear = 0;
+
+            for (let m = 1; m <= totalMonths; m++) {
+                if (m === 1 || m === 13 || m === 25 || m === 37 || m === 49) {
+                    let annualFee = bs * 0.003; 
+                    balance -= annualFee;
+                    currentAbschlussgebuehren += annualFee;
+                }
+
+                balance += mtlEigen;
+                currentEigenbeitrag += mtlEigen;
+                
+                let monthlyInterest = Math.max(0, balance) * (guthabenZinsSatz / 12);
+                accruedInterestThisYear += monthlyInterest;
+                
+                let cappedG = Math.max(0, Math.min(balance, bs)); 
+                shs += cappedG;
+                
+                if (m % 12 === 0) {
+                    let yearGrund = grundzulageJahr;
+                    let yearKids = 0;
+                    if (eigenProJahr >= 300) {
+                        let elapsedYears = m / 12;
+                        myChildren.forEach(child => {
+                            if (child.age + elapsedYears - 1 < child.limit) {
+                                yearKids += 300;
+                            }
+                        });
+                    }
+                    if (m === 12 && document.getElementById(`p${id}BonusCheck`).checked && (foerderStatus === 'unmittelbar' || foerderStatus === 'mittelbar')) {
+                        yearGrund += 200;
+                    }
+                    
+                    let totalYearFoerderung = yearGrund + yearKids;
+                    balance += totalYearFoerderung;
+                    currentFoerderung += totalYearFoerderung;
+                    currentGrundzulageTotal += yearGrund;
+                    currentKinderzulageTotal += yearKids;
+                    
+                    balance += accruedInterestThisYear;
+                    currentZinsen += accruedInterestThisYear;
+                    accruedInterestThisYear = 0; 
+                    
+                    balance -= 20; 
+                    currentKontogebuehren += 20;
+                }
+                
+                let currentCappedG = Math.max(0, Math.min(balance, bs));
+                let d = bs - currentCappedG;
+                if (currentCappedG > 0.5 * bs) {
+                    d = 0.5 * bs; 
+                }
+                let ansp = (bs > 0) ? currentCappedG / (bs * mgh) : 0; 
+                let fFactor = (bs > 0) ? 1 - 64 * ((tb - 0.004 * bs) / bs) * ansp : 1; 
+                
+                let innerDiv = 0;
+                if ((shs + 3 * currentCappedG) > 0) {
+                    innerDiv = (zf * d * d) / (shs + 3 * currentCappedG);
+                }
+                let denominator = (d / 750) + innerDiv;
+                
+                if (denominator > 0) {
+                    bz = (200 * tb * fFactor) / denominator; 
+                } else {
+                    bz = 0;
+                }
+            }
+            
+            return {
+                netGuthaben: balance,
+                totalEigenbeitrag: currentEigenbeitrag,
+                totalFoerderung: currentFoerderung,
+                totalZinsen: currentZinsen,
+                totalKontogebuehren: currentKontogebuehren,
+                totalAbschlussgebuehren: currentAbschlussgebuehren,
+                totalGrundzulage: currentGrundzulageTotal,
+                totalKinderzulage: currentKinderzulageTotal,
+                bz: Math.round(bz), 
+                mghReached: balance >= (bs * mgh),
+                nominalZins: nominalZins
+            };
+        }
+
+        function calculate() {
+            const jahre = parseInt(document.getElementById('slideJahre').value) || 20;
+            const isMarried = document.getElementById('checkVerheiratet').checked;
+
+            const riesterP1 = document.getElementById('p1RiesterCheck').checked ? (parseFloat(document.getElementById('p1Riester').value) || 0) : 0;
+            const riesterP2 = document.getElementById('p2RiesterCheck').checked ? (parseFloat(document.getElementById('p2Riester').value) || 0) : 0;
+            partnerData[1].riester = riesterP1;
+            partnerData[2].riester = riesterP2;
+
+            const mtlP1 = parseFloat(document.getElementById('p1NumEigen').value) || 0;
+            const mtlP2 = parseFloat(document.getElementById('p2NumEigen').value) || 0;
+
+            let allChildren = [];
+            const childRows = document.querySelectorAll('[id^="childRow_"]');
+            childRows.forEach(row => {
+                const cId = row.id.split('_')[1];
+                const ageInput = document.getElementById(`ageKind_${cId}`);
+                const limitSelect = document.getElementById(`limitKind_${cId}`);
+                const targetSelect = document.getElementById(`targetKind_${cId}`);
+                if (ageInput && limitSelect && targetSelect) {
+                    allChildren.push({
+                        age: parseInt(ageInput.value) || 0,
+                        limit: parseInt(limitSelect.value) || 18,
+                        target: targetSelect.value || "1"
+                    });
+                }
+            });
+
+            [1, 2].forEach(id => {
+                const mtl = (id === 1) ? mtlP1 : mtlP2;
+                const otherMtl = (id === 1) ? mtlP2 : mtlP1;
+                const baseZinsChoice = parseFloat(document.getElementById(`p${id}BaseZins`).value);
+                const promilleChoice = parseFloat(document.getElementById(`p${id}TilgungsPromille`).value);
+                const foerderStatus = document.getElementById(`p${id}Foerder`).value;
+                const otherFoerderStatus = document.getElementById(`p${(id===1)?2:1}Foerder`).value;
+                
+                let myChildren = allChildren.filter(c => {
+                    if (!isMarried) return id === 1; 
+                    return c.target === String(id);
+                });
+                let riesterUebertrag = partnerData[id].riester;
+
+                let lowBS = 10000, highBS = 2000000, idealBS = 10000;
+                for (let iter = 0; iter < 40; iter++) {
+                    let midBS = (lowBS + highBS) / 2;
+                    let sim = simulateTariffP(midBS, mtl, jahre, id, baseZinsChoice, promilleChoice, riesterUebertrag, foerderStatus, myChildren, isMarried, otherMtl, otherFoerderStatus);
+                    
+                    if (sim.mghReached && sim.bz >= 200) {
+                        idealBS = midBS; 
+                        lowBS = midBS;
+                    } else {
+                        highBS = midBS;
+                    }
+                }
+
+                let finalBS = Math.round(idealBS / 100) * 100;
+                if (finalBS < 10000) finalBS = 10000; 
+
+                let bestSim = simulateTariffP(finalBS, mtl, jahre, id, baseZinsChoice, promilleChoice, riesterUebertrag, foerderStatus, myChildren, isMarried, otherMtl, otherFoerderStatus);
+                
+                partnerData[id].bs = finalBS;
+                partnerData[id].guthaben = bestSim.netGuthaben;
+                partnerData[id].darlehen = Math.max(0, finalBS - bestSim.netGuthaben);
+                partnerData[id].sollzins = bestSim.nominalZins;
+                partnerData[id].foerderQuote = bestSim.totalEigenbeitrag > 0 ? (bestSim.totalFoerderung / bestSim.totalEigenbeitrag) * 100 : 0;
+                
+                let totalGuthabenPct = (partnerData[id].guthaben / finalBS) * 100;
+                let sumInputs = bestSim.totalEigenbeitrag + riesterUebertrag + bestSim.totalFoerderung;
+                if (sumInputs > 0) {
+                    partnerData[id].pctEigen = (bestSim.totalEigenbeitrag / sumInputs) * totalGuthabenPct;
+                    partnerData[id].pctRiester = (riesterUebertrag / sumInputs) * totalGuthabenPct;
+                    partnerData[id].pctFoerder = (bestSim.totalFoerderung / sumInputs) * totalGuthabenPct;
+                } else {
+                    partnerData[id].pctEigen = totalGuthabenPct;
+                    partnerData[id].pctRiester = 0;
+                    partnerData[id].pctFoerder = 0;
+                }
+                partnerData[id].pctDarlehen = Math.max(0, 100 - totalGuthabenPct);
+                
+                partnerData[id].sim = bestSim;
+                partnerData[id].childData = myChildren;
+                partnerData[id].mtl = mtl;
+                partnerData[id].promille = promilleChoice;
+            });
+
+            const p1V = document.getElementById('p1Vorname').value.trim();
+            const p2V = document.getElementById('p2Vorname').value.trim();
+            document.getElementById('tabP1').innerText = p1V ? p1V : "Kunde 1";
+            document.getElementById('tabP2').innerText = p2V ? p2V : "Kunde 2 (Partner)";
+
+            renderActiveResults();
+        }
+
+        function renderActiveResults() {
+            const id = currentActivePartner;
+            const data = partnerData[id];
+            const jahre = parseInt(document.getElementById('slideJahre').value) || 20;
+            const isMarried = document.getElementById('checkVerheiratet').checked;
+
+            if (!data || !data.sim || typeof data.sim.totalEigenbeitrag === 'undefined') return;
+
+            document.getElementById('outBausparsumme').innerText = formatEuro(data.bs, true);
+            document.getElementById('outGuthabenNetto').innerText = formatEuro(data.guthaben, false);
+            document.getElementById('outDarlehen').innerText = formatEuro(data.darlehen, false);
+
+            let guthabenRealPct = data.bs > 0 ? ((data.guthaben / data.bs) * 100).toFixed(1) : "0.0";
+            let darlehenRealPct = data.bs > 0 ? ((data.darlehen / data.bs) * 100).toFixed(1) : "0.0";
+            document.getElementById('outGuthabenPct').innerText = guthabenRealPct + "%";
+            document.getElementById('outDarlehenPct').innerText = darlehenRealPct + "%";
+
+            let gesamtGebuehr = data.sim.totalAbschlussgebuehren; 
+            document.getElementById('tblAbschlussGebuehr').innerText = "- " + formatEuro(gesamtGebuehr * (1.0 / 1.5), false);
+            document.getElementById('tblVariantenpreis').innerText = "- " + formatEuro(gesamtGebuehr * (0.5 / 1.5), false);
+
+            document.getElementById('tblEigen').innerText = formatEuro(data.sim.totalEigenbeitrag, true);
+            document.getElementById('tblFoerder').innerText = formatEuro(data.sim.totalFoerderung, true);
+            document.getElementById('tblRiester').innerText = formatEuro(partnerData[id].riester, true);
+            document.getElementById('tblZinsen').innerText = formatEuro(data.sim.totalZinsen, false);
+            document.getElementById('tblKonto').innerText = "- " + formatEuro(data.sim.totalKontogebuehren, true);
+            document.getElementById('tblTotalGuthaben').innerText = "ca. " + formatEuro(data.guthaben, false);
+
+            document.getElementById('lblFoerderQuote').innerText = data.foerderQuote.toFixed(0) + ' %';
+            document.getElementById('lblBrandedSollzins').innerText = data.sollzins.toFixed(2) + '%';
+            document.getElementById('lblBrandedTilgung').innerText = data.promille;
+
+            document.getElementById('lblDetailGrund').innerText = formatEuro(data.sim.totalGrundzulage, true);
+            document.getElementById('lblDetailKinder').innerText = formatEuro(data.sim.totalKinderzulage, true);
+            document.getElementById('lblDetailBonus').innerText = formatEuro(document.getElementById(`p${id}BonusCheck`).checked ? 200 : 0, true);
+            document.getElementById('lblDetailTotal').innerText = formatEuro(data.sim.totalFoerderung, true);
+            document.getElementById('outJahreText').innerText = jahre;
+
+            document.getElementById('lblLegEigen').innerText = data.pctEigen.toFixed(1) + '%';
+            document.getElementById('lblLegRiester').innerText = data.pctRiester.toFixed(1) + '%';
+            document.getElementById('lblLegFoerder').innerText = data.pctFoerder.toFixed(1) + '%';
+            document.getElementById('lblLegDarlehen').innerText = data.pctDarlehen.toFixed(1) + '%';
+
+            renderSvgPie(data.pctEigen, data.pctFoerder, data.pctRiester, data.pctDarlehen);
+
+            const noticeBox = document.getElementById('mittelbarNoticeBox');
+            noticeBox.innerHTML = "";
+            noticeBox.className = "rnote hidden"; 
+
+            const currentStatus = document.getElementById(`p${id}Foerder`).value;
+            const otherId = (id === 1) ? 2 : 1;
+            const otherStatus = document.getElementById(`p${otherId}Foerder`).value;
+            const otherMtl = parseFloat(document.getElementById(`p${otherId}NumEigen`).value) || 0;
+
+            let noticeHTML = "";
+            if (currentStatus === 'mittelbar') {
+                if (!isMarried) {
+                    noticeBox.className = "rnote warn animate-fadeIn";
+                    noticeHTML += "⚠️ <strong>Achtung:</strong> Die mittelbare Förderberechtigung setzt voraus, dass die Option 'Verheiratet / Lebenspartnerschaft' aktiv ist.<br>";
+                } else if (otherStatus !== 'unmittelbar') {
+                    noticeBox.className = "rnote err animate-fadeIn";
+                    noticeHTML += "❌ <strong>Kein Förderanspruch:</strong> Ein mittelbarer Anspruch besteht nur, wenn der Partner (Kunde " + otherId + ") <strong>unmittelbar zulagenberechtigt</strong> ist.<br>";
+                } else if (otherMtl < 150) {
+                    noticeBox.className = "rnote warn animate-fadeIn";
+                    const pct = Math.round((otherMtl / 150) * 100);
+                    noticeHTML += "⚠️ <strong>Eingeschränkte Grundzulage:</strong> Da Ihr Partner nicht den Höchstbeitrag von 150 €/Monat spart, wird Ihre Grundzulage auf " + pct + "% gekürzt. Die Kinderzulage bleibt davon unberührt.";
+                }
+            } else if (currentStatus === 'keins') {
+                noticeBox.className = "rnote info animate-fadeIn";
+                noticeHTML += "ℹ️ Für diesen Kunden ist aktuell kein Förderstatus hinterlegt oder er ist nicht förderfähig. Es werden keine staatlichen Zulagen berechnet.";
+            }
+
+            if (data.childData && data.childData.length > 0 && data.mtl < 25) {
+                noticeBox.className = "rnote warn animate-fadeIn";
+                noticeHTML += "⚠️ <strong>Keine Kinderzulage:</strong> Um die staatliche Kinderzulage zu erhalten, müssen Sie ab 2027 mindestens 25 € monatlich (300 € jährlich) einzahlen. Aktuell gehen die Kinderzulagen komplett verloren.";
+            }
+
+            if (noticeHTML) {
+                noticeBox.innerHTML = noticeHTML;
+                noticeBox.classList.remove('hidden');
+            }
+
+            const anrede = document.getElementById(`p${id}Anrede`).value;
+            const vorname = document.getElementById(`p${id}Vorname`).value.trim();
+            const nachname = document.getElementById(`p${id}Nachname`).value.trim();
+            const titleEl = document.getElementById('lblDynamicOfferTitle');
+            
+            if (vorname || nachname) {
+                titleEl.innerText = `Persönliches Angebot für ${anrede ? anrede + " " : ""}${(vorname + " " + nachname).trim()}`;
+            } else {
+                titleEl.innerText = `Ihre persönliche Eigenheimrente`;
+            }
+
+            let childSummary = data.childData.length === 0 ? "0 Kinder" : `${data.childData.length} Kind(er)`;
+            let riesterSummary = partnerData[id].riester > 0 ? ` | Übertrag: ${formatEuro(partnerData[id].riester, true)}` : "";
+            
+            let statusSelect = document.getElementById(`p${id}Status`);
+            let berufStr = statusSelect.options[statusSelect.selectedIndex]?.text || "Nicht angegeben";
+            if (berufStr === "- Bitte wählen -") berufStr = "Nicht angegeben";
+            
+            let realTilgungEuro = (data.promille / 1000) * data.bs;
+
+            document.getElementById('lblDynamicParametersSummary').innerText = 
+                `Sparrate: ${data.mtl} € | Sparzeit: ${jahre} Jahre | ${childSummary}${riesterSummary} | Beruf: ${berufStr} | Sollzins: ${data.sollzins.toFixed(2)}% | Tilgungsbeitrag: ${formatEuro(realTilgungEuro, true)}`;
+        }
+
+        function formatEuro(w, isInt = false) {
+            if (typeof w === 'undefined' || w === null) return "0 €";
+            return w.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: isInt ? 0 : 2, minimumFractionDigits: isInt ? 0 : 2 });
+        }
+
+        function exportToPDF() {
+            const id = currentActivePartner;
+            const vorname = document.getElementById(`p${id}Vorname`).value.trim().replace(/\s+/g, '');
+            const nachname = document.getElementById(`p${id}Nachname`).value.trim().replace(/\s+/g, '');
+            const kundenNameCompiled = (vorname + nachname) || `Kunde_${id}`;
+            
+            const now = new Date();
+            const yyyy = now.getFullYear();
+            const mm = String(now.getMonth() + 1).padStart(2, '0');
+            const dd = String(now.getDate()).padStart(2, '0');
+            const formattedDate = `${yyyy}${mm}${dd}`;
+
+            const targetRow = document.getElementById('actionButtonsRow');
+            const tabsHeader = document.getElementById('partnerTabsHeader');
+
+            targetRow.style.display = 'none'; 
+            tabsHeader.style.display = 'none';
+
+            const element = document.getElementById('pdf-content');
+            const opt = {
+                margin: 10, 
+                filename: `${formattedDate}_${kundenNameCompiled}_Eigenheimrente.pdf`,
+                image: { type: 'jpeg', quality: 0.99 },
+                html2canvas: { scale: 2.5, useCORS: true, logging: false, scrollY: 0 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak: { mode: 'avoid-all' }
+            };
+            
+            html2pdf().set(opt).from(element).save().then(() => {
+                targetRow.style.display = ''; 
+                tabsHeader.style.display = '';
+            });
+        }
+
+        function renderSvgPie(pctEigen, pctFoerder, pctRiester, pctDarlehen) {
+            const svg = document.getElementById('svgPieContainer');
+            svg.innerHTML = '';
+            svg.setAttribute('width', '176');
+            svg.setAttribute('height', '176');
+            
+            const slices = [
+                { percent: pctDarlehen / 100, color: '#ff4d0d' }, 
+                { percent: pctRiester / 100, color: '#9aa0a6' },  
+                { percent: pctFoerder / 100, color: '#188038' },  
+                { percent: pctEigen / 100, color: '#20232a' }     
+            ];
+            
+            // AUSFALLSICHERHEITS-FALLBACK: Wenn ein Anteil nahe 100 % beträgt, natives Kreiselement erzeugen
+            let fullSlice = slices.find(s => s.percent >= 0.999);
+            if (fullSlice) {
+                const circleEl = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circleEl.setAttribute('cx', '100');
+                circleEl.setAttribute('cy', '100');
+                circleEl.setAttribute('r', '90');
+                circleEl.setAttribute('fill', fullSlice.color);
+                svg.appendChild(circleEl);
+                return;
+            }
+
+            let accumulatedPercent = 0;
+            slices.forEach(slice => {
+                if(slice.percent <= 0) return;
+                
+                const startPercent = accumulatedPercent;
+                const endPercent = accumulatedPercent + slice.percent;
+                accumulatedPercent = endPercent;
+                
+                const angleStart = (2 * Math.PI * startPercent) - (Math.PI / 2);
+                const angleEnd = (2 * Math.PI * endPercent) - (Math.PI / 2);
+                
+                const startX = 100 + Math.cos(angleStart) * 90;
+                const startY = 100 + Math.sin(angleStart) * 90;
+                const endX = 100 + Math.cos(angleEnd) * 90;
+                const endY = 100 + Math.sin(angleEnd) * 90;
+                
+                const largeArcFlag = slice.percent > 0.5 ? 1 : 0;
+                const pathData = `M 100 100 L ${startX} ${startY} A 90 90 0 ${largeArcFlag} 1 ${endX} ${endY} Z`;
+                
+                const pathEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                pathEl.setAttribute('d', pathData);
+                pathEl.setAttribute('fill', slice.color);
+                svg.appendChild(pathEl);
+            });
+        }
+
+        function generateOutlookEmail() {
+            const id = currentActivePartner;
+            const data = partnerData[id];
+            const jahre = document.getElementById('slideJahre').value;
+            const anrede = document.getElementById(`p${id}Anrede`).value;
+            const vorname = document.getElementById(`p${id}Vorname`).value.trim();
+            const nachname = document.getElementById(`p${id}Nachname`).value.trim();
+            
+            let guthabenAnteil = data.bs > 0 ? ((data.guthaben / data.bs) * 100).toFixed(1) : "0.0";
+            let darlehenAnteil = data.bs > 0 ? ((data.darlehen / data.bs) * 100).toFixed(1) : "0.0";
+
+            const subject = "Ihr persönlicher HeimVorteil: Staatliche Förderung & Zinssicherheit optimal kombiniert";
+            
+            let salutation = "Sehr geehrte Damen und Herren,";
+            if (nachname) {
+                if (anrede === "Herr") salutation = `Sehr geehrter Herr ${nachname},`;
+                else if (anrede === "Frau") salutation = `Sehr geehrte Frau ${nachname},`;
+                else salutation = `Sehr geehrte(r) ${vorname ? vorname + " " : ""}${nachname},`;
+            } else if (vorname) {
+                salutation = `Hallo ${vorname},`;
+            }
+
+            const body = `${salutation}\n\n` +
+                         `vielen Dank für das angenehme Gespräch! Wie versprochen erhalten Sie hier die Eckdaten Ihrer persönlichen Beispielrechnung für die Wüstenrot Eigenheimrente:\n\n` +
+                         `Das Besondere an Ihrer Strategie: Sie nutzen den staatlichen Förderturbo maximal aus. Auf Ihre eigenen Beiträge erhalten Sie eine phänomenale persönliche Förderquote von ${data.foerderQuote.toFixed(0)} % – pures geschenktes Geld vom Staat für Ihr Vermögen.\n\n` +
+                         `Ihre Berechnungsparameter im Überblick:\n` +
+                         `- Gewählter Eigenbeitrag: ${data.mtl} € monatlich über ${jahre} Jahre\n` +
+                         `- Ihr Netto-Guthaben: ${formatEuro(data.guthaben, false)} (inkl. aller Zulagen, exakter Anteil am Vertrag: ${guthabenAnteil}%)\n` +
+                         `- Garantierter Darlehensanspruch: ${formatEuro(data.darlehen, false)} (exakter Anteil am Vertrag: ${darlehenAnteil}%)\n` +
+                         `- Sicherer Darlehenszins: nur ${data.sollzins.toLocaleString('de-DE')} % p.a. (lebenslang garantiert!)\n` +
+                         `- Empfohlene Gesamtsumme Premium: ${formatEuro(data.bs, true)}\n\n` +
+                         `Das Beste daran – Ihre absolute Flexibilität für die Zukunft:\n` +
+                         `Die Eigenheimrente ist Ihr perfektes Werkzeug für:\n` +
+                         `- Kauf oder Bau: Nutzen Sie das Kapital, um eine eigengenutzte Immobilie zu kaufen oder zu bauen.\n` +
+                         `- Die schnelle Entschuldung: Nutzen Sie das Kapital, um Ihr Eigenheim vorzeitig komplett schuldenfrei zu machen.\n` +
+                         `- Wertsteigerung & Sanierung: Ob neue Heizung, Solaranlage oder Dach – das Geld steht bereit.\n` +
+                         `- Altersgerechten Umbau: Sorgen Sie rechtzeitig vor, damit Ihr Zuhause auch im Alter perfekt zu Ihnen passt.\n\n` +
+                         `Die detaillierte Aufschlüsselung der staatlichen Förderung finden Sie im angehängten PDF-Dokument.\n\n` +
+                         `Für Fragen oder zur Finalisierung des Vertrages stehe ich Ihnen jederzeit gerne zur Verfügung.\n\n` +
+                         `[HINWEIS: Bitte das heruntergeladene PDF anhängen und hier Ihre Outlook-Signatur einfügen]`;
+
+            const targetEmail = document.getElementById(`p` + id + `Email`).value.trim();
+            window.location.href = `mailto:${encodeURIComponent(targetEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        }
+    </script>
+
+<!-- === Kundendaten-Übernahme aus dem Index =====================================
+     Liest die im Index eingegebenen Kundendaten aus dem Browser-Speicher
+     (localStorage) und traegt sie in die passenden Felder dieses Tools ein.
+     Es wird KEINE Datei angelegt – die Daten liegen nur in diesem Browser
+     und werden ueber den Reset-Button im Index geloescht.
+     ============================================================================ -->
+<script>
+(function(){
+  var k;
+  try { k = JSON.parse(localStorage.getItem('beratung_kunde')) || {}; }
+  catch(e){ return; }
+  if(!k) return;
+
+  var voll = [k.vorname, k.nachname].filter(Boolean).join(' ').trim();
+
+  // Geburtsdatum -> Feld #dob (z. B. 2-Welten, Rendite-Vergleich)
+  var dob = document.getElementById('dob');
+  if(dob && k.geburtsdatum && !dob.value){
+    dob.value = k.geburtsdatum;
+    dob.dispatchEvent(new Event('change', {bubbles:true}));
   }
 
-  // ---- EVENTS ----
-  const beitragSlider = document.getElementById('beitrag');
-  beitragSlider.addEventListener('input', e => {
-    state.beitrag = +e.target.value;
-    document.getElementById('beitragVal').textContent = state.beitrag + ' €';
-    document.getElementById('beitragJahr').textContent = state.beitrag * 12;
-    calc();
-  });
-
-  document.getElementById('einkommen').addEventListener('input', e => {
-    state.einkommen = +e.target.value || 0; calc();
-  });
-
-  document.getElementById('alterKunde').addEventListener('input', e => {
-    state.alterKunde = +e.target.value || 0;
-    // Berufseinsteiger-Bonus automatisch vorschlagen bei unter 25
-    if (state.alterKunde > 0 && state.alterKunde < 25 && !document.getElementById('bonusToggle').checked) {
-      // nicht erzwingen, nur Hinweis – Toggle bleibt manuell
-    }
-    calc();
-  });
-
-  // Kinder-Buttons: erzeugen dynamische Alter-Eingaben
-  function renderKinderAlter() {
-    const wrap = document.getElementById('kinderAlterWrap');
-    wrap.innerHTML = '';
-    for (let i = 0; i < state.kids; i++) {
-      const val = state.kinderAlter[i] != null ? state.kinderAlter[i] : 8;
-      state.kinderAlter[i] = val;
-      const div = document.createElement('div');
-      div.innerHTML = '<label style="font-size:11px;font-weight:600;display:block;margin-bottom:4px">Kind ' + (i+1) + ' – Alter</label>' +
-        '<input type="number" class="mini-input" style="width:100%" min="0" max="40" value="' + val + '" data-idx="' + i + '">';
-      wrap.appendChild(div);
-    }
-    state.kinderAlter.length = state.kids;
-    wrap.querySelectorAll('input').forEach(inp => {
-      inp.addEventListener('input', e => {
-        state.kinderAlter[+e.target.dataset.idx] = +e.target.value || 0;
-        calc();
-      });
-    });
+  // Voller Name -> Feld #kundenName (z. B. Finanzierungs-Check)
+  var kn = document.getElementById('kundenName');
+  if(kn && voll && !kn.value){
+    kn.value = voll;
+    kn.dispatchEvent(new Event('input', {bubbles:true}));
   }
 
-  document.querySelectorAll('#kidsBtns button').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('#kidsBtns button').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      state.kids = +btn.dataset.k;
-      const detail = document.getElementById('kinderDetail');
-      if (state.kids > 0) { detail.classList.remove('hidden'); renderKinderAlter(); }
-      else { detail.classList.add('hidden'); state.kinderAlter = []; }
-      calc();
-    });
-  });
-
-  document.getElementById('bonusToggle').addEventListener('change', e => { state.bonus = e.target.checked; calc(); });
-
-  document.getElementById('bspToggle').addEventListener('change', e => {
-    document.getElementById('bspPanel').style.display = e.target.checked ? 'block' : 'none';
-  });
-  document.getElementById('bspAlt').addEventListener('input', calc);
-  document.getElementById('bspGuthaben').addEventListener('input', calc);
-  document.getElementById('bspBeitragAlt').addEventListener('input', calc);
-  document.getElementById('faktor').addEventListener('input', e => {
-    state.faktor = +e.target.value;
-    document.getElementById('faktorVal').textContent = '×' + state.faktor;
-    calc();
-  });
-
-  calc();
-</script>
-</body>
-</html>
-diffEl.style.color = '#ffffff';
+  // Getrennte Namensfelder -> p1Vorname / p1Nachname (Riester)
+  var pv = document.getElementById('p1Vorname');
+  var pn = document.getElementById('p1Nachname');
+  var touched = false;
+  if(pv && k.vorname && !pv.value){ pv.value = k.vorname; touched = true; }
+  if(pn && k.nachname && !pn.value){ pn.value = k.nachname; touched = true; }
+  if(touched && typeof calculate === 'function'){ calculate(); }
+})();
 </script>
 
 </body>
 </html>
-

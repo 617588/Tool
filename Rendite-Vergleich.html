@@ -1,422 +1,922 @@
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>Rendite Vergleich</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rendite-Vergleich</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
+:root{
+  --brand:#ff4d0d;
+  --brand-ink:#c73a08;
+  --brand-tint:#ffece4;
+  --ink:#20232a;
+  --muted:#6b7280;
+  --line:#e4e7ec;
+  --bg:#eceef1;
+  --card:#ffffff;
+  --grey:#9aa0a6;
+  --blue:#2f6f8f;
+  --blue-ink:#1f4a60;
+  --blue-tint:#e8f1f5;
+  --pos:#188038;
+  --pos-tint:#e6f4ea;
+  --radius:16px;
+}
+
+*{box-sizing:border-box;}
+
 body{
- font-family:Arial;
- background:#f2f2f2;
- margin:0;
- padding:20px;
+  margin:0;
+  padding:24px;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
 }
 
-.wrapper{
- max-width:1100px;
- margin:auto;
- display:flex;
- gap:10px;
- align-items:flex-start;
-}
+.wrap{max-width:1080px;margin:auto;}
 
-/* ALTER HEADER-BUTTON (BLEIBT UNGENUTZT, NICHT ENTFERNT) */
-.headerBtn{
- width:34px;
- height:34px;
- border-radius:50%;
- background:rgba(0,0,0,0.10);
- cursor:pointer;
- margin-top:22px;
- display:flex;
- align-items:center;
- justify-content:center;
- transition:.2s;
- text-decoration:none;
-}
-.headerBtn:hover{background:#ff4d0d;}
-.headerBtn svg{width:18px;height:18px;fill:#333;}
-.headerBtn:hover svg{fill:white;}
-
-.container{
- flex:1;
- background:white;
- border-radius:12px;
- overflow:hidden;
-}
-
-/* ===== HEADER (WIE RIESTER) ===== */
+/* ---------- HEADER ---------- */
 .header{
- background:#ff4d0d;
- color:white;
- padding:22px 30px;
- font-size:22px;
- font-weight:600;
- text-align:center;
- position:relative;
- display:flex;
- align-items:center;
- justify-content:center;
+  position:relative;
+  height:74px;
+  background:var(--brand);
+  color:#fff;
+  border-radius:var(--radius) var(--radius) 0 0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
+  font-weight:700;
+  letter-spacing:.2px;
 }
-
-/* ZURÜCK BUTTON WIE RIESTER */
 .backBtn{
- position:absolute;
- left:20px;
- width:34px;
- height:34px;
- border-radius:50%;
- background:rgba(255,255,255,0.25);
- display:flex;
- align-items:center;
- justify-content:center;
- text-decoration:none;
- transition:.2s;
+  position:absolute;left:16px;
+  width:40px;height:40px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.2);text-decoration:none;transition:.2s;
 }
-.backBtn svg{width:18px;height:18px;fill:#fff}
-.backBtn:hover{background:#fff}
-.backBtn:hover svg{fill:#ff4d0d}
+.backBtn:hover{background:#fff;}
+.backBtn svg{width:18px;height:18px;fill:#fff;}
+.backBtn:hover svg{fill:var(--brand);}
+.topTools{position:absolute;right:14px;display:flex;gap:8px;}
+.iconBtn{
+  height:36px;border:none;border-radius:20px;padding:0 14px;
+  background:rgba(255,255,255,.2);color:#fff;font-family:inherit;
+  font-size:13px;font-weight:600;cursor:pointer;transition:.15s;
+  display:inline-flex;align-items:center;gap:6px;
+}
+.iconBtn:hover{background:#fff;color:var(--brand);}
+.iconBtn svg{width:15px;height:15px;fill:currentColor;}
+.iconBtn:focus-visible{outline:2px solid #fff;outline-offset:2px;}
 
-/* ===== REST ORIGINAL ===== */
-.cards{
- display:flex;
- gap:20px;
- padding:20px;
-}
-.card{
- flex:1;
- border-radius:16px;
- background:#f9f9f9;
- box-shadow:0 6px 14px rgba(0,0,0,0.06);
- overflow:hidden;
- transition:all .3s ease;
- position:relative;
-}
-.card:hover{
- transform:translateY(-5px) !important;
- box-shadow:0 14px 22px rgba(0,0,0,0.15) !important;
- z-index:5;
+.sheet{
+  background:var(--card);
+  border-radius:0 0 var(--radius) var(--radius);
+  padding:24px;
+  box-shadow:0 12px 40px rgba(20,23,42,.08);
 }
 
-/* ETF */
-.etf{
- flex:0;
- max-width:0;
- opacity:0;
- transform:translateX(60px);
- pointer-events:none;
- transition:all .35s ease;
+/* ---------- ANNAHMEN ---------- */
+.assumptions{
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:18px;
+  margin-bottom:24px;
 }
-.cards.showETF .etf{
- flex:1;
- max-width:100%;
- opacity:1;
- transform:translateX(0);
- pointer-events:auto;
+.eyebrow{
+  font-size:11px;font-weight:700;letter-spacing:1.4px;
+  text-transform:uppercase;color:var(--muted);margin-bottom:14px;
 }
-.cards.showETF .etf:hover{
- transform:translateY(-5px) translateX(0) !important;
+.fields{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px 16px;
 }
-.cards.showETF .card{flex:1}
+.field label{
+  display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;
+}
+.inputBox{position:relative;}
+.inputBox input{
+  width:100%;height:44px;
+  border:1px solid var(--line);border-radius:11px;
+  padding:0 34px 0 12px;
+  font-size:16px;font-weight:600;font-family:inherit;color:var(--ink);
+  background:#fafbfc;text-align:right;
+  font-variant-numeric:tabular-nums;
+}
+.inputBox input[type=date]{text-align:left;padding-right:12px;}
+.inputBox input:focus{outline:none;border:2px solid var(--brand);background:#fff;}
+.inputBox .suffix{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  font-size:13px;color:var(--muted);font-weight:600;pointer-events:none;
+}
+/* Schieberegler */
+.slider{
+  -webkit-appearance:none;appearance:none;width:100%;height:4px;margin-top:12px;
+  border-radius:4px;background:var(--line);cursor:pointer;
+}
+.slider::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;
+  background:var(--brand);border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.25);cursor:grab;
+}
+.slider::-moz-range-thumb{
+  width:18px;height:18px;border:2px solid #fff;border-radius:50%;
+  background:var(--brand);box-shadow:0 1px 4px rgba(0,0,0,.25);cursor:grab;
+}
+.slider:focus-visible{outline:2px solid var(--brand);outline-offset:4px;}
+.dobHint{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.4;}
 
-/* HEAD */
-.cardHead{
- padding:14px;
- font-weight:bold;
- text-align:center;
+.controls{
+  display:flex;flex-wrap:wrap;align-items:center;gap:16px 24px;
+  margin-top:18px;padding-top:18px;border-top:1px solid var(--line);
 }
-.left .cardHead{background:#ddd}
-.right .cardHead{background:#bfe8cf}
-.etf .cardHead{background:#cfe8ff}
-.etf{background:#eef6ff}
+.controlLabel{font-size:12px;font-weight:600;color:var(--muted);margin-right:2px;}
+.pills{display:flex;gap:6px;flex-wrap:wrap;}
+.pill{
+  border:1px solid var(--line);background:#fff;
+  padding:7px 14px;border-radius:20px;
+  font-size:14px;font-weight:600;font-family:inherit;color:var(--ink);cursor:pointer;transition:.15s;
+}
+.pill:hover{border-color:var(--brand);}
+.pill.active{background:var(--brand);border-color:var(--brand);color:#fff;}
+.pill:disabled{opacity:.4;cursor:not-allowed;}
+.pill.age{border-style:dashed;}
+.pill.age.active{border-style:solid;}
 
-.row{
- display:flex;
- justify-content:space-between;
- align-items:center;
- height:40px;
- border-bottom:1px solid #eee;
+.switchRow{display:flex;align-items:center;gap:10px;margin-left:auto;cursor:pointer;user-select:none;}
+.switchRow input{position:absolute;opacity:0;pointer-events:none;}
+.track{
+  width:46px;height:26px;background:#cfd3d8;border-radius:20px;position:relative;transition:.2s;flex:none;
 }
+.track::after{
+  content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;
+  background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.25);
+}
+.switchRow input:checked + .track{background:var(--blue);}
+.switchRow input:checked + .track::after{left:23px;}
+.switchText{font-size:14px;font-weight:600;}
+.switchText small{display:block;font-size:11px;font-weight:500;color:var(--muted);}
 
-/* INPUT */
-.inputGroup{
- display:flex;
- align-items:center;
- gap:6px;
+/* ---------- ERGEBNIS-KARTEN ---------- */
+.results{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:18px;
 }
-.unit{
- font-size:13px;
- color:#666;
+.results.withEtf{grid-template-columns:repeat(3,1fr);}
+.rCard{
+  display:flex;flex-direction:column;
+  border:1px solid var(--line);border-radius:14px;padding:16px;
+  border-top:3px solid var(--grey);
 }
-input{
- width:140px;
- height:34px;
- border-radius:20px;
- border:1px solid #ddd;
- text-align:right;
- padding:0 10px;
- background:#fafafa;
+.rCard.neu{border-top-color:var(--brand);background:#fff9f6;}
+.rCard.etf{border-top-color:var(--blue);background:#f6fafc;display:none;}
+.results.withEtf .rCard.etf{display:flex;}
+.rTag{font-size:12.5px;font-weight:700;margin-bottom:4px;}
+.rCard.neu .rTag{color:var(--brand-ink);}
+.rCard.etf .rTag{color:var(--blue);}
+.rCard.alt .rTag{color:var(--muted);}
+.bigNum{
+  font-size:26px;font-weight:800;line-height:1.1;letter-spacing:-.5px;
+  font-variant-numeric:tabular-nums;margin:2px 0 2px;
 }
-.inputWrap{
- position:relative;
-}
-.inputWrap input{
- padding-right:22px;
-}
-.inputWrap::after{
- content:"%";
- position:absolute;
- right:10px;
- top:50%;
- transform:translateY(-50%);
-}
+.rSub{font-size:11.5px;color:var(--muted);margin-bottom:12px;}
+.stats{margin:0;display:flex;flex-direction:column;gap:7px;}
+.statRow{display:flex;justify-content:space-between;font-size:12.5px;}
+.statRow dt{color:var(--muted);}
+.statRow dd{margin:0;font-weight:600;font-variant-numeric:tabular-nums;}
+.statRow dd.pos{color:var(--pos);}
 
-/* BUTTONS */
-.durationRow{
- display:flex;
- align-items:center;
- gap:8px;
+/* ---------- OUTCOME PANELS ---------- */
+.outcomeHead{font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);margin:4px 2px 12px;}
+.outcomes{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px;}
+.outcome{border-radius:16px;padding:22px;position:relative;overflow:hidden;}
+.outcome.trend{background:var(--brand-tint);}
+.outcome.etf{background:var(--blue-tint);}
+.oEyebrow{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:700;letter-spacing:.3px;margin-bottom:10px;}
+.outcome.trend .oEyebrow{color:var(--brand-ink);}
+.outcome.etf .oEyebrow{color:var(--blue-ink);}
+.oDot{width:9px;height:9px;border-radius:50%;flex:none;}
+.outcome.trend .oDot{background:var(--brand);}
+.outcome.etf .oDot{background:var(--blue);}
+.oValue{font-size:clamp(30px,5vw,42px);font-weight:800;line-height:1;letter-spacing:-1px;font-variant-numeric:tabular-nums;}
+.outcome.trend .oValue{color:var(--brand-ink);}
+.outcome.etf .oValue{color:var(--blue-ink);}
+.oValueSub{font-size:13.5px;font-weight:600;margin-top:6px;opacity:.85;}
+.outcome.trend .oValueSub{color:var(--brand-ink);}
+.outcome.etf .oValueSub{color:var(--blue-ink);}
+.oTangible{
+  margin-top:14px;padding-top:14px;border-top:1px solid rgba(0,0,0,.08);
+  font-size:14px;font-weight:600;line-height:1.45;
 }
-.durationBtn{
- padding:4px 10px;
- border-radius:14px;
- background:#e5e5e5;
- cursor:pointer;
- font-weight:bold;
- font-size:13px;
+.oTangible b{font-size:17px;}
+.oBadge{
+  display:inline-flex;align-items:center;gap:6px;margin-top:12px;
+  background:var(--pos-tint);color:var(--pos);
+  font-size:12px;font-weight:700;padding:5px 11px;border-radius:20px;
 }
-.durationBtn.active{
- background:#ff4d0d;
- color:white;
-}
-
-/* SWITCH */
-.switch{
- width:50px;
- height:26px;
- background:#ccc;
- border-radius:20px;
- position:relative;
- cursor:pointer;
-}
-.switch::after{
- content:"";
- width:22px;
- height:22px;
- background:white;
- position:absolute;
- top:2px;
- left:2px;
- border-radius:50%;
- transition:.2s;
-}
-.switch.active{background:#ff4d0d}
-.switch.active::after{left:26px}
-
-.controlRow{
- display:flex;
- justify-content:space-between;
- padding:10px 20px;
+.oBadge svg{width:13px;height:13px;fill:currentColor;}
+.oNote{font-size:11px;line-height:1.45;margin-top:12px;color:var(--muted);}
+.oMile{
+  margin-top:12px;font-size:12.5px;font-weight:600;color:var(--blue-ink);
+  background:rgba(47,111,143,.1);padding:8px 11px;border-radius:10px;line-height:1.4;
 }
 
-.summary{
- background:#ff4d0d;
- color:white;
- padding:18px;
- margin:20px;
- border-radius:12px;
- display:flex;
- justify-content:space-around;
+/* ---------- WARTEN KOSTET ---------- */
+.waiting{
+  display:flex;align-items:center;gap:16px;
+  border:1.5px solid var(--brand);border-radius:14px;
+  background:#fff;padding:16px 20px;margin-bottom:18px;
 }
-.big{font-size:18px;font-weight:bold}
-canvas{width:100%;height:320px}
+.waitIcon{
+  width:44px;height:44px;border-radius:12px;flex:none;
+  background:var(--brand-tint);display:flex;align-items:center;justify-content:center;
+}
+.waitIcon svg{width:22px;height:22px;fill:var(--brand);}
+.waitBody{flex:1;}
+.waitBig{font-size:22px;font-weight:800;color:var(--brand-ink);font-variant-numeric:tabular-nums;line-height:1.1;}
+.waitBig span{font-size:15px;font-weight:600;color:var(--ink);}
+.waitSub{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.4;}
+
+/* ---------- CHART ---------- */
+.chartCard{border:1px solid var(--line);border-radius:14px;padding:18px;}
+.chartWrap{position:relative;height:clamp(340px,54vh,500px);}
+.note{font-size:12px;color:var(--muted);line-height:1.5;margin:14px 2px 0;}
+
+/* ---------- KLAPPMENÜ / STORY ---------- */
+.story{margin-top:18px;border:1px solid var(--line);border-radius:14px;overflow:hidden;}
+.story summary{
+  list-style:none;cursor:pointer;user-select:none;
+  display:flex;align-items:center;gap:12px;padding:16px 18px;font-weight:700;font-size:15px;
+}
+.story summary::-webkit-details-marker{display:none;}
+.story summary .chev{margin-left:auto;transition:transform .2s;width:18px;height:18px;fill:var(--muted);flex:none;}
+.story[open] summary .chev{transform:rotate(180deg);}
+.story summary .sIcon{width:34px;height:34px;border-radius:9px;background:var(--blue-tint);display:flex;align-items:center;justify-content:center;flex:none;}
+.story summary .sIcon svg{width:18px;height:18px;fill:var(--blue);}
+.story summary small{display:block;font-weight:500;font-size:12px;color:var(--muted);margin-top:2px;}
+.storyBody{padding:0 18px 18px;}
+.compoundWrap{position:relative;height:240px;margin-bottom:10px;}
+.mileHead{font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);margin:16px 0 12px;}
+.miles{display:flex;flex-direction:column;gap:10px;}
+.mile{
+  display:flex;align-items:center;gap:13px;
+  padding:12px 14px;border-radius:11px;border:1px solid var(--line);background:#fafbfc;
+  transition:.2s;
+}
+.mile.done{border-color:rgba(24,128,56,.4);background:var(--pos-tint);}
+.mileTick{
+  width:30px;height:30px;border-radius:50%;flex:none;
+  display:flex;align-items:center;justify-content:center;
+  background:#e6e8eb;
+}
+.mileTick svg{width:15px;height:15px;fill:var(--grey);}
+.mile.done .mileTick{background:var(--pos);}
+.mile.done .mileTick svg{fill:#fff;}
+.mileText{flex:1;font-size:14px;font-weight:600;}
+.mileText small{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-top:1px;}
+.mileYear{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--muted);text-align:right;flex:none;}
+.mile.done .mileYear{color:var(--pos);}
+
+.disc{font-size:11px;color:var(--muted);line-height:1.5;margin:18px 2px 0;}
+
+/* ---------- PRINT-KOPF (nur beim Druck sichtbar) ---------- */
+.printHead{display:none;}
+
+@media (max-width:760px){
+  body{padding:14px;}
+  .fields{grid-template-columns:repeat(2,1fr);}
+  .results,.results.withEtf{grid-template-columns:1fr;}
+  .outcomes{grid-template-columns:1fr;}
+  .switchRow{margin-left:0;}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none !important;}
+}
+
+/* ---------- DRUCK / PDF ---------- */
+@media print{
+  @page{margin:14mm;}
+  body{background:#fff;padding:0;}
+  .header,.backBtn,.topTools,.noPrint,.slider,.controls,.assumptions .eyebrow{display:none !important;}
+  .sheet{box-shadow:none;border-radius:0;padding:0;}
+  .printHead{display:block;margin-bottom:14px;padding-bottom:12px;border-bottom:2px solid var(--brand);}
+  .printHead h1{font-size:20px;margin:0 0 4px;color:var(--brand-ink);}
+  .printHead .pMeta{font-size:12px;color:var(--muted);}
+  .story{display:none !important;}
+  .chartWrap{height:300px;}
+  .outcome,.rCard,.waiting,.chartCard{break-inside:avoid;}
+  .results.withEtf{grid-template-columns:repeat(3,1fr);}
+}
 </style>
 </head>
 
 <body>
+<div class="wrap">
 
-<div class="wrapper">
+  <div class="header">
+    <a href="index.html" class="backBtn" aria-label="Zurück zur Übersicht">
+      <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    Rendite-Vergleich
+    <div class="topTools">
+      <button class="iconBtn" id="resetBtn" title="Auf Standardwerte zurücksetzen">
+        <svg viewBox="0 0 24 24"><path d="M12 5V2L7 6l5 4V7a5 5 0 11-5 5H5a7 7 0 107-7z"/></svg>
+        Neu
+      </button>
+      <button class="iconBtn" id="printBtn" title="Als PDF speichern">
+        <svg viewBox="0 0 24 24"><path d="M6 9V2h12v7h3v9h-4v3H7v-3H3V9h3zm2-5v5h8V4H8zm8 12H8v4h8v-4z"/></svg>
+        PDF
+      </button>
+    </div>
+  </div>
 
-<div class="container">
+  <div class="sheet">
 
-<!-- HEADER (EINZIGE HTML-ÄNDERUNG) -->
-<div class="header">
-  <a href="index.html" class="backBtn">
-    <svg viewBox="0 0 24 24">
-      <path d="M15 18l-6-6 6-6"/>
-    </svg>
-  </a>
-  Rendite Vergleich
+    <!-- PRINT-KOPF -->
+    <div class="printHead">
+      <h1>Ihr persönlicher Rendite-Vergleich</h1>
+      <div class="pMeta" id="printMeta"></div>
+    </div>
+
+    <!-- ANNAHMEN -->
+    <section class="assumptions noPrintHide">
+      <div class="eyebrow">Deine Zahlen · frei anpassbar</div>
+      <div class="fields">
+        <div class="field">
+          <label for="startAlt">Startguthaben heute</label>
+          <div class="inputBox"><input id="startAlt" value="10.000" inputmode="decimal"><span class="suffix">€</span></div>
+          <input type="range" class="slider noPrint" id="startSlider" min="0" max="100000" step="1000" value="10000" aria-label="Startguthaben">
+        </div>
+        <div class="field">
+          <label for="rateAlt">Monatliche Sparrate</label>
+          <div class="inputBox"><input id="rateAlt" value="100" inputmode="decimal"><span class="suffix">€</span></div>
+          <input type="range" class="slider noPrint" id="rateSlider" min="0" max="1000" step="10" value="100" aria-label="Monatliche Sparrate">
+        </div>
+        <div class="field">
+          <label for="zinsAlt">Zins bestehender Vertrag</label>
+          <div class="inputBox"><input id="zinsAlt" value="0,5" inputmode="decimal"><span class="suffix">%</span></div>
+        </div>
+        <div class="field">
+          <label for="dob">Geburtsdatum <span style="font-weight:500;text-transform:none;letter-spacing:0">(optional)</span></label>
+          <div class="inputBox"><input id="dob" type="date"></div>
+          <div class="dobHint" id="dobHint">Für „bis 67" &amp; die monatliche Zusatzrente.</div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <span class="controlLabel">Anlagedauer</span>
+        <div class="pills" id="pills">
+          <button class="pill" data-jahre="7">7 J.</button>
+          <button class="pill active" data-jahre="15">15 J.</button>
+          <button class="pill" data-jahre="20">20 J.</button>
+          <button class="pill" data-jahre="30">30 J.</button>
+          <button class="pill" data-jahre="40">40 J.</button>
+          <button class="pill age" id="pill67" data-jahre="0" disabled>bis 67</button>
+        </div>
+
+        <label class="switchRow">
+          <input type="checkbox" id="etfToggle" checked>
+          <span class="track"></span>
+          <span class="switchText">ETF als Zusatzrente
+            <small>Beispiel 8 % p. a., ohne Gewähr</small>
+          </span>
+        </label>
+      </div>
+    </section>
+
+    <!-- ERGEBNIS-KARTEN -->
+    <div class="results withEtf" id="results">
+      <article class="rCard alt">
+        <span class="rTag">Bestehender Vertrag</span>
+        <div class="bigNum" id="endAlt">–</div>
+        <div class="rSub">Endkapital nach <span class="jahre">15</span> Jahren</div>
+        <dl class="stats">
+          <div class="statRow"><dt>Eingezahlt</dt><dd id="eingAlt">–</dd></div>
+          <div class="statRow"><dt>Zinsertrag</dt><dd id="ertragAlt" class="pos">–</dd></div>
+        </dl>
+      </article>
+
+      <article class="rCard neu">
+        <span class="rTag">Trend-Sparkonto</span>
+        <div class="bigNum" id="endNeu">–</div>
+        <div class="rSub">Endkapital nach <span class="jahre">15</span> Jahren</div>
+        <dl class="stats">
+          <div class="statRow"><dt>Eingezahlt</dt><dd id="eingNeu">–</dd></div>
+          <div class="statRow"><dt>Zinsertrag</dt><dd id="ertragNeu" class="pos">–</dd></div>
+        </dl>
+      </article>
+
+      <article class="rCard etf">
+        <span class="rTag">ETF-Sparplan</span>
+        <div class="bigNum" id="endEtf">–</div>
+        <div class="rSub">Endkapital nach <span class="jahre">15</span> Jahren</div>
+        <dl class="stats">
+          <div class="statRow"><dt>Eingezahlt</dt><dd id="eingEtf">–</dd></div>
+          <div class="statRow"><dt>Zinsertrag</dt><dd id="ertragEtf" class="pos">–</dd></div>
+        </dl>
+      </article>
+    </div>
+
+    <!-- OUTCOMES -->
+    <div class="outcomeHead">Was das für dich heißt</div>
+    <div class="outcomes" id="outcomes">
+      <!-- TREND -->
+      <div class="outcome trend">
+        <div class="oEyebrow"><span class="oDot"></span>Sicher sparen · garantierter Zins</div>
+        <div class="oValue" id="trendPlus">+ 0 €</div>
+        <div class="oValueSub">mehr als in deinem alten Vertrag</div>
+        <div class="oTangible">Du legst dafür <b id="trendPerMonth">0 €</b>/Monat zusätzlich aufs Sparguthaben – ohne einen Cent mehr einzuzahlen.</div>
+        <span class="oBadge">
+          <svg viewBox="0 0 24 24"><path d="M12 2l3 6 6 .9-4.5 4.4 1 6.7L12 17l-5.5 3 1-6.7L3 8.9 9 8z"/></svg>
+          + staatliche Förderung möglich
+        </span>
+        <div class="oNote">Das Trend-Sparkonto ist ein gefördertes Sparprodukt (z.&nbsp;B. Wohnungsbauprämie / vermögenswirksame Leistungen) – <b>keine</b> Altersvorsorge. Konkrete Förderhöhe abhängig von Einkommen &amp; Einzahlung.</div>
+      </div>
+
+      <!-- ETF -->
+      <div class="outcome etf">
+        <div class="oEyebrow"><span class="oDot"></span>Fürs Alter · Zusatzrente</div>
+        <div class="oValue" id="etfPlus">+ 0 €</div>
+        <div class="oValueSub" id="etfPlusSub">mehr Kapital am Ende der Laufzeit</div>
+        <div class="oTangible">Das ergibt rund <b id="etfPension">0 €</b>/Monat <span id="etfPensionWhen">zusätzliche Rente</span>.</div>
+        <div class="oMile" id="etfMile">–</div>
+        <div class="oNote">ETF-Beispiel mit 8&nbsp;% p.&nbsp;a. – Marktrendite <b>schwankt</b>, kann auch negativ sein und ist nicht garantiert. Rente = Auszahlung des Kapitals über 20&nbsp;Jahre bei ~3&nbsp;% Restverzinsung.</div>
+      </div>
+    </div>
+
+    <!-- WARTEN KOSTET -->
+    <div class="waiting">
+      <div class="waitIcon">
+        <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 10V6h-2v7l5 3 1-1.7-4-2.3z"/></svg>
+      </div>
+      <div class="waitBody">
+        <div class="waitBig"><span id="waitPrefix">Jedes Jahr Abwarten kostet dich</span> <span id="waitCost">0 €</span></div>
+        <div class="waitSub">Gerechnet auf den <b>garantierten</b> Trend-Zins. Je früher der Wechsel, desto länger arbeitet der Zinseszins für dich – verlorene Jahre holst du nicht zurück.</div>
+      </div>
+    </div>
+
+    <!-- CHART -->
+    <div class="chartCard">
+      <div class="chartWrap"><canvas id="chart"></canvas></div>
+      <p class="note">
+        Vereinfachte Beispielrechnung mit gleichbleibender Rate und Verzinsung – vor Kosten, Gebühren und Steuern.
+        Die orange Fläche zeigt das garantierte Zusatzkapital gegenüber dem bestehenden Vertrag; die Markierungen
+        rechts beziffern den Unterschied am Ende der Laufzeit. Die Y-Achse beginnt bei 0&nbsp;€, damit die
+        Größenverhältnisse ehrlich bleiben.
+      </p>
+    </div>
+
+    <!-- STORY / KLAPPMENÜ -->
+    <details class="story noPrint" id="story">
+      <summary>
+        <span class="sIcon"><svg viewBox="0 0 24 24"><path d="M3 3v18h18v-2H5V3H3zm4 12l4-4 3 3 5-6 1.5 1.2L14 17l-3-3-3.5 3.5L7 15z"/></svg></span>
+        <span>Wie dein Geld für dich arbeitet
+          <small>Zinseszins-Effekt &amp; Meilensteine – aufklappen</small>
+        </span>
+        <svg class="chev" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+      </summary>
+      <div class="storyBody">
+        <div class="compoundWrap"><canvas id="chart2"></canvas></div>
+        <p class="note" style="margin-top:0">
+          Grau = dein eingezahltes Geld, Blau = die Zinsen (ETF-Beispiel). Irgendwann übernehmen die Zinsen –
+          ab da wächst dein Kapital, ohne dass du mehr einzahlst.
+        </p>
+        <div class="mileHead">Deine Meilensteine</div>
+        <div class="miles" id="miles"></div>
+      </div>
+    </details>
+
+    <p class="disc">
+      Alle Werte sind unverbindliche Beispielrechnungen und keine individuelle Anlageberatung, kein Angebot und keine
+      Zusicherung. Der ETF-Wert beruht auf einer angenommenen Rendite von 8&nbsp;% p.&nbsp;a., die nicht garantiert ist
+      und in der Realität schwankt (Kursverluste möglich). Trend-Sparkonto und ETF-Sparplan sind unterschiedliche
+      Produkte mit unterschiedlichem Zweck und Risiko. Kosten, Gebühren, Förderungen und Steuern sind nicht berücksichtigt.
+    </p>
+
+  </div>
 </div>
 
-
-<div class="container">
-
-<div class="cards" id="cards">
-
-<!-- ALT -->
-<div class="card left">
-<div class="cardHead">Bestehender Vertrag</div>
-<div style="padding:12px">
-
-<div class="row"><span>Zins</span>
-<div class="inputWrap"><input id="zinsAlt" value="0,5"></div></div>
-
-<div class="row"><span>Guthaben</span>
-<div class="inputGroup"><input id="startAlt" value="10.000"><span class="unit">€</span></div></div>
-
-<div class="row"><span>Rate</span>
-<div class="inputGroup"><input id="rateAlt" value="100"><span class="unit">€</span></div></div>
-
-<div class="row"><span>Laufzeit</span>
-<div class="inputGroup"><input id="laufzeit" value="7"><span class="unit">J</span></div></div>
-
-<div class="row"><span>Gewinn</span><b id="ergAlt"></b></div>
-</div>
-</div>
-
-<!-- TREND -->
-<div class="card right">
-<div class="cardHead">Trend Bausparvertrag</div>
-<div style="padding:12px">
-<div class="row"><span>Zins</span><div class="inputWrap"><input id="zinsNeu" value="2,16"></div></div>
-<div class="row"><span>Guthaben</span><b id="startNeu"></b></div>
-<div class="row"><span>Rate</span><b id="rateNeu"></b></div>
-<div class="row"><span>Laufzeit</span><b id="laufzeitNeu"></b></div>
-<div class="row"><span>Gewinn</span><b id="ergNeu"></b></div>
-</div>
-</div>
-
-<!-- ETF -->
-<div class="card etf">
-<div class="cardHead">ETF Sparplan</div>
-<div style="padding:12px">
-<div class="row"><span>Rendite</span><b>8 %</b></div>
-<div class="row"><span>Guthaben</span><b id="startEtf"></b></div>
-<div class="row"><span>Rate</span><b id="rateEtf"></b></div>
-<div class="row"><span>Laufzeit</span><b id="laufzeitEtf"></b></div>
-<div class="row"><span>Gewinn</span><b id="ergEtf"></b></div>
-</div>
-</div>
-
-</div>
-
-<div class="controlRow">
-
-<div class="durationRow">
-<b>Laufzeit:</b>
-<div class="durationBtn active" onclick="setDuration(7)">7</div>
-<div class="durationBtn" onclick="setDuration(15)">15</div>
-<div class="durationBtn" onclick="setDuration(20)">20</div>
-<div class="durationBtn" onclick="setDuration(30)">30</div>
-<div class="durationBtn" onclick="setDuration(40)">40</div>
-<div class="durationBtn" onclick="setDuration(50)">50</div>
-</div>
-
-<div>
-<span>Alternative</span>
-<div class="switch" id="toggleBtn" onclick="toggleETF()"></div>
-</div>
-
-</div>
-
-<div style="padding:20px">
-<canvas id="chart"></canvas>
-</div>
-
-<div class="summary">
-<div><div>Alt</div><div class="big" id="sumAlt"></div></div>
-<div><div>Trend</div><div class="big" id="sumNeu"></div></div>
-<div id="etfSummary" style="display:none">
-<div>ETF</div>
-<div class="big" id="sumEtf"></div>
-</div>
-</div>
-
-</div>
-</div>
-
+<script src="konditionen.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
-let showETF=false;
+const BRAND='#ff4d0d', GREY='#9aa0a6', BLUE='#2f6f8f';
+const FILL_BRAND='rgba(255,77,13,.15)';
+const DEFAULTS = { start:'10.000', rate:'100', zins:'0,5', dauer:15, etf:true };
+const RETIRE_AGE = 67, ETF_RATE = 0.08, DRAW_YEARS = 20, DRAW_RATE = 0.03, HORIZON = 60;
 
-function euro(x){return Math.round(x).toLocaleString("de-DE")+" €";}
-function num(v){return parseFloat(String(v).replace(/\./g,"").replace(",","."))}
+let dauer=15, showETF=true, chart=null, chart2=null;
+let birthAge=null, useAge=false;      // useAge = "bis 67" aktiv
+let last=null;                         // zuletzt berechnete Daten (für Story/Print)
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+const $ = id => document.getElementById(id);
+const euro = x => Math.round(x).toLocaleString('de-DE') + ' €';
+const signEuro = v => (v>=0 ? '+ ' : '– ') + euro(Math.abs(v));
+const num = v => {
+  const n = parseFloat(String(v).replace(/\./g,'').replace(',','.').replace(/[^\d.\-]/g,''));
+  return isNaN(n) ? 0 : n;
+};
+
+/* ---------- Finanzmathematik ---------- */
 function calcOne(start, rate, z, l){
- let g=start, arr=[start], sum=rate*12;
- for(let i=1;i<=l;i++){g=(g+sum)*(1+z);arr.push(g);}
- return {arr,gain:g-(start+sum*l)};
+  let g = start, arr = [start], sum = rate*12;
+  for(let i=1;i<=l;i++){ g = (g+sum)*(1+z); arr.push(g); }
+  const eingezahlt = start + sum*l;
+  return { arr, end:g, eingezahlt, ertrag: g-eingezahlt };
+}
+// Endkapital, wenn der Wechsel um delayY Jahre verschoben wird (Geld bleibt solange im alten Vertrag)
+function endWithDelay(start, rate, zOld, zNew, l, delayY){
+  let g = start, sum = rate*12;
+  for(let i=0;i<l;i++){ const z = i<delayY ? zOld : zNew; g=(g+sum)*(1+z); }
+  return g;
+}
+// Monatliche Rente aus Kapital: Auszahlung über n Jahre bei Restverzinsung
+function monthlyPension(capital, years, annualDraw){
+  const i = annualDraw/12, n = years*12;
+  return i===0 ? capital/n : capital*i/(1-Math.pow(1+i,-n));
+}
+function niceTarget(end){
+  const steps=[1e6,5e5,2.5e5,1e5,5e4,2.5e4,1e4,5e3];
+  for(const s of steps){ if(end>=s) return s; }
+  return Math.max(1000, Math.floor(end/1000)*1000);
+}
+// Meilenstein-Jahre über langen Horizont (unabhängig von der Anlagedauer)
+function milestoneData(start, rate){
+  const l = HORIZON, sum = rate*12;
+  const { arr } = calcOne(start, rate, ETF_RATE, l);
+  const findRateCover = ()=>{ for(let i=1;i<=l;i++){ if(arr[i]-arr[i-1]-sum >= sum) return i; } return null; };
+  const findDouble = ()=>{ for(let i=1;i<=l;i++){ if(arr[i] >= 2*(start+sum*i)) return i; } return null; };
+  const target = niceTarget(arr[Math.min(l,40)]);
+  const findRound = ()=>{ for(let i=1;i<=l;i++){ if(arr[i] >= target) return i; } return null; };
+  return [
+    { label:'Zinsen zahlen deine Sparrate', sub:'Der Zinsertrag eines Jahres ist so hoch wie deine Einzahlungen.', year:findRateCover() },
+    { label:'Zinsertrag überholt Einzahlungen', sub:'Mehr als die Hälfte deines Kapitals sind reine Zinsen.', year:findDouble() },
+    { label: euro(target)+' Kapital', sub:'Runde Marke im ETF-Beispiel geknackt.', year:findRound() }
+  ];
 }
 
-function toggleETF(){
- showETF=!showETF;
- toggleBtn.classList.toggle("active");
- cards.classList.toggle("showETF");
- etfSummary.style.display=showETF?"block":"none";
- update();
+/* ---------- Zahlen-Animation ---------- */
+function animateNumber(el, to, fmt){
+  const from = el.__v || 0;
+  if(reduceMotion || from===to){ el.textContent = fmt(to); el.__v = to; return; }
+  const t0 = performance.now(), dur = 480;
+  (function frame(t){
+    const p = Math.min(1,(t-t0)/dur), e = 1-Math.pow(1-p,3);
+    el.textContent = fmt(from + (to-from)*e);
+    if(p<1) requestAnimationFrame(frame); else el.__v = to;
+  })(t0);
 }
 
-function setDuration(val){
- laufzeit.value=val;
- document.querySelectorAll(".durationBtn").forEach(b=>b.classList.remove("active"));
- event.target.classList.add("active");
- update();
+/* ---------- Chart-Endmarkierungen ---------- */
+let markers=[];
+function roundRect(ctx,x,y,w,h,r){
+  if(ctx.roundRect){ ctx.beginPath(); ctx.roundRect(x,y,w,h,r); return; }
+  ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();
 }
-
-function format(g){ return "+ "+euro(g); }
-
-function update(){
- let start=num(startAlt.value||0);
- let rate=num(rateAlt.value||0);
- let lauf=num(laufzeit.value||0);
-
- startNeu.innerText=euro(start);
- rateNeu.innerText=euro(rate);
- laufzeitNeu.innerText=lauf+" J";
-
- startEtf.innerText=euro(start);
- rateEtf.innerText=euro(rate);
- laufzeitEtf.innerText=lauf+" J";
-
- let alt=calcOne(start,rate,num(zinsAlt.value)/100,lauf);
- let neu=calcOne(start,rate,num(zinsNeu.value)/100,lauf);
- let etf=calcOne(start,rate,0.08,lauf);
-
- ergAlt.innerText=format(alt.gain);
- ergNeu.innerText=format(neu.gain);
- ergEtf.innerText=format(etf.gain);
-
- sumAlt.innerText=format(alt.gain);
- sumNeu.innerText=format(neu.gain);
- sumEtf.innerText=format(etf.gain);
-
- if(window.c) c.destroy();
-
- let ctx=chart.getContext("2d");
- window.c=new Chart(ctx,{
-  type:"line",
-  data:{
-    labels:[...Array(lauf+1).keys()],
-    datasets:[
-      {label:"Alt",data:alt.arr,borderColor:"#888"},
-      {label:"Trend",data:neu.arr,borderColor:"#34a853"},
-      ...(showETF ? [{label:"ETF",data:etf.arr,borderColor:"#3399ff"}] : [])
-    ]
+const markerPlugin = {
+  id:'endMarkers',
+  afterDatasetsDraw(c){
+    if(!markers.length) return;
+    const ctx=c.ctx;
+    markers.forEach(m=>{
+      const meta=c.getDatasetMeta(m.idx); if(!meta) return;
+      const p=meta.data[meta.data.length-1]; if(!p) return;
+      ctx.save();
+      ctx.font='700 12px Inter, system-ui, sans-serif';
+      const tw=ctx.measureText(m.text).width, padX=7, boxW=tw+padX*2, boxH=20;
+      let bx=p.x+8; const by=p.y-boxH/2;
+      if(bx+boxW>c.width-2) bx=p.x-8-boxW;
+      ctx.fillStyle=m.color; roundRect(ctx,bx,by,boxW,boxH,6); ctx.fill();
+      ctx.fillStyle='#fff'; ctx.textAlign='left'; ctx.textBaseline='middle';
+      ctx.fillText(m.text,bx+padX,p.y+1);
+      ctx.restore();
+    });
   }
- });
+};
+
+/* ---------- Hauptberechnung ---------- */
+function update(){
+  const start = num($('startAlt').value);
+  const rate  = num($('rateAlt').value);
+  const zA    = num($('zinsAlt').value)/100;
+  const zN    = num($('zinsNeu') ? $('zinsNeu').value : window.__trend || 2.16)/100;
+
+  const alt = calcOne(start, rate, zA, dauer);
+  const neu = calcOne(start, rate, zN, dauer);
+  const etf = calcOne(start, rate, ETF_RATE, dauer);
+
+  // Ergebnis-Karten
+  animateNumber($('endAlt'), alt.end, euro);
+  $('eingAlt').textContent = euro(alt.eingezahlt);
+  $('ertragAlt').textContent = '+ ' + euro(alt.ertrag);
+  animateNumber($('endNeu'), neu.end, euro);
+  $('eingNeu').textContent = euro(neu.eingezahlt);
+  $('ertragNeu').textContent = '+ ' + euro(neu.ertrag);
+  animateNumber($('endEtf'), etf.end, euro);
+  $('eingEtf').textContent = euro(etf.eingezahlt);
+  $('ertragEtf').textContent = '+ ' + euro(etf.ertrag);
+
+  document.querySelectorAll('.jahre').forEach(e=>e.textContent = dauer);
+
+  // Outcome Trend (garantiert)
+  const diffTrend = neu.end - alt.end;
+  animateNumber($('trendPlus'), diffTrend, signEuro);
+  $('trendPerMonth').textContent = euro(Math.max(0,diffTrend)/(dauer*12));
+
+  // Outcome ETF (Zusatzrente)
+  const diffEtf = etf.end - alt.end;
+  animateNumber($('etfPlus'), diffEtf, signEuro);
+  const pension = monthlyPension(etf.end, DRAW_YEARS, DRAW_RATE);
+  animateNumber($('etfPension'), pension, euro);
+  if(useAge){
+    $('etfPlusSub').textContent = 'mehr Kapital bis zu deinem 67. Lebensjahr';
+    $('etfPensionWhen').textContent = 'Zusatzrente ab 67 (rund '+DRAW_YEARS+' Jahre)';
+  } else {
+    $('etfPlusSub').textContent = 'mehr Kapital am Ende der Laufzeit';
+    $('etfPensionWhen').textContent = 'monatliche Zusatzrente über '+DRAW_YEARS+' Jahre';
+  }
+
+  // "Zinsen tragen die Rate"-Meilenstein für die ETF-Kachel
+  const mData = milestoneData(start, rate);
+  const rateCover = mData[0].year;
+  $('etfMile').textContent = rateCover
+    ? '★ Ab Jahr '+rateCover+' tragen die Zinsen deine komplette Sparrate.'
+    : 'Über die Zinsen baut sich mit den Jahren spürbar Kapital auf.';
+
+  // Was Warten kostet (auf garantiertem Trend-Zins)
+  const cost = neu.end - endWithDelay(start, rate, zA, zN, dauer, 1);
+  if(cost>0.5){
+    $('waitPrefix').textContent = 'Jedes Jahr Abwarten kostet dich';
+    animateNumber($('waitCost'), cost, v=>euro(v));
+  } else {
+    $('waitPrefix').textContent = 'Aktuell kein Nachteil durch Warten –';
+    $('waitCost').textContent = 'prüfe die Zinssätze';
+  }
+
+  // Chart
+  drawChart(alt.arr, neu.arr, etf.arr, diffTrend, diffEtf);
+
+  // Meilenstein-Liste
+  renderMiles(mData);
+
+  // Daten merken (Story/Print)
+  last = { start, rate, zA, zN, alt, neu, etf, mData };
+  if($('story').open) drawCompound();
+  updatePrintMeta();
 }
 
-document.querySelectorAll("input").forEach(i=>{
- i.addEventListener("keydown",e=>{
-  if(e.key==="Enter"){ update(); i.blur();}
- });
- i.addEventListener("input",update);
+/* ---------- Hauptchart ---------- */
+function drawChart(a, n, e, diffTrend, diffEtf){
+  const labels = Array.from({length:dauer+1}, (_,i)=>i);
+  const ds = [
+    { label:'Bestehender Vertrag', data:a, borderColor:GREY, borderWidth:2, fill:false, tension:.35, pointRadius:0, order:3 },
+    { label:'Trend-Sparkonto', data:n, borderColor:BRAND, backgroundColor:FILL_BRAND, borderWidth:3, fill:{target:0}, tension:.35, pointRadius:0, order:2 }
+  ];
+  markers = [{ idx:1, text:signEuro(diffTrend), color:BRAND }];
+  if(showETF){
+    ds.push({ label:'ETF (Beispiel 8 %)', data:e, borderColor:BLUE, borderWidth:2, borderDash:[6,4], fill:false, tension:.35, pointRadius:0, order:1 });
+    markers.push({ idx:2, text:signEuro(diffEtf), color:BLUE });
+  }
+  if(chart) chart.destroy();
+  chart = new Chart($('chart').getContext('2d'), {
+    type:'line',
+    data:{ labels, datasets:ds },
+    plugins:[markerPlugin],
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      layout:{ padding:{ right:78 } },
+      interaction:{ mode:'index', intersect:false },
+      animation: reduceMotion ? false : { duration:600 },
+      plugins:{
+        legend:{ position:'top', align:'start',
+          labels:{ usePointStyle:true, pointStyle:'line', boxWidth:26,
+            color:'#20232a', padding:16, font:{ family:'Inter', size:13, weight:'600' } } },
+        tooltip:{ backgroundColor:'#20232a', padding:12, cornerRadius:8, titleFont:{family:'Inter'}, bodyFont:{family:'Inter'},
+          callbacks:{ title:i=>'Jahr '+i[0].label, label:c=>c.dataset.label+': '+euro(c.parsed.y) } }
+      },
+      scales:{
+        x:{ title:{ display:true, text:'Jahre', color:'#6b7280', font:{family:'Inter',size:12} },
+            grid:{ display:false }, ticks:{ color:'#6b7280', font:{family:'Inter'} } },
+        y:{ beginAtZero:true, grid:{ color:'#eef0f3' }, border:{ display:false },
+            ticks:{ color:'#6b7280', font:{family:'Inter'}, callback:v=>euro(v) } }
+      }
+    }
+  });
+}
+
+/* ---------- Zinseszins-Story (gestapelt) ---------- */
+function drawCompound(){
+  if(!last) return;
+  const l=dauer, sum=last.rate*12;
+  const arr = last.etf.arr;
+  const labels=[], einz=[], zins=[];
+  for(let i=0;i<=l;i++){
+    labels.push(i);
+    const paid = last.start + sum*i;
+    einz.push(paid);
+    zins.push(Math.max(0, arr[i]-paid));
+  }
+  if(chart2) chart2.destroy();
+  chart2 = new Chart($('chart2').getContext('2d'), {
+    type:'bar',
+    data:{ labels, datasets:[
+      { label:'Eingezahlt', data:einz, backgroundColor:'#c7ccd2', stack:'s', borderRadius:2, maxBarThickness:26 },
+      { label:'Zinsertrag', data:zins, backgroundColor:BLUE, stack:'s', borderRadius:2, maxBarThickness:26 }
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      animation: reduceMotion ? false : { duration:500 },
+      plugins:{
+        legend:{ position:'top', align:'start',
+          labels:{ usePointStyle:true, pointStyle:'rectRounded', boxWidth:12, padding:14, font:{family:'Inter',size:12,weight:'600'} } },
+        tooltip:{ backgroundColor:'#20232a', callbacks:{ title:i=>'Jahr '+i[0].label, label:c=>c.dataset.label+': '+euro(c.parsed.y) } }
+      },
+      scales:{
+        x:{ stacked:true, grid:{display:false}, ticks:{color:'#6b7280', font:{family:'Inter'}, maxTicksLimit:12} },
+        y:{ stacked:true, beginAtZero:true, grid:{color:'#eef0f3'}, border:{display:false},
+            ticks:{color:'#6b7280', font:{family:'Inter'}, callback:v=>euro(v)} }
+      }
+    }
+  });
+}
+
+/* ---------- Meilensteine ---------- */
+const tickSVG = '<svg viewBox="0 0 24 24"><path d="M9 16.2l-3.5-3.5L4 14.2 9 19l11-11-1.5-1.5z"/></svg>';
+const lockSVG = '<svg viewBox="0 0 24 24"><path d="M12 1a5 5 0 00-5 5v3H6a2 2 0 00-2 2v9a2 2 0 002 2h12a2 2 0 002-2v-9a2 2 0 00-2-2h-1V6a5 5 0 00-5-5zm3 8H9V6a3 3 0 016 0v3z"/></svg>';
+function renderMiles(mData){
+  const box = $('miles'); box.innerHTML='';
+  mData.forEach(m=>{
+    const done = m.year!=null && m.year<=dauer;
+    const el=document.createElement('div');
+    el.className='mile'+(done?' done':'');
+    const year = m.year==null ? '—' : (done ? 'Jahr '+m.year : 'ab Jahr '+m.year);
+    el.innerHTML =
+      '<span class="mileTick">'+(done?tickSVG:lockSVG)+'</span>'+
+      '<span class="mileText">'+m.label+'<small>'+m.sub+'</small></span>'+
+      '<span class="mileYear">'+year+'</span>';
+    box.appendChild(el);
+  });
+}
+
+/* ---------- Alter / bis 67 ---------- */
+function ageFromDOB(str){
+  if(!str) return null;
+  const d=new Date(str); if(isNaN(d)) return null;
+  const t=new Date(); let a=t.getFullYear()-d.getFullYear();
+  const m=t.getMonth()-d.getMonth();
+  if(m<0 || (m===0 && t.getDate()<d.getDate())) a--;
+  return (a>=0 && a<120) ? a : null;
+}
+function refreshAgePill(){
+  birthAge = ageFromDOB($('dob').value);
+  const pill=$('pill67');
+  if(birthAge!=null && birthAge<RETIRE_AGE){
+    const yrs=RETIRE_AGE-birthAge;
+    pill.disabled=false;
+    pill.dataset.jahre=yrs;
+    pill.textContent='bis 67 ('+yrs+' J.)';
+    $('dobHint').textContent='Aktuell '+birthAge+' Jahre → '+yrs+' Jahre bis 67.';
+  } else {
+    pill.disabled=true;
+    pill.dataset.jahre=0;
+    pill.textContent='bis 67';
+    if(useAge){ useAge=false; }
+    $('dobHint').textContent = birthAge!=null
+      ? 'Bereits 67 oder älter – „bis 67" nicht verfügbar.'
+      : 'Für „bis 67" & die monatliche Zusatzrente.';
+    if(pill.classList.contains('active')){
+      pill.classList.remove('active');
+      document.querySelector('.pill[data-jahre="15"]').classList.add('active');
+      dauer=15;
+    }
+  }
+}
+
+/* ---------- Print-Kopf ---------- */
+function updatePrintMeta(){
+  const d=new Date().toLocaleDateString('de-DE');
+  const bits=['Startguthaben '+euro(num($('startAlt').value)),
+              'Sparrate '+euro(num($('rateAlt').value))+'/Monat',
+              'Laufzeit '+dauer+' Jahre'];
+  if(birthAge!=null) bits.push('Alter '+birthAge);
+  $('printMeta').textContent = bits.join('  ·  ') + '   —   erstellt am '+d;
+}
+
+/* ---------- Slider-Sync ---------- */
+function syncSlider(inputId, sliderId, fmt){
+  const inp=$(inputId), sl=$(sliderId);
+  sl.addEventListener('input', ()=>{ inp.value=fmt(+sl.value); update(); });
+  inp.addEventListener('input', ()=>{ const v=num(inp.value); if(v<=+sl.max) sl.value=v; update(); });
+}
+
+/* ---------- Events ---------- */
+['startAlt','rateAlt','zinsAlt'].forEach(id=>{
+  const el=$(id);
+  el.addEventListener('focus', ()=>el.select());
+  el.addEventListener('keydown', e=>{ if(e.key==='Enter') el.blur(); });
+});
+$('zinsAlt').addEventListener('input', update);
+$('startAlt').addEventListener('blur', ()=>{ $('startAlt').value = num($('startAlt').value).toLocaleString('de-DE'); });
+$('rateAlt').addEventListener('blur', ()=>{ $('rateAlt').value = num($('rateAlt').value).toLocaleString('de-DE'); });
+syncSlider('startAlt','startSlider', v=>v.toLocaleString('de-DE'));
+syncSlider('rateAlt','rateSlider', v=>String(v));
+
+$('dob').addEventListener('change', ()=>{ refreshAgePill(); update(); });
+
+document.querySelectorAll('.pill').forEach(p=>{
+  p.addEventListener('click', ()=>{
+    if(p.disabled) return;
+    document.querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));
+    p.classList.add('active');
+    dauer = Number(p.dataset.jahre);
+    useAge = (p.id==='pill67');
+    update();
+  });
 });
 
+$('etfToggle').addEventListener('change', ()=>{
+  showETF = $('etfToggle').checked;
+  $('results').classList.toggle('withEtf', showETF);
+  $('outcomes').style.gridTemplateColumns = showETF ? '' : '1fr';
+  document.querySelector('.outcome.etf').style.display = showETF ? '' : 'none';
+  update();
+});
+
+$('story').addEventListener('toggle', ()=>{ if($('story').open) drawCompound(); });
+$('printBtn').addEventListener('click', ()=>window.print());
+$('resetBtn').addEventListener('click', ()=>{
+  $('startAlt').value=DEFAULTS.start; $('startSlider').value=num(DEFAULTS.start);
+  $('rateAlt').value=DEFAULTS.rate;   $('rateSlider').value=num(DEFAULTS.rate);
+  $('zinsAlt').value=DEFAULTS.zins;
+  $('dob').value=''; refreshAgePill();
+  document.querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));
+  document.querySelector('.pill[data-jahre="15"]').classList.add('active');
+  dauer=DEFAULTS.dauer; useAge=false;
+  $('etfToggle').checked=DEFAULTS.etf; showETF=DEFAULTS.etf;
+  $('results').classList.toggle('withEtf', showETF);
+  document.querySelector('.outcome.etf').style.display='';
+  update();
+});
+
+/* Trend-Rendite aus zentraler konditionen.js */
+window.__trend = 2.16;
+if(window.KONDITIONEN && window.KONDITIONEN.trend != null){ window.__trend = window.KONDITIONEN.trend; }
+// verstecktes Feld für zN-Lookup vermeiden: direkter Wert
+$('zinsAlt').insertAdjacentHTML('afterend','');
+if(!$('zinsNeu')){
+  const hidden=document.createElement('input');
+  hidden.id='zinsNeu'; hidden.type='hidden';
+  hidden.value=String(window.__trend).replace('.',',');
+  document.body.appendChild(hidden);
+}
+
+refreshAgePill();
 update();
+</script>
+
+<!-- === Kundendaten-Übernahme aus dem Index =====================================
+     Liest die im Index eingegebenen Kundendaten aus dem Browser-Speicher
+     (localStorage) und traegt sie in die passenden Felder dieses Tools ein.
+     Es wird KEINE Datei angelegt – die Daten liegen nur in diesem Browser
+     und werden ueber den Reset-Button im Index geloescht.
+     ============================================================================ -->
+<script>
+(function(){
+  var k;
+  try { k = JSON.parse(localStorage.getItem('beratung_kunde')) || {}; }
+  catch(e){ return; }
+  if(!k) return;
+
+  var voll = [k.vorname, k.nachname].filter(Boolean).join(' ').trim();
+
+  // Geburtsdatum -> Feld #dob (z. B. 2-Welten, Rendite-Vergleich)
+  var dob = document.getElementById('dob');
+  if(dob && k.geburtsdatum && !dob.value){
+    dob.value = k.geburtsdatum;
+    dob.dispatchEvent(new Event('change', {bubbles:true}));
+  }
+
+  // Voller Name -> Feld #kundenName (z. B. Finanzierungs-Check)
+  var kn = document.getElementById('kundenName');
+  if(kn && voll && !kn.value){
+    kn.value = voll;
+    kn.dispatchEvent(new Event('input', {bubbles:true}));
+  }
+
+  // Getrennte Namensfelder -> p1Vorname / p1Nachname (Riester)
+  var pv = document.getElementById('p1Vorname');
+  var pn = document.getElementById('p1Nachname');
+  var touched = false;
+  if(pv && k.vorname && !pv.value){ pv.value = k.vorname; touched = true; }
+  if(pn && k.nachname && !pn.value){ pn.value = k.nachname; touched = true; }
+  if(touched && typeof calculate === 'function'){ calculate(); }
+})();
 </script>
 
 </body>

@@ -2,6 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VD / ZK Vergleich</title>
 
 <style>
@@ -211,13 +212,6 @@ justify-content:space-around;
         <h3>Konditionen</h3>
     </div>
 
-    <div id="versionInfo"
-         style="
-         font-size:12px;
-         color:#666;
-         margin-bottom:10px;">
-    </div>
-
 <div class="rowInput">
 <span>Zins VD</span>
 <input id="D_zinsVD" class="value" readonly>
@@ -296,6 +290,10 @@ justify-content:space-around;
 
 </div>
 
+<!-- ✅ Konditionen werden als normale Script-Datei geladen.
+     Das umgeht die file://-Sperre von fetch() beim Doppelklick. -->
+<script src="konditionen.js"></script>
+
 <script>
 
 const num = v =>
@@ -310,30 +308,32 @@ const euro = x =>
 
 let KONDITIONEN = {};
 
-async function loadKonditionen(){
+/* Eingebaute Rückfallwerte, falls konditionen.js (noch) nicht geladen ist */
+const DEF_KOND = {
+  vd:{
+    "24-35":[5.9,5.45,5.25,5.25,5.25,5.25],
+    "36-47":[5.85,5.45,5.15,5.15,5.15,5.15],
+    "48-60":[5.85,5.4,5.15,5.15,5.15,5.15],
+    "61-120":[5.2,5.2,5.2,5.2,4.65,4.55],
+    "121-180":[4.95,4.1,3.7,3.7,3.7,3.7]
+  },
+  zk:7.1
+};
 
-    try{
+function loadKonditionen(){
 
-        const response =
-            await fetch("konditionen.json");
+    const K = window.KONDITIONEN || {};
 
-        KONDITIONEN =
-            await response.json();
-
-        versionInfo.innerText =
-          `PV ${KONDITIONEN.meta.version} | gültig ab ${KONDITIONEN.meta.gueltigAb}`;
-
-        update();
-
-    }catch(error){
-
-        console.error(error);
-
-        alert(
-          "Konditionen konnten nicht geladen werden."
-        );
-
+    if(!K.vd){
+        console.warn("konditionen.js nicht gefunden – es werden eingebaute Standardwerte verwendet.");
     }
+
+    KONDITIONEN = {
+        vd: K.vd || DEF_KOND.vd,
+        zk: (K.zk != null ? K.zk : DEF_KOND.zk)
+    };
+
+    update();
 }
 
 function getVDZins(darlehen,laufzeit){
@@ -448,6 +448,46 @@ document.querySelectorAll("input:not([readonly])").forEach(i=>{
 });
 
 loadKonditionen();
+</script>
+
+
+<!-- === Kundendaten-Übernahme aus dem Index =====================================
+     Liest die im Index eingegebenen Kundendaten aus dem Browser-Speicher
+     (localStorage) und traegt sie in die passenden Felder dieses Tools ein.
+     Es wird KEINE Datei angelegt – die Daten liegen nur in diesem Browser
+     und werden ueber den Reset-Button im Index geloescht.
+     ============================================================================ -->
+<script>
+(function(){
+  var k;
+  try { k = JSON.parse(localStorage.getItem('beratung_kunde')) || {}; }
+  catch(e){ return; }
+  if(!k) return;
+
+  var voll = [k.vorname, k.nachname].filter(Boolean).join(' ').trim();
+
+  // Geburtsdatum -> Feld #dob (z. B. 2-Welten, Rendite-Vergleich)
+  var dob = document.getElementById('dob');
+  if(dob && k.geburtsdatum && !dob.value){
+    dob.value = k.geburtsdatum;
+    dob.dispatchEvent(new Event('change', {bubbles:true}));
+  }
+
+  // Voller Name -> Feld #kundenName (z. B. Finanzierungs-Check)
+  var kn = document.getElementById('kundenName');
+  if(kn && voll && !kn.value){
+    kn.value = voll;
+    kn.dispatchEvent(new Event('input', {bubbles:true}));
+  }
+
+  // Getrennte Namensfelder -> p1Vorname / p1Nachname (Riester)
+  var pv = document.getElementById('p1Vorname');
+  var pn = document.getElementById('p1Nachname');
+  var touched = false;
+  if(pv && k.vorname && !pv.value){ pv.value = k.vorname; touched = true; }
+  if(pn && k.nachname && !pn.value){ pn.value = k.nachname; touched = true; }
+  if(touched && typeof calculate === 'function'){ calculate(); }
+})();
 </script>
 
 </body>
