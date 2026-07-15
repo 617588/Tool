@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Beratungstools</title>
+<title>Finanzanalyse &amp; Vorsorge</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -12,206 +12,189 @@
   --brand:#ff4d0d; --brand-ink:#c73a08; --brand-tint:#ffece4;
   --ink:#20232a; --muted:#6b7280; --line:#e4e7ec; --bg:#eceef1; --card:#fff;
   --blue:#2f6f8f; --blue-ink:#1f4a60; --blue-tint:#e8f1f5;
-  --radius:16px;
+  --pos:#188038; --radius:16px;
 }
 *{box-sizing:border-box;}
 body{margin:0;padding:24px;background:var(--bg);color:var(--ink);
   font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;-webkit-font-smoothing:antialiased;}
-.wrap{max-width:1000px;margin:auto;}
+.wrap{max-width:1080px;margin:auto;}
 
-/* Header */
-.header{background:var(--brand);color:#fff;border-radius:var(--radius) var(--radius) 0 0;
-  padding:30px 34px;position:relative;overflow:hidden;}
-.header::after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;
-  border-radius:50%;background:rgba(255,255,255,.08);}
-.header .eyebrow{font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;opacity:.85;margin-bottom:8px;}
-.header h1{font-size:26px;font-weight:800;margin:0 0 6px;letter-spacing:-.4px;}
-.header p{font-size:14.5px;margin:0;opacity:.92;max-width:560px;line-height:1.5;}
+/* ---------- HEADER (identisch zu den Tools) ---------- */
+.header{
+  position:relative;height:74px;background:var(--brand);color:#fff;
+  border-radius:var(--radius) var(--radius) 0 0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;font-weight:700;letter-spacing:.2px;
+}
+.topTools{position:absolute;right:14px;display:flex;gap:8px;}
+.iconBtn{
+  height:36px;border:none;border-radius:20px;padding:0 14px;
+  background:rgba(255,255,255,.2);color:#fff;font-family:inherit;
+  font-size:13px;font-weight:600;cursor:pointer;transition:.15s;
+  display:inline-flex;align-items:center;gap:6px;
+}
+.iconBtn:hover{background:#fff;color:var(--brand);}
+.iconBtn svg{width:15px;height:15px;stroke:currentColor;fill:none;}
+.iconBtn:focus-visible{outline:2px solid #fff;outline-offset:2px;}
 
-.sheet{background:var(--card);border-radius:0 0 var(--radius) var(--radius);
-  box-shadow:0 12px 40px rgba(20,23,42,.08);padding:24px;}
+.sheet{
+  background:var(--card);
+  border-radius:0 0 var(--radius) var(--radius);
+  padding:24px;
+  box-shadow:0 12px 40px rgba(20,23,42,.08);
+}
 
-/* Kundendaten-Leiste */
-.kundenbar{border:1px solid var(--line);background:var(--blue-tint);border-radius:14px;
-  padding:16px 18px;margin-bottom:20px;}
-.kb-top{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
-.kb-title{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:800;color:var(--blue-ink);letter-spacing:-.2px;}
-.kb-title svg{width:19px;height:19px;stroke:var(--blue);fill:none;}
-.kb-hint{font-size:11.5px;font-weight:600;color:var(--blue);opacity:.85;margin-left:2px;}
-.kb-reset{margin-left:auto;flex:none;display:inline-flex;align-items:center;gap:7px;
-  border:1px solid var(--line);background:#fff;color:var(--ink);font-family:inherit;
-  font-size:13px;font-weight:700;padding:9px 15px;border-radius:20px;cursor:pointer;transition:.15s;}
-.kb-reset:hover{border-color:var(--brand);color:var(--brand-ink);background:var(--brand-tint);}
-.kb-reset:focus-visible{outline:3px solid rgba(255,77,13,.35);outline-offset:2px;}
-.kb-reset svg{width:15px;height:15px;stroke:currentColor;fill:none;}
-.kb-fields{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
-.kb-fields label{display:block;font-size:11.5px;font-weight:700;color:var(--blue-ink);margin-bottom:5px;}
-.kb-fields input{width:100%;height:42px;border:1px solid #d3dde3;border-radius:10px;padding:0 12px;
-  font-family:inherit;font-size:15px;font-weight:600;color:var(--ink);background:#fff;}
-.kb-fields input:focus{outline:none;border:2px solid var(--blue);}
-.kb-status{display:flex;align-items:center;gap:8px;margin-top:13px;font-size:12.5px;font-weight:600;color:var(--muted);}
-.kb-dot{width:9px;height:9px;border-radius:50%;background:#c7ced4;flex:none;}
-.kb-status.on{color:var(--blue-ink);} .kb-status.on .kb-dot{background:#188038;}
-@media (max-width:700px){.kb-fields{grid-template-columns:1fr;}}
+/* ---------- KUNDENDATEN (Stil der „Annahmen"-Box der Tools) ---------- */
+.assumptions{border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:24px;}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.eyebrow .aktiv{text-transform:none;letter-spacing:0;font-size:12px;font-weight:600;color:var(--muted);
+  display:inline-flex;align-items:center;gap:6px;}
+.eyebrow .aktiv .dot{width:8px;height:8px;border-radius:50%;background:#c7ced4;}
+.eyebrow .aktiv.on{color:var(--ink);} .eyebrow .aktiv.on .dot{background:var(--pos);}
+.fields{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 16px;}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;}
+.field input{
+  width:100%;height:44px;border:1px solid var(--line);border-radius:11px;padding:0 12px;
+  font-size:16px;font-weight:600;font-family:inherit;color:var(--ink);background:#fafbfc;
+}
+.field input:focus{outline:none;border:2px solid var(--brand);background:#fff;}
+.hint{font-size:11.5px;color:var(--muted);margin-top:12px;line-height:1.5;}
 
-/* Featured (2 Welten) */
-.featured{position:relative;width:100%;text-align:left;cursor:pointer;font-family:inherit;
-  border:1px solid var(--line);border-radius:14px;background:#fff;padding:0;overflow:hidden;
-  display:flex;transition:.18s;margin-bottom:20px;}
-.featured::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;
-  background:linear-gradient(180deg,var(--brand) 0 50%,var(--blue) 50% 100%);}
-.featured:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(20,23,42,.12);border-color:transparent;}
-.featured:focus-visible{outline:3px solid rgba(255,77,13,.35);outline-offset:2px;}
-.featured .f-ic{flex:none;width:64px;height:64px;border-radius:16px;margin:22px 0 22px 26px;
-  background:linear-gradient(135deg,var(--brand-tint),var(--blue-tint));
-  display:flex;align-items:center;justify-content:center;}
-.featured .f-ic svg{width:30px;height:30px;}
-.featured .f-body{padding:22px 24px;flex:1;min-width:0;}
-.featured .f-badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.5px;
-  text-transform:uppercase;color:var(--brand-ink);background:var(--brand-tint);
-  padding:4px 10px;border-radius:20px;margin-bottom:9px;}
-.featured .f-title{font-size:19px;font-weight:800;letter-spacing:-.3px;margin-bottom:5px;}
-.featured .f-desc{font-size:13.5px;color:var(--muted);line-height:1.5;max-width:560px;}
-.featured .f-go{display:none;align-items:center;gap:8px;align-self:center;margin:0 26px 0 10px;
-  flex:none;font-size:14px;font-weight:700;color:var(--brand-ink);}
-.featured .f-go svg{width:18px;height:18px;transition:transform .18s;}
-.featured:hover .f-go svg{transform:translateX(4px);}
-@media(min-width:760px){.featured .f-go{display:flex;}}
-
-/* Grid of tools */
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-.tool{position:relative;text-align:left;cursor:pointer;font-family:inherit;background:#fff;
-  border:1px solid var(--line);border-radius:14px;padding:20px;transition:.18s;
-  display:flex;flex-direction:column;gap:14px;}
-.tool:hover{transform:translateY(-3px);box-shadow:0 12px 24px rgba(20,23,42,.10);border-color:transparent;}
+/* ---------- WERKZEUGE ---------- */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.tool{
+  position:relative;text-align:left;font-family:inherit;cursor:pointer;background:#fff;
+  border:1px solid var(--line);border-radius:14px;padding:16px;transition:.16s;
+}
+.tool:hover{border-color:transparent;box-shadow:0 10px 22px rgba(20,23,42,.10);transform:translateY(-2px);}
 .tool:focus-visible{outline:3px solid rgba(255,77,13,.35);outline-offset:2px;}
-.tool .t-ic{width:46px;height:46px;border-radius:12px;background:var(--brand-tint);
-  display:flex;align-items:center;justify-content:center;flex:none;}
-.tool .t-ic svg{width:23px;height:23px;stroke:var(--brand);}
-.tool .t-title{font-size:16px;font-weight:700;letter-spacing:-.2px;margin-bottom:5px;}
-.tool .t-desc{font-size:13px;color:var(--muted);line-height:1.5;}
-.tool .t-cta{margin-top:auto;display:flex;align-items:center;gap:7px;
-  font-size:13.5px;font-weight:700;color:var(--brand-ink);}
-.tool .t-cta svg{width:16px;height:16px;transition:transform .18s;}
-.tool:hover .t-cta svg{transform:translateX(4px);}
-.tool.wide{grid-column:1 / -1;flex-direction:row;align-items:center;gap:18px;}
-.tool.wide .t-body{flex:1;min-width:0;}
-.tool.wide .t-cta{margin-top:0;flex:none;}
+.tHead{display:flex;align-items:center;gap:12px;}
+.tIc{width:40px;height:40px;border-radius:11px;background:var(--brand-tint);flex:none;
+  display:flex;align-items:center;justify-content:center;}
+.tIc svg{width:20px;height:20px;stroke:var(--brand);fill:none;}
+.tName{font-size:15.5px;font-weight:700;letter-spacing:-.15px;}
+.tGo{margin-left:auto;flex:none;display:flex;align-items:center;color:var(--brand-ink);
+  opacity:0;transform:translateX(-5px);transition:.16s;}
+.tGo svg{width:17px;height:17px;stroke:currentColor;fill:none;}
+.tool:hover .tGo,.tool:focus-visible .tGo{opacity:1;transform:none;}
 
-/* Icon accents */
-.tool.a-blue .t-ic{background:var(--blue-tint);} .tool.a-blue .t-ic svg{stroke:var(--blue);}
-.tool.a-blue .t-cta{color:var(--blue-ink);}
+/* Beschreibung erscheint beim Hover */
+.tDesc{font-size:12.5px;color:var(--muted);line-height:1.5;padding-left:52px;
+  max-height:0;opacity:0;overflow:hidden;
+  transition:max-height .2s ease,opacity .16s ease,margin-top .2s ease;}
+.tool:hover .tDesc,.tool:focus-visible .tDesc{max-height:60px;opacity:1;margin-top:8px;}
+@media(hover:none){.tDesc{max-height:none;opacity:1;margin-top:8px;} .tGo{opacity:1;transform:none;}}
 
 .footer{margin-top:22px;padding-top:16px;border-top:1px solid var(--line);
   text-align:center;font-size:12px;color:var(--muted);}
 
-@media (max-width:700px){
+@media(max-width:760px){
   body{padding:14px;}
-  .header{padding:24px 22px;}
+  .header{font-size:17px;padding:0 12px;}
+  .topTools{position:static;margin-left:10px;}
+  .fields{grid-template-columns:1fr;}
   .grid{grid-template-columns:1fr;}
-  .tool.wide{flex-direction:column;align-items:flex-start;}
 }
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;}}
 </style>
 </head>
 <body>
 <div class="wrap">
 
   <div class="header">
-    <div class="eyebrow">Ihre persönliche Finanzberatung</div>
-    <h1>Womit dürfen wir Sie heute unterstützen?</h1>
-    <p>Wählen Sie das passende Werkzeug – wir rechnen gemeinsam durch, was für Sie drin ist.</p>
+    Finanzanalyse &amp; Vorsorge
+    <div class="topTools">
+      <button class="iconBtn" id="btnReset" title="Kundendaten für den nächsten Kunden löschen">
+        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+        Neuer Kunde
+      </button>
+    </div>
   </div>
 
   <div class="sheet">
 
-    <!-- Kundendaten: einmal eingeben, alle Tools erhalten sie sofort -->
-    <div class="kundenbar">
-      <div class="kb-top">
-        <span class="kb-title">
-          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M5 20c0-3.5 3.1-6 7-6s7 2.5 7 6"/></svg>
-          Kundendaten
-          <span class="kb-hint">einmal eingeben · alle Tools übernehmen sie · bleibt nur in diesem Browser</span>
-        </span>
-        <button class="kb-reset" type="button" id="btnReset">
-          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
-          Neuer Kunde
-        </button>
+    <!-- Kundendaten -->
+    <div class="assumptions">
+      <div class="eyebrow">
+        Kundendaten
+        <span class="aktiv" id="kbStatus"><span class="dot"></span><span id="kbStatusText">Kein Kunde erfasst</span></span>
       </div>
-      <div class="kb-fields">
-        <div><label for="k_vorname">Vorname</label><input id="k_vorname" type="text" autocomplete="off" placeholder="z. B. Max"></div>
-        <div><label for="k_nachname">Nachname</label><input id="k_nachname" type="text" autocomplete="off" placeholder="z. B. Mustermann"></div>
-        <div><label for="k_dob">Geburtsdatum</label><input id="k_dob" type="date"></div>
+      <div class="fields">
+        <div class="field"><label for="k_vorname">Vorname</label><input id="k_vorname" type="text" autocomplete="off"></div>
+        <div class="field"><label for="k_nachname">Nachname</label><input id="k_nachname" type="text" autocomplete="off"></div>
+        <div class="field"><label for="k_dob">Geburtsdatum</label><input id="k_dob" type="date"></div>
       </div>
-      <div class="kb-status" id="kbStatus"><span class="kb-dot"></span><span id="kbStatusText">Noch keine Kundendaten erfasst.</span></div>
+      <div class="hint">Einmal eingeben – alle Tools übernehmen die Daten automatisch. Sie bleiben nur in diesem Browser und werden über „Neuer Kunde" gelöscht.</div>
     </div>
 
-    <!-- Flaggschiff: 2 Welten -->
-    <button class="featured" onclick="openTool('2-Welten.html')">
-      <span class="f-ic">
-        <svg viewBox="0 0 24 24" fill="none">
-          <path d="M3 11.5 12 4l9 7.5" stroke="#ff4d0d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M5 10.5V20h6v-6h2" stroke="#ff4d0d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M13 20h6v-9" stroke="#2f6f8f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M14.5 17.5 17 15l2.5 2.5" stroke="#2f6f8f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </span>
-      <span class="f-body">
-        <span class="f-badge">Zukunftsplan · 2 Welten</span>
-        <span class="f-title">Bausparen &amp; ETF – zusammen gedacht</span>
-        <span class="f-desc">Der interaktive Rechner: staatliche Förderung optimal mitnehmen und gleichzeitig Vermögen aufbauen. In 3 Schritten zum persönlichen Plan – bis zur Rente hochgerechnet.</span>
-      </span>
-      <span class="f-go">Plan starten
-        <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </span>
-    </button>
-
-    <!-- Vergleichs-Tools -->
+    <!-- Werkzeuge -->
     <div class="grid">
 
-      <button class="tool" onclick="openTool('Rendite-Vergleich.html')">
-        <span class="t-ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 7-8"/><path d="M17 7h4v4"/></svg></span>
-        <div class="t-body">
-          <div class="t-title">Rendite-Vergleich</div>
-          <div class="t-desc">Sehen Sie auf einen Blick, wie viel mehr aus Ihrem Geld werden kann – ohne mehr einzuzahlen.</div>
-        </div>
-        <span class="t-cta">Mehr Rendite aufdecken <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <button class="tool" onclick="openTool('Persönlicher-Finanzierungs-Check.html')">
+        <span class="tHead">
+          <span class="tIc">
+            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></svg>
+          </span>
+          <span class="tName">Persönlicher Finanzierungs-Check</span>
+          <span class="tGo"><svg viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </span>
+        <span class="tDesc">Haushaltsrechnung, maximale Darlehensrate und möglicher Darlehensbetrag.</span>
       </button>
 
       <button class="tool" onclick="openTool('Riester-Vergleich.html')">
-        <span class="t-ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg></span>
-        <div class="t-body">
-          <div class="t-title">Riester / Wohnriester</div>
-          <div class="t-desc">Finden Sie heraus, wie viel Förderung Ihnen wirklich zusteht – und ob Sie aktuell Geld verschenken.</div>
-        </div>
-        <span class="t-cta">Förderung prüfen <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="tHead">
+          <span class="tIc">
+            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>
+          </span>
+          <span class="tName">Riester / Wohnförderung</span>
+          <span class="tGo"><svg viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </span>
+        <span class="tDesc">Zulagen, Förderquote und empfohlene Bausparsumme – für eine Person oder mit Partner.</span>
       </button>
 
       <button class="tool" onclick="openTool('Zinsvergleich.html')">
-        <span class="t-ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 5L5 19"/><circle cx="7.5" cy="7.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/></svg></span>
-        <div class="t-body">
-          <div class="t-title">Zinsvergleich</div>
-          <div class="t-desc">Prüfen Sie sofort, ob Sie zu viel Zinsen zahlen – und wie Sie Ihre Finanzierung günstiger gestalten.</div>
-        </div>
-        <span class="t-cta">Zinsen vergleichen <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="tHead">
+          <span class="tIc">
+            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 5L5 19"/><circle cx="7.5" cy="7.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/></svg>
+          </span>
+          <span class="tName">Zinsvergleich</span>
+          <span class="tGo"><svg viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </span>
+        <span class="tDesc">Bausparmodell gegen Marktzins: Rate, Laufzeit und Gesamtkosten im direkten Vergleich.</span>
+      </button>
+
+      <button class="tool" onclick="openTool('2-Welten.html')">
+        <span class="tHead">
+          <span class="tIc">
+            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10.5V20h6v-6h2"/><path d="M13 20h6v-9"/><path d="M14.5 17.5 17 15l2.5 2.5"/></svg>
+          </span>
+          <span class="tName">Bausparen &amp; ETF – 2 Welten</span>
+          <span class="tGo"><svg viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </span>
+        <span class="tDesc">Förderung mitnehmen und parallel Vermögen aufbauen – in drei Schritten bis zur Rente hochgerechnet.</span>
+      </button>
+
+      <button class="tool" onclick="openTool('Rendite-Vergleich.html')">
+        <span class="tHead">
+          <span class="tIc">
+            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 7-8"/><path d="M17 7h4v4"/></svg>
+          </span>
+          <span class="tName">Rendite-Vergleich</span>
+          <span class="tGo"><svg viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </span>
+        <span class="tDesc">Was bei gleicher Einzahlung am Ende herauskommt – Sparbuch, Alternative und ETF nebeneinander.</span>
       </button>
 
       <button class="tool" onclick="openTool('VD_ZK-Vergleich.html')">
-        <span class="t-ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13M13 4l4 4-4 4"/><path d="M20 16H7M11 12l-4 4 4 4"/></svg></span>
-        <div class="t-body">
-          <div class="t-title">Vorfinanzierung / Zwischenkredit</div>
-          <div class="t-desc">Erkennen Sie direkt, welche Variante Sie weniger kostet – transparent und verständlich.</div>
-        </div>
-        <span class="t-cta">Kosten vergleichen <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-      </button>
-
-      <button class="tool a-blue wide" onclick="openTool('Persönlicher-Finanzierungs-Check.html')">
-        <span class="t-ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></svg></span>
-        <div class="t-body">
-          <div class="t-title">Persönlicher Finanzierungs-Check</div>
-          <div class="t-desc">Ermitteln Sie Ihre maximale Darlehensrate, Haushaltskosten und den möglichen Darlehensbetrag – in wenigen Sekunden.</div>
-        </div>
-        <span class="t-cta">Finanzierung prüfen <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="tHead">
+          <span class="tIc">
+            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13M13 4l4 4-4 4"/><path d="M20 16H7M11 12l-4 4 4 4"/></svg>
+          </span>
+          <span class="tName">Vorfinanzierung / Zwischenkredit</span>
+          <span class="tGo"><svg viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </span>
+        <span class="tDesc">Welche der beiden Varianten günstiger ist – inklusive Gebühren und Zinskosten.</span>
       </button>
 
     </div>
@@ -261,10 +244,10 @@ function resetKunde(){
     const dob = fmtDate(k.geburtsdatum);
     if(!name && !dob){
       statusEl.classList.remove('on');
-      statusTx.textContent = 'Noch keine Kundendaten erfasst.';
+      statusTx.textContent = 'Kein Kunde erfasst';
     } else {
       statusEl.classList.add('on');
-      statusTx.textContent = 'Aktiv für: ' + (name || '—') + (dob ? ' · geb. ' + dob : '');
+      statusTx.textContent = (name || 'Ohne Namen') + (dob ? ' · geb. ' + dob : '');
     }
   }
   function save(){
