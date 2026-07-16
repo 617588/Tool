@@ -227,6 +227,13 @@ justify-content:space-around;
 <input id="F_geb" class="value" value="1,6">
 </div>
 
+<div class="rowInput" style="margin-top:6px">
+<label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;user-select:none">
+<input type="checkbox" id="F_kundezahlt" style="width:16px;height:16px;cursor:pointer">
+Anschlussgebühr zahlt der Kunde selbst
+</label>
+</div>
+
 </div>
 
 <div class="box">
@@ -369,17 +376,36 @@ function getZKZins(){
  return KONDITIONEN.zk;
 }
 
-function calcBSS(C,B,A,F){
- let ziel=(C-B)*2;
- for(let i=0;i<30;i++){
-  let r=Math.ceil(ziel/1000)*1000;
-  let g=(r-A)*F;
-  let neu=(C-(B-g))*2;
-  if(Math.ceil(neu/1000)*1000===r) break;
-  ziel=neu;
- }
- let bss=Math.ceil(ziel/1000)*1000;
- return {bss,geb:(bss-A)*F};
+/* Neue Bausparsumme für ZK:
+   - BSS_neu = ceil((Bedarf − Guthaben) × 2 / 1000) × 1000
+   - Gebühr wird vom Guthaben abgezogen → iterativ nachrechnen
+   - Wenn kundeZahlt = true, Gebühr = 0
+   - Wenn BSS_alt ≥ Bedarf, keine Erhöhung, Gebühr = 0
+   C = Darlehensbedarf, B = Guthaben, A = BSS alt, F = Gebühr%, kundeZahlt = bool */
+function calcBSS(C, B, A, F, kundeZahlt){
+  // Fall: bestehende BSS reicht bereits
+  if(A >= C){
+    return { bss: A, erhoehung: 0, geb: 0, gutNeu: B };
+  }
+
+  // Erste Näherung
+  let gutNeu = B;
+  let bss = Math.ceil((C - gutNeu) * 2 / 1000) * 1000;
+  let erhoehung = Math.max(0, bss - A);
+  let geb = kundeZahlt ? 0 : erhoehung * F;
+  gutNeu = B - geb;
+
+  // Iterativ verfeinern (max. 10 Runden reichen)
+  for(let i = 0; i < 10; i++){
+    const bssTest = Math.ceil((C - gutNeu) * 2 / 1000) * 1000;
+    if(bssTest === bss) break;
+    bss = bssTest;
+    erhoehung = Math.max(0, bss - A);
+    geb = kundeZahlt ? 0 : erhoehung * F;
+    gutNeu = B - geb;
+  }
+
+  return { bss, erhoehung, geb, gutNeu };
 }
 
 function update(){
@@ -391,6 +417,7 @@ let C=num(C_bedarf.value);
 let F=num(F_geb.value)/100;
 let G=num(G_vd.value);
 let H=num(H_zk.value);
+let kundeZahlt = document.getElementById('F_kundezahlt').checked;
 
 let vdZins = getVDZins(C,G);
 let zkZins = getZKZins();
@@ -403,14 +430,15 @@ E_zinsZK.value = zkZins.toFixed(2).replace(".",",") + " %";
 
 
 // VD
-let vdGeb=(C-A)*F;
+let vdGeb = kundeZahlt ? 0 : (C-A)*F;
 let vdMon=C*D/12;
 let vdSum=vdMon*G+vdGeb;
 
-// ZK
-let res=calcBSS(C,B,A,F);
-let kredit=res.bss/2-B;
-let zkMon=kredit*E/12;
+// ZK – neue Vorgabe:
+//  - Zinskosten = BSS_neu × ZK-Zins / 12
+//  - Gebühr = 0, wenn Kunde selbst zahlt oder BSS bereits reicht
+let res=calcBSS(C,B,A,F,kundeZahlt);
+let zkMon=res.bss*E/12;
 let zkSum=zkMon*H;
 
 // Anzeige
@@ -444,50 +472,10 @@ if(vdSum < zkSum){
 // Events
 document.querySelectorAll("input:not([readonly])").forEach(i=>{
  i.addEventListener("input",update);
- i.addEventListener("focus",()=>i.select());
+ if(i.type !== "checkbox") i.addEventListener("focus",()=>i.select());
 });
 
 loadKonditionen();
-</script>
-
-
-<!-- === Kundendaten-Übernahme aus dem Index =====================================
-     Liest die im Index eingegebenen Kundendaten aus dem Browser-Speicher
-     (localStorage) und traegt sie in die passenden Felder dieses Tools ein.
-     Es wird KEINE Datei angelegt – die Daten liegen nur in diesem Browser
-     und werden ueber den Reset-Button im Index geloescht.
-     ============================================================================ -->
-<script>
-(function(){
-  var k;
-  try { k = JSON.parse(localStorage.getItem('beratung_kunde')) || {}; }
-  catch(e){ return; }
-  if(!k) return;
-
-  var voll = [k.vorname, k.nachname].filter(Boolean).join(' ').trim();
-
-  // Geburtsdatum -> Feld #dob (z. B. 2-Welten, Rendite-Vergleich)
-  var dob = document.getElementById('dob');
-  if(dob && k.geburtsdatum && !dob.value){
-    dob.value = k.geburtsdatum;
-    dob.dispatchEvent(new Event('change', {bubbles:true}));
-  }
-
-  // Voller Name -> Feld #kundenName (z. B. Finanzierungs-Check)
-  var kn = document.getElementById('kundenName');
-  if(kn && voll && !kn.value){
-    kn.value = voll;
-    kn.dispatchEvent(new Event('input', {bubbles:true}));
-  }
-
-  // Getrennte Namensfelder -> p1Vorname / p1Nachname (Riester)
-  var pv = document.getElementById('p1Vorname');
-  var pn = document.getElementById('p1Nachname');
-  var touched = false;
-  if(pv && k.vorname && !pv.value){ pv.value = k.vorname; touched = true; }
-  if(pn && k.nachname && !pn.value){ pn.value = k.nachname; touched = true; }
-  if(touched && typeof calculate === 'function'){ calculate(); }
-})();
 </script>
 
 </body>
