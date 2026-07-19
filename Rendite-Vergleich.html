@@ -328,10 +328,7 @@ body{
         <svg viewBox="0 0 24 24"><path d="M12 5V2L7 6l5 4V7a5 5 0 11-5 5H5a7 7 0 107-7z"/></svg>
         Neu
       </button>
-      <button class="iconBtn" id="printBtn" title="Als PDF speichern">
-        <svg viewBox="0 0 24 24"><path d="M6 9V2h12v7h3v9h-4v3H7v-3H3V9h3zm2-5v5h8V4H8zm8 12H8v4h8v-4z"/></svg>
-        PDF
-      </button>
+
     </div>
   </div>
 
@@ -380,7 +377,7 @@ body{
         </div>
 
         <label class="switchRow">
-          <input type="checkbox" id="etfToggle" checked>
+          <input type="checkbox" id="etfToggle">
           <span class="track"></span>
           <span class="switchText">ETF als Zusatzrente
             <small>Beispiel 8 % p. a., ohne Gewähr</small>
@@ -390,7 +387,7 @@ body{
     </section>
 
     <!-- ERGEBNIS-KARTEN -->
-    <div class="results withEtf" id="results">
+    <div class="results" id="results">
       <article class="rCard alt">
         <span class="rTag">Bestehender Vertrag</span>
         <div class="bigNum" id="endAlt">–</div>
@@ -424,7 +421,7 @@ body{
 
     <!-- OUTCOMES -->
     <div class="outcomeHead">Was das für dich heißt</div>
-    <div class="outcomes" id="outcomes">
+    <div class="outcomes" id="outcomes" style="grid-template-columns:1fr">
       <!-- TREND -->
       <div class="outcome trend">
         <div class="oEyebrow"><span class="oDot"></span>Sicher sparen · garantierter Zins</div>
@@ -439,7 +436,7 @@ body{
       </div>
 
       <!-- ETF -->
-      <div class="outcome etf">
+      <div class="outcome etf" style="display:none">
         <div class="oEyebrow"><span class="oDot"></span>Fürs Alter · Zusatzrente</div>
         <div class="oValue" id="etfPlus">+ 0 €</div>
         <div class="oValueSub" id="etfPlusSub">mehr Kapital am Ende der Laufzeit</div>
@@ -506,10 +503,10 @@ body{
 <script>
 const BRAND='#ff4d0d', GREY='#9aa0a6', BLUE='#2f6f8f';
 const FILL_BRAND='rgba(255,77,13,.15)';
-const DEFAULTS = { start:'10.000', rate:'100', zins:'0,5', dauer:15, etf:true };
+const DEFAULTS = { start:'10.000', rate:'100', zins:'0,5', dauer:15, etf:false };
 const RETIRE_AGE = 67, ETF_RATE = 0.08, DRAW_YEARS = 20, DRAW_RATE = 0.03, HORIZON = 60;
 
-let dauer=15, showETF=true, chart=null, chart2=null;
+let dauer=15, showETF=false, chart=null, chart2=null;
 let birthAge=null, useAge=false;      // useAge = "bis 67" aktiv
 let last=null;                         // zuletzt berechnete Daten (für Story/Print)
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -849,7 +846,7 @@ $('etfToggle').addEventListener('change', ()=>{
 });
 
 $('story').addEventListener('toggle', ()=>{ if($('story').open) drawCompound(); });
-$('printBtn').addEventListener('click', ()=>window.print());
+if($('printBtn')) $('printBtn').addEventListener('click', ()=>window.print());
 $('resetBtn').addEventListener('click', ()=>{
   $('startAlt').value=DEFAULTS.start; $('startSlider').value=num(DEFAULTS.start);
   $('rateAlt').value=DEFAULTS.rate;   $('rateSlider').value=num(DEFAULTS.rate);
@@ -880,44 +877,115 @@ refreshAgePill();
 update();
 </script>
 
-<!-- === Kundendaten-Übernahme aus dem Index =====================================
-     Liest die im Index eingegebenen Kundendaten aus dem Browser-Speicher
-     (localStorage) und traegt sie in die passenden Felder dieses Tools ein.
-     Es wird KEINE Datei angelegt – die Daten liegen nur in diesem Browser
-     und werden ueber den Reset-Button im Index geloescht.
-     ============================================================================ -->
+
+
+<!-- === Gemeinsames Modul ======================================================
+     beratung-shared.js uebernimmt zwei Aufgaben:
+       1. Kundendaten (Person 1, Partner, Kinder) aus dem Index einlesen und
+          in die passenden Felder dieses Tools eintragen. Es wird nur befuellt,
+          was leer ist – manuelle Eingaben bleiben erhalten.
+       2. Den Button "Zusammenfassung" im Header bereitstellen.
+     Die Daten liegen ausschliesslich im Browser (localStorage) und werden
+     ueber "Neuer Kunde" im Index geloescht. Es wird keine Datei angelegt.
+
+     BERATUNG_CONFIG beschreibt nur, WAS in der Zusammenfassung steht.
+     Die Rechenlogik dieses Tools wird dadurch nicht beruehrt – es werden
+     ausschliesslich bereits angezeigte Werte ausgelesen.
+     ========================================================================= -->
 <script>
-(function(){
-  var k;
-  try { k = JSON.parse(localStorage.getItem('beratung_kunde')) || {}; }
-  catch(e){ return; }
-  if(!k) return;
+window.BERATUNG_CONFIG = {
+  titel: 'Rendite-Vergleich',
+  untertitel: 'Bestehender Vertrag, Trend-Sparkonto und ETF-Sparplan im Vergleich',
 
-  var voll = [k.vorname, k.nachname].filter(Boolean).join(' ').trim();
+  hero: {
+    /* Hero folgt dem, was der Berater gerade zeigt: mit ETF ist der ETF im
+       Vordergrund, ohne ETF steht das Trend-Sparkonto oben. */
+    label: function(){
+      var t = document.getElementById('etfToggle');
+      return (t && t.checked) ? 'ETF-Sparplan · Endkapital'
+                              : 'Trend-Sparkonto · Endkapital';
+    },
+    wert: function(){
+      var t = document.getElementById('etfToggle');
+      var el = document.getElementById((t && t.checked) ? 'endEtf' : 'endNeu');
+      return el ? el.textContent.trim() : '';
+    },
+    sub: function(){
+      var t = document.getElementById('etfToggle');
+      return (t && t.checked) ? 'bei angenommenen 8 % p. a. – nicht garantiert'
+                              : 'Endkapital nach der gewählten Laufzeit';
+    }
+  },
+  cards: [
+    { farbe:'grau',   titel:'Bestehender Vertrag', sel:'#endAlt',
+      subSel:'#zinsAlt', subPrefix:'Zins ', subSuffix:' %' },
+    { farbe:'gruen',  titel:'Trend-Sparkonto',     sel:'#endNeu',
+      subSel:'#trendPlus', subPrefix:'+ ' },
+    { farbe:'orange', titel:'ETF-Sparplan (8 %)',  sel:'#endEtf',
+      subSel:'#etfPlus',   subPrefix:'+ ',
+      if: function(){ var t=document.getElementById('etfToggle'); return t && t.checked; } }
+  ],
+  chart: {
+    titel: 'Endkapital im Vergleich',
+    balken: [
+      { label:'Bestand',         sel:'#endAlt', farbe:'#6b7280' },
+      { label:'Trend-Sparkonto', sel:'#endNeu', farbe:'#4e9070' },
+      { label:'ETF (8 %)',       sel:'#endEtf', farbe:'#ff4d0d',
+        if: function(){ var t=document.getElementById('etfToggle'); return t && t.checked; } }
+    ]
+  },
+  kennzahlen: [
+    { label:'Startguthaben',        sel:'#startAlt', suffix:' €' },
+    { label:'Sparrate / Monat',     sel:'#rateAlt',  suffix:' €' },
+    { label:'Anlagedauer',          wert: function(){
+        var p=document.querySelector('.pill.active');
+        if(!p) return '–';
+        return p.id==='pill67' ? 'bis 67' : p.dataset.jahre + ' Jahre'; } },
+    { label:'Zusatzrente aus ETF',  sel:'#etfPension', suffix:' / Monat', hervor:true,
+      if: function(){ var t=document.getElementById('etfToggle'); return t && t.checked; } },
+    { label:'Kosten Warten',        sel:'#waitCost' }
+  ],
+  notizenZeilen: 3,
 
-  // Geburtsdatum -> Feld #dob (z. B. 2-Welten, Rendite-Vergleich)
-  var dob = document.getElementById('dob');
-  if(dob && k.geburtsdatum && !dob.value){
-    dob.value = k.geburtsdatum;
-    dob.dispatchEvent(new Event('change', {bubbles:true}));
-  }
-
-  // Voller Name -> Feld #kundenName (z. B. Finanzierungs-Check)
-  var kn = document.getElementById('kundenName');
-  if(kn && voll && !kn.value){
-    kn.value = voll;
-    kn.dispatchEvent(new Event('input', {bubbles:true}));
-  }
-
-  // Getrennte Namensfelder -> p1Vorname / p1Nachname (Riester)
-  var pv = document.getElementById('p1Vorname');
-  var pn = document.getElementById('p1Nachname');
-  var touched = false;
-  if(pv && k.vorname && !pv.value){ pv.value = k.vorname; touched = true; }
-  if(pn && k.nachname && !pn.value){ pn.value = k.nachname; touched = true; }
-  if(touched && typeof calculate === 'function'){ calculate(); }
-})();
+  abschnitte: [
+    { titel: 'Ausgangslage', zeilen: [
+      { label: 'Startguthaben heute',      sel: '#startAlt', suffix: ' €', immer: true },
+      { label: 'Monatliche Sparrate',      sel: '#rateAlt', suffix: ' €', immer: true },
+      { label: 'Zins bestehender Vertrag', sel: '#zinsAlt', suffix: ' %', immer: true },
+      { label: 'Anlagedauer', wert: function(){
+          var p = document.querySelector('.pill.active');
+          if(!p) return null;
+          return p.id === 'pill67' ? 'bis 67' : p.dataset.jahre + ' Jahre'; }, immer: true },
+      { label: 'Geburtsdatum', sel: '#dob' }
+    ]},
+    { titel: 'Endkapital im Vergleich', hervor: true, zeilen: [
+      { label: 'Bestehender Vertrag', sel: '#endAlt', immer: true },
+      { label: '· davon eingezahlt',  sel: '#eingAlt' },
+      { label: '· Zinsertrag',        sel: '#ertragAlt' },
+      { label: 'Trend-Sparkonto',     sel: '#endNeu', hervor: true, immer: true },
+      { label: '· davon eingezahlt',  sel: '#eingNeu' },
+      { label: '· Zinsertrag',        sel: '#ertragNeu' },
+      { label: 'ETF-Sparplan (Beispiel 8 %)', sel: '#endEtf', hervor: true, immer: true },
+      { label: '· davon eingezahlt',  sel: '#eingEtf' },
+      { label: '· Wertentwicklung',   sel: '#ertragEtf' }
+    ]},
+    { titel: 'Was das bedeutet', zeilen: [
+      { label: 'Trend-Sparkonto gegenüber altem Vertrag', sel: '#trendPlus', hervor: true, immer: true },
+      { label: 'ETF gegenüber altem Vertrag',             sel: '#etfPlus', hervor: true, immer: true },
+      { label: 'Rechnerische Zusatzrente aus dem ETF',    sel: '#etfPension', suffix: ' / Monat' },
+      { label: 'Kosten eines Jahres Abwarten',            sel: '#waitCost' }
+    ]}
+  ],
+  hinweise: [
+    'Unverbindliche Beispielrechnung, keine individuelle Anlageberatung, kein Angebot und keine Zusicherung.',
+    'Der ETF-Wert beruht auf angenommenen 8 % p. a. – die Marktrendite schwankt, kann negativ sein und ist nicht garantiert.',
+    'Zusatzrente = rechnerische Auszahlung des Kapitals über 20 Jahre bei rund 3 % Restverzinsung.',
+    'Trend-Sparkonto und ETF-Sparplan sind unterschiedliche Produkte mit unterschiedlichem Zweck und Risiko.',
+    'Kosten, Gebühren, Förderungen und Steuern sind in der Rechnung nicht berücksichtigt.'
+  ]
+};
 </script>
+<script src="beratung-shared.js"></script>
 
 </body>
 </html>

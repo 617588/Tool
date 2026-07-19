@@ -286,7 +286,7 @@ input:disabled{background:#f0f1f3;color:#c0c4ca;}
 
         <div class="row2">
           <div><label for="kundenName">Kundenname (für den Ausdruck)</label><input class="txt" type="text" id="kundenName" placeholder="z. B. Familie Müller"></div>
-          <div style="display:flex;align-items:flex-end"><button class="btn primary" style="width:100%" onclick="druckePDF()">Als PDF ausdrucken</button></div>
+          <div></div>
         </div>
 
         <p class="note">
@@ -544,44 +544,82 @@ recalc();
 showStep(1);
 </script>
 
-<!-- === Kundendaten-Übernahme aus dem Index =====================================
-     Liest die im Index eingegebenen Kundendaten aus dem Browser-Speicher
-     (localStorage) und traegt sie in die passenden Felder dieses Tools ein.
-     Es wird KEINE Datei angelegt – die Daten liegen nur in diesem Browser
-     und werden ueber den Reset-Button im Index geloescht.
-     ============================================================================ -->
+
+
+<!-- === Gemeinsames Modul ======================================================
+     beratung-shared.js uebernimmt zwei Aufgaben:
+       1. Kundendaten (Person 1, Partner, Kinder) aus dem Index einlesen und
+          in die passenden Felder dieses Tools eintragen. Es wird nur befuellt,
+          was leer ist – manuelle Eingaben bleiben erhalten.
+       2. Den Button "Zusammenfassung" im Header bereitstellen.
+     Die Daten liegen ausschliesslich im Browser (localStorage) und werden
+     ueber "Neuer Kunde" im Index geloescht. Es wird keine Datei angelegt.
+
+     BERATUNG_CONFIG beschreibt nur, WAS in der Zusammenfassung steht.
+     Die Rechenlogik dieses Tools wird dadurch nicht beruehrt – es werden
+     ausschliesslich bereits angezeigte Werte ausgelesen.
+     ========================================================================= -->
 <script>
-(function(){
-  var k;
-  try { k = JSON.parse(localStorage.getItem('beratung_kunde')) || {}; }
-  catch(e){ return; }
-  if(!k) return;
+window.BERATUNG_CONFIG = {
+  titel: 'Persönlicher Finanzierungs-Check',
+  untertitel: 'Haushaltsrechnung und monatlicher Spielraum für Wohneigentum',
 
-  var voll = [k.vorname, k.nachname].filter(Boolean).join(' ').trim();
+  hero: {
+    label: 'Ihr finanzieller Spielraum',
+    sel:   '#maxDarlehensrate',
+    sub:   'pro Monat für Wohneigentum'
+  },
+  cards: [
+    { farbe:'gruen',  titel:'Komfortabel', sel:'#komfortHauspreis',
+      subSel:'#komfortRate',   subPrefix:'bei ', subSuffix:' / Monat' },
+    { farbe:'orange', titel:'Ausgewogen',  sel:'#ausgewogenHauspreis',
+      subSel:'#ausgewogenRate', subPrefix:'bei ', subSuffix:' / Monat' },
+    { farbe:'rot',    titel:'Obergrenze',  sel:'#obergrenzeHauspreis',
+      subSel:'#obergrenzeRate', subPrefix:'bei ', subSuffix:' / Monat' }
+  ],
+  kennzahlen: [
+    { label:'Einnahmen (netto / Monat)',  sel:'#ovEin',  hervor:true },
+    { label:'Verpflichtungen (Monat)',    sel:'#ovAus' },
+    { label:'Verfügbarer Spielraum',      sel:'#ovRest', hervor:true },
+    { label:'Anzahl Kinder',              sel:'#kinder' },
+    { label:'Kaltmiete',                  sel:'#mieteKalt', suffix:' €' },
+    { label:'Haushaltspauschale',         sel:'#haushaltskosten', suffix:' €' }
+  ],
+  notizenZeilen: 4,
 
-  // Geburtsdatum -> Feld #dob (z. B. 2-Welten, Rendite-Vergleich)
-  var dob = document.getElementById('dob');
-  if(dob && k.geburtsdatum && !dob.value){
-    dob.value = k.geburtsdatum;
-    dob.dispatchEvent(new Event('change', {bubbles:true}));
-  }
-
-  // Voller Name -> Feld #kundenName (z. B. Finanzierungs-Check)
-  var kn = document.getElementById('kundenName');
-  if(kn && voll && !kn.value){
-    kn.value = voll;
-    kn.dispatchEvent(new Event('input', {bubbles:true}));
-  }
-
-  // Getrennte Namensfelder -> p1Vorname / p1Nachname (Riester)
-  var pv = document.getElementById('p1Vorname');
-  var pn = document.getElementById('p1Nachname');
-  var touched = false;
-  if(pv && k.vorname && !pv.value){ pv.value = k.vorname; touched = true; }
-  if(pn && k.nachname && !pn.value){ pn.value = k.nachname; touched = true; }
-  if(touched && typeof calculate === 'function'){ calculate(); }
-})();
+  abschnitte: [
+    { titel: 'Haushaltsrechnung', hervor: true, zeilen: [
+      { label: 'Summe Einnahmen (netto / Monat)', sel: '#ovEin', immer: true },
+      { label: 'Summe Verpflichtungen (Monat)',   sel: '#ovAus', immer: true },
+      { label: 'Verfügbarer Spielraum (Monat)',   sel: '#ovRest', hervor: true, immer: true }
+    ]},
+    { titel: 'Details der Rechnung', zeilen: [
+      { label: 'Zweite Person im Haushalt', sel: '#person2Aktiv', immer: true },
+      { label: 'Anzahl Kinder',             sel: '#kinder', immer: true },
+      { label: 'Kindergeld (angesetzt)',    sel: '#kindergeld' },
+      { label: 'Aktuelle Kaltmiete',        sel: '#mieteKalt', suffix: ' €' },
+      { label: 'Haushaltspauschale',        sel: '#haushaltskosten', suffix: ' €' }
+    ]},
+    { titel: 'Szenarien für Wohneigentum',
+      hinweis: 'Hauspreis kapitalisiert mit 6 % p. a. (Zins + Tilgung).',
+      zeilen: [
+      { label: 'Komfortabel · Rate / Monat',   sel: '#komfortRate' },
+      { label: 'Komfortabel · Hauspreis',      sel: '#komfortHauspreis', hervor: true },
+      { label: 'Ausgewogen · Rate / Monat',    sel: '#ausgewogenRate' },
+      { label: 'Ausgewogen · Hauspreis',       sel: '#ausgewogenHauspreis', hervor: true },
+      { label: 'Obergrenze · Rate / Monat',    sel: '#obergrenzeRate' },
+      { label: 'Obergrenze · Hauspreis',       sel: '#obergrenzeHauspreis', hervor: true }
+    ]}
+  ],
+  hinweise: [
+    'Haushaltspauschale und Darlehensansätze stammen aus den hinterlegten Konditionen.',
+    'Mieteinnahmen werden zu 80 % angesetzt, bestehende Darlehen mit Rate oder Restschuld-Ansatz.',
+    'Der mögliche Hauspreis ist mit 6 % p. a. (Zins + Tilgung) kapitalisiert – Nebenkosten und Eigenkapital sind nicht berücksichtigt.',
+    'Erste Orientierung; sie ersetzt keine individuelle Finanzierungsprüfung und keine Bonitätsentscheidung.'
+  ]
+};
 </script>
+<script src="beratung-shared.js"></script>
 
 </body>
 </html>

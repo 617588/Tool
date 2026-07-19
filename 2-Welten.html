@@ -162,7 +162,7 @@ details.d.hl>summary{color:var(--brand-ink);}
   <div class="header">
     <a href="index.html" class="backBtn" aria-label="Zurück"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></a>
     Dein Zukunftsplan
-    <div class="topTools"><button class="iconBtn" id="printBtn"><svg viewBox="0 0 24 24"><path d="M6 9V2h12v7h3v9h-4v3H7v-3H3V9h3zm2-5v5h8V4H8zm8 12H8v4h8v-4z"/></svg>PDF</button></div>
+    <div class="topTools"></div>
   </div>
 
   <div class="sheet">
@@ -285,7 +285,7 @@ details.d.hl>summary{color:var(--brand-ink);}
             <p class="note" style="margin-top:0">Dein angespartes Guthaben ist dein Eigenkapital – darauf gibt's ein zinsgünstiges Darlehen.</p>
             <div class="kv"><span class="k">Eigenkapital (30 %)</span><span class="val" id="eqCap">0 €</span></div>
             <div class="kv"><span class="k">Bauspardarlehen (<span id="loanRateLbl">2,00</span> %)</span><span class="val blue" id="loanAmt">0 €</span></div>
-            <div class="kv"><span class="k">Verfügbar für dein Zuhause</span><span class="val big" id="totalHome">0 €</span></div>
+            <div class="kv"><span class="k">Verfügbar für dein Zuhause <small style="color:#6b7280;font-weight:400">(Bausparsumme + ETF)</small></span><span class="val big" id="totalHome">0 €</span></div>
             <div class="miniFields">
               <div><label for="loanRate">gesicherter Zins</label><div class="ib"><input id="loanRate" value="2,00"><span class="sfx">%</span></div></div>
               <div><label for="marketRate">Marktzins heute</label><div class="ib"><input id="marketRate" value="4,00"><span class="sfx">%</span></div></div>
@@ -397,7 +397,7 @@ function update(){
   $('eqCap').textContent=euro(eq);
   $('loanRateLbl').textContent=dec2(lr*100);
   $('loanAmt').textContent=euro(darlehen);
-  $('totalHome').textContent=euro(bausparsumme);
+  $('totalHome').textContent=euro(bausparsumme + ef.end);
   $('loanSaveNote').innerHTML='Gegenüber '+dec2(mr*100)+' % Marktzins sparst du rund <b style="color:var(--pos)">'+euro(Math.max(0,(mr-lr)*darlehen))+'</b> Zinsen pro Jahr.';
 
   if(ageNow!=null){
@@ -471,51 +471,104 @@ document.querySelectorAll('.pill').forEach(p=>p.addEventListener('click',()=>{
   document.querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));p.classList.add('active');dauer=+p.dataset.jahre;update();}));
 
 $('chartD').addEventListener('toggle',()=>{if($('chartD').open)drawChart(lastA,lastB);});
-$('printBtn').addEventListener('click',()=>{showStep(3);setTimeout(preparePrint,180);});
+/* PDF-Button entfernt – Ausdruck erfolgt über die zentrale Zusammenfassung. */
+if($('printBtn')) $('printBtn').addEventListener('click',()=>{showStep(3);setTimeout(preparePrint,180);});
 
 $('goalMsg').innerHTML=goalMsgs[goal];
 fillSlider($('pctSlider')); fillSlider($('allocSlider'));
 update();
 </script>
 
-<!-- === Kundendaten-Übernahme aus dem Index =====================================
-     Liest die im Index eingegebenen Kundendaten aus dem Browser-Speicher
-     (localStorage) und traegt sie in die passenden Felder dieses Tools ein.
-     Es wird KEINE Datei angelegt – die Daten liegen nur in diesem Browser
-     und werden ueber den Reset-Button im Index geloescht.
-     ============================================================================ -->
+
+
+<!-- === Gemeinsames Modul ======================================================
+     beratung-shared.js uebernimmt zwei Aufgaben:
+       1. Kundendaten (Person 1, Partner, Kinder) aus dem Index einlesen und
+          in die passenden Felder dieses Tools eintragen. Es wird nur befuellt,
+          was leer ist – manuelle Eingaben bleiben erhalten.
+       2. Den Button "Zusammenfassung" im Header bereitstellen.
+     Die Daten liegen ausschliesslich im Browser (localStorage) und werden
+     ueber "Neuer Kunde" im Index geloescht. Es wird keine Datei angelegt.
+
+     BERATUNG_CONFIG beschreibt nur, WAS in der Zusammenfassung steht.
+     Die Rechenlogik dieses Tools wird dadurch nicht beruehrt – es werden
+     ausschliesslich bereits angezeigte Werte ausgelesen.
+     ========================================================================= -->
 <script>
-(function(){
-  var k;
-  try { k = JSON.parse(localStorage.getItem('beratung_kunde')) || {}; }
-  catch(e){ return; }
-  if(!k) return;
+window.BERATUNG_CONFIG = {
+  titel: 'Bausparen & ETF – 2 Welten',
+  untertitel: 'Staatliche Förderung mitnehmen und parallel Vermögen aufbauen',
 
-  var voll = [k.vorname, k.nachname].filter(Boolean).join(' ').trim();
+  hero: {
+    label: 'Beide Bausteine zusammen',
+    sel:   '#pkgTotal',
+    sub:   'Ergebnis nach der Ansparphase'
+  },
+  cards: [
+    { farbe:'gruen',  titel:'Bausparen · Guthaben', sel:'#eigenNum',
+      subSel:'#eigenFoerder', subPrefix:'Förderung ' },
+    { farbe:'orange', titel:'ETF · Wert',           sel:'#etfNum',
+      subSel:'#etfErtrag',    subPrefix:'Kurschance ' },
+    { farbe:'blau',   titel:'Verfügbar fürs Zuhause', sel:'#totalHome',
+      subSel:'#loanRate',     subPrefix:'gesicherter Zins ', subSuffix:' %' }
+  ],
+  kennzahlen: [
+    { label: 'Monatlicher Vorsorgebeitrag', sel:'#betragVal', hervor:true },
+    { label: 'davon Bausparen',             sel:'#allocBauspar' },
+    { label: 'davon ETF',                   sel:'#allocEtf' },
+    { label: 'Ansparphase',                 wert: function(){
+        var p=document.querySelector('.pill.active');
+        return p ? p.dataset.jahre + ' Jahre' : '–'; } },
+    { label: 'Kapital → mit 67',            sel:'#umResult', hervor:true },
+    { label: 'Eigenkapital (30 %)',         sel:'#eqCap' }
+  ],
+  notizenZeilen: 3,
 
-  // Geburtsdatum -> Feld #dob (z. B. 2-Welten, Rendite-Vergleich)
-  var dob = document.getElementById('dob');
-  if(dob && k.geburtsdatum && !dob.value){
-    dob.value = k.geburtsdatum;
-    dob.dispatchEvent(new Event('change', {bubbles:true}));
-  }
-
-  // Voller Name -> Feld #kundenName (z. B. Finanzierungs-Check)
-  var kn = document.getElementById('kundenName');
-  if(kn && voll && !kn.value){
-    kn.value = voll;
-    kn.dispatchEvent(new Event('input', {bubbles:true}));
-  }
-
-  // Getrennte Namensfelder -> p1Vorname / p1Nachname (Riester)
-  var pv = document.getElementById('p1Vorname');
-  var pn = document.getElementById('p1Nachname');
-  var touched = false;
-  if(pv && k.vorname && !pv.value){ pv.value = k.vorname; touched = true; }
-  if(pn && k.nachname && !pn.value){ pn.value = k.nachname; touched = true; }
-  if(touched && typeof calculate === 'function'){ calculate(); }
-})();
+  abschnitte: [
+    { titel: 'Ausgangslage', zeilen: [
+      { label: 'Brutto-Einkommen mtl.',   sel: '#brutto', suffix: ' €', immer: true },
+      { label: 'Anteil für die Vorsorge', sel: '#pctVal', suffix: ' %', immer: true },
+      { label: 'Monatlicher Vorsorgebeitrag', sel: '#betragVal', hervor: true, immer: true },
+      { label: 'davon Bausparen', sel: '#allocBauspar', immer: true },
+      { label: 'davon ETF',       sel: '#allocEtf', immer: true },
+      { label: 'Ansparphase', wert: function(){
+          var p = document.querySelector('.pill.active');
+          return p ? p.dataset.jahre + ' Jahre' : null; }, immer: true },
+      { label: 'Geburtsdatum', sel: '#dob' }
+    ]},
+    { titel: 'Ergebnis nach der Ansparphase', hervor: true, zeilen: [
+      { label: 'Beide Bausteine zusammen', sel: '#pkgTotal', hervor: true, immer: true },
+      { label: 'Bausparen · Guthaben',     sel: '#eigenNum', immer: true },
+      { label: 'Bausparen · eigene Einzahlung', sel: '#eigenEin' },
+      { label: 'Bausparen · staatliche Förderung', sel: '#eigenFoerder' },
+      { label: 'ETF · Wert',               sel: '#etfNum', immer: true },
+      { label: 'ETF · eingezahlt',         sel: '#etfEin' },
+      { label: 'ETF · Kurschance (8 % p. a.)', sel: '#etfErtrag' }
+    ]},
+    { titel: 'Weg ins Eigenheim', zeilen: [
+      { label: 'Eigenkapital (30 %)',      sel: '#eqCap', immer: true },
+      { label: 'Bauspardarlehen',          sel: '#loanAmt', immer: true },
+      { label: 'gesicherter Zins',         sel: '#loanRate', suffix: ' %' },
+      { label: 'Marktzins zum Vergleich',  sel: '#marketRate', suffix: ' %' },
+      { label: 'Verfügbar für das Zuhause', sel: '#totalHome', hervor: true, immer: true }
+    ]},
+    { titel: 'Alternative: Kapital bis 67 anlegen', zeilen: [
+      { label: 'Kapital nach Ansparphase', sel: '#umStart', immer: true },
+      { label: 'Jahre bis 67',             sel: '#umYears', immer: true },
+      { label: 'daraus mit 67',            sel: '#umResult', hervor: true, immer: true }
+    ]}
+  ],
+  hinweise: [
+    'Unverbindliche Beispielrechnung, keine Anlageberatung.',
+    'Förderung ab 2027: 50 % auf die ersten 360 €/Jahr, 25 % bis 1.800 €/Jahr (max. 540 € Grundzulage), zzgl. bis 300 € je Kind.',
+    'Eigenkapital-/Darlehensrechnung vereinfacht (Guthaben = 30 % der Bausparsumme); die konkrete Zuteilung hängt vom Tarif ab.',
+    'Die Eigenheim-Förderung setzt selbst genutztes Wohneigentum voraus. Im Alter fällt auf die geförderten Beträge Einkommensteuer an.',
+    'Der ETF-Wert beruht auf angenommenen 8 % p. a. und ist nicht garantiert – Kursverluste sind möglich.',
+    'Bausparen und ETF sind zwei eigenständige Produkte mit eigenen Kosten und Bedingungen.'
+  ]
+};
 </script>
+<script src="beratung-shared.js"></script>
 
 </body>
 </html>

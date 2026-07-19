@@ -61,6 +61,38 @@ body{margin:0;padding:24px;background:var(--bg);color:var(--ink);
 .field input:focus{outline:none;border:2px solid var(--brand);background:#fff;}
 .hint{font-size:11.5px;color:var(--muted);margin-top:12px;line-height:1.5;}
 
+/* Untergruppen der Kundendaten */
+.grp{margin-top:18px;padding-top:16px;border-top:1px dashed var(--line);}
+.grpHead{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px;}
+.grpTitle{font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);}
+
+/* Schalter */
+.switchRow{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;}
+.switchRow input{position:absolute;opacity:0;pointer-events:none;}
+.track{width:46px;height:26px;background:#cfd3d8;border-radius:20px;position:relative;transition:.2s;flex:none;}
+.track::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;
+  transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.25);}
+.switchRow input:checked + .track{background:var(--brand);}
+.switchRow input:checked + .track::after{left:23px;}
+.switchRow input:focus-visible + .track{outline:2px solid var(--brand);outline-offset:2px;}
+.switchTxt{font-size:13.5px;font-weight:600;}
+
+.collapse{display:none;}
+.collapse.on{display:block;animation:fade .2s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+/* Kinderliste */
+.kidList{display:flex;flex-direction:column;gap:10px;}
+.kidRow{display:grid;grid-template-columns:1fr 1fr 40px;gap:12px;align-items:end;}
+.kidRow .age{grid-column:1/-1;font-size:11.5px;color:var(--muted);margin-top:-4px;}
+.del{height:44px;border:none;background:#f4f5f7;border-radius:11px;cursor:pointer;color:var(--muted);
+  font-size:16px;font-family:inherit;transition:.15s;}
+.del:hover{background:var(--brand-tint);color:var(--brand-ink);}
+.addBtn{margin-top:12px;border:1px dashed var(--line);background:#fafbfc;border-radius:11px;
+  padding:11px;width:100%;font-family:inherit;font-size:13px;font-weight:600;color:var(--brand-ink);cursor:pointer;transition:.15s;}
+.addBtn:hover{border-color:var(--brand);background:var(--brand-tint);}
+.emptyHint{font-size:12.5px;color:var(--muted);}
+
 /* ---------- WERKZEUGE ---------- */
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 .tool{
@@ -88,15 +120,19 @@ body{margin:0;padding:24px;background:var(--bg);color:var(--ink);
 
 .footer{margin-top:22px;padding-top:16px;border-top:1px solid var(--line);
   text-align:center;font-size:12px;color:var(--muted);}
+.vermerkBox{margin-top:14px;border:1px solid var(--line);background:#fafbfc;border-radius:12px;
+  padding:12px 14px;font-size:11.5px;color:var(--muted);line-height:1.5;}
+.vermerkBox b{color:var(--brand-ink);}
 
 @media(max-width:760px){
   body{padding:14px;}
   .header{font-size:17px;padding:0 12px;}
   .topTools{position:static;margin-left:10px;}
   .fields{grid-template-columns:1fr;}
+  .kidRow{grid-template-columns:1fr 1fr 40px;}
   .grid{grid-template-columns:1fr;}
 }
-@media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;}}
 </style>
 </head>
 <body>
@@ -120,12 +156,47 @@ body{margin:0;padding:24px;background:var(--bg);color:var(--ink);
         Kundendaten
         <span class="aktiv" id="kbStatus"><span class="dot"></span><span id="kbStatusText">Kein Kunde erfasst</span></span>
       </div>
+
+      <!-- Person 1 -->
       <div class="fields">
         <div class="field"><label for="k_vorname">Vorname</label><input id="k_vorname" type="text" autocomplete="off"></div>
         <div class="field"><label for="k_nachname">Nachname</label><input id="k_nachname" type="text" autocomplete="off"></div>
         <div class="field"><label for="k_dob">Geburtsdatum</label><input id="k_dob" type="date"></div>
       </div>
-      <div class="hint">Einmal eingeben – alle Tools übernehmen die Daten automatisch. Sie bleiben nur in diesem Browser und werden über „Neuer Kunde" gelöscht.</div>
+
+      <!-- Partner -->
+      <div class="grp">
+        <div class="grpHead">
+          <span class="grpTitle">Partner im Haushalt</span>
+          <label class="switchRow">
+            <input type="checkbox" id="k_partnerAktiv">
+            <span class="track"></span>
+            <span class="switchTxt" id="k_partnerTxt">Kein Partner erfasst</span>
+          </label>
+        </div>
+        <div class="collapse" id="k_partnerBox">
+          <div class="fields">
+            <div class="field"><label for="k_pVorname">Vorname Partner</label><input id="k_pVorname" type="text" autocomplete="off"></div>
+            <div class="field"><label for="k_pNachname">Nachname Partner</label><input id="k_pNachname" type="text" autocomplete="off"></div>
+            <div class="field"><label for="k_pDob">Geburtsdatum Partner</label><input id="k_pDob" type="date"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Kinder -->
+      <div class="grp">
+        <div class="grpHead">
+          <span class="grpTitle">Kinder im Haushalt</span>
+          <span class="emptyHint" id="k_kinderInfo">Noch keine Kinder erfasst</span>
+        </div>
+        <div class="kidList" id="k_kinderListe"></div>
+        <button type="button" class="addBtn" id="k_addKind">+ Kind hinzufügen</button>
+      </div>
+
+      <div class="hint">
+        Einmal eingeben – alle Tools übernehmen Person 1, Partner und die Anzahl der Kinder automatisch.
+        Die Daten bleiben ausschließlich in diesem Browser und werden über „Neuer Kunde" gelöscht.
+      </div>
     </div>
 
     <!-- Werkzeuge -->
@@ -199,84 +270,158 @@ body{margin:0;padding:24px;background:var(--bg);color:var(--ink);
 
     </div>
 
+    <div class="vermerkBox" id="vermerkBox"></div>
+
     <div class="footer" id="konditionsstand">Konditionen zuletzt aktualisiert: …</div>
   </div>
 </div>
 
 <script src="konditionen.js"></script>
+
+<!-- Gemeinsames Modul: Kundendaten-Verteilung + Zusammenfassung.
+     Im Index wird nur die Datenschnittstelle (window.Beratung) gebraucht,
+     der Zusammenfassungs-Button bleibt hier bewusst aus. -->
+<script>window.BERATUNG_CONFIG = { zusammenfassung:false };</script>
+<script src="beratung-shared.js"></script>
+
 <script>
 function openTool(file){ window.location.href = file; }
 
 /* ---------------------------------------------------------------
-   Gemeinsame Kundendaten
+   Gemeinsame Kundendaten – Person 1, Partner und Kinder.
    Liegt ausschliesslich im Browser (localStorage) – keine Datei,
-   nichts im GitHub-Repo. Alle Tools lesen denselben Schluessel.
+   nichts im GitHub-Repo. Alle Tools lesen denselben Schluessel
+   ueber beratung-shared.js.
+
+   Datensatz:
+   {
+     vorname, nachname, geburtsdatum,
+     partner: { aktiv, vorname, nachname, geburtsdatum },
+     kinder:  [ { vorname, geburtsdatum }, ... ]
+   }
+   Aeltere Datensaetze (nur Person 1) werden automatisch ergaenzt.
    --------------------------------------------------------------- */
-const KUNDE_KEY = 'beratung_kunde';
-
-function ladeKunde(){
-  try { return JSON.parse(localStorage.getItem(KUNDE_KEY)) || {}; }
-  catch(e){ return {}; }
-}
-function speichereKunde(obj){
-  try { localStorage.setItem(KUNDE_KEY, JSON.stringify(obj)); } catch(e){}
-}
-function resetKunde(){
-  try { localStorage.removeItem(KUNDE_KEY); } catch(e){}
-}
-
 (function(){
-  const v = document.getElementById('k_vorname');
-  const n = document.getElementById('k_nachname');
-  const d = document.getElementById('k_dob');
-  const statusEl = document.getElementById('kbStatus');
-  const statusTx = document.getElementById('kbStatusText');
-  const btnReset = document.getElementById('btnReset');
+  const B = window.Beratung;
+  const $ = id => document.getElementById(id);
 
-  function fmtDate(iso){
-    if(!iso) return '';
-    const p = iso.split('-');
-    return (p.length===3) ? (p[2]+'.'+p[1]+'.'+p[0]) : '';
+  const v  = $('k_vorname'),  n  = $('k_nachname'),  d  = $('k_dob');
+  const pA = $('k_partnerAktiv'), pV = $('k_pVorname'), pN = $('k_pNachname'), pD = $('k_pDob');
+  const pBox = $('k_partnerBox'), pTxt = $('k_partnerTxt');
+  const liste = $('k_kinderListe'), kInfo = $('k_kinderInfo');
+  const statusEl = $('kbStatus'), statusTx = $('kbStatusText');
+
+  /* ---------- Kinderzeilen ---------- */
+  function kindZeile(kind){
+    const row = document.createElement('div');
+    row.className = 'kidRow';
+    row.innerHTML =
+      '<div class="field"><label>Vorname (optional)</label>' +
+        '<input type="text" class="kName" autocomplete="off"></div>' +
+      '<div class="field"><label>Geburtsdatum</label>' +
+        '<input type="date" class="kDob"></div>' +
+      '<button type="button" class="del" title="Kind entfernen">&#10005;</button>' +
+      '<div class="age"></div>';
+    row.querySelector('.kName').value = (kind && kind.vorname) || '';
+    row.querySelector('.kDob').value  = (kind && kind.geburtsdatum) || '';
+    row.querySelectorAll('input').forEach(el => el.addEventListener('input', save));
+    row.querySelector('.del').addEventListener('click', () => { row.remove(); save(); });
+    liste.appendChild(row);
+    return row;
   }
-  function renderStatus(){
-    const k = ladeKunde();
-    const name = [k.vorname, k.nachname].filter(Boolean).join(' ').trim();
-    const dob = fmtDate(k.geburtsdatum);
-    if(!name && !dob){
-      statusEl.classList.remove('on');
-      statusTx.textContent = 'Kein Kunde erfasst';
-    } else {
-      statusEl.classList.add('on');
-      statusTx.textContent = (name || 'Ohne Namen') + (dob ? ' · geb. ' + dob : '');
-    }
+
+  function leseKinder(){
+    return Array.from(liste.querySelectorAll('.kidRow')).map(r => ({
+      vorname: r.querySelector('.kName').value.trim(),
+      geburtsdatum: r.querySelector('.kDob').value
+    }));
   }
-  function save(){
-    speichereKunde({
+
+  function renderKindAlter(){
+    liste.querySelectorAll('.kidRow').forEach(r => {
+      const dob = r.querySelector('.kDob').value;
+      const a = B.alterAus(dob);
+      r.querySelector('.age').textContent = a != null ? ('Aktuell ' + a + ' Jahre') : '';
+    });
+  }
+
+  /* ---------- Speichern & Anzeige ---------- */
+  function lese(){
+    return {
       vorname: v.value.trim(),
       nachname: n.value.trim(),
-      geburtsdatum: d.value
-    });
+      geburtsdatum: d.value,
+      partner: {
+        aktiv: pA.checked,
+        vorname: pV.value.trim(),
+        nachname: pN.value.trim(),
+        geburtsdatum: pD.value
+      },
+      kinder: leseKinder()
+    };
+  }
+
+  function renderStatus(){
+    const k = B.normalize(lese());
+    const name = B.haushaltsName(k);
+    const dob  = B.fmtDate(k.geburtsdatum);
+    const hatWas = !!(name || dob || k.partner.aktiv || k.kinder.length);
+
+    statusEl.classList.toggle('on', hatWas);
+    if(!hatWas){
+      statusTx.textContent = 'Kein Kunde erfasst';
+    } else {
+      const teile = [name || 'Ohne Namen'];
+      if(dob) teile.push('geb. ' + dob);
+      teile.push(B.personenImHaushalt(k) + (B.personenImHaushalt(k)===1 ? ' Person' : ' Personen') + ' im Haushalt');
+      statusTx.textContent = teile.join(' · ');
+    }
+
+    pTxt.textContent = pA.checked ? 'Partner im Haushalt' : 'Kein Partner erfasst';
+    pBox.classList.toggle('on', pA.checked);
+
+    const anz = k.kinder.length;
+    kInfo.textContent = anz === 0 ? 'Noch keine Kinder erfasst'
+                                  : anz + (anz === 1 ? ' Kind erfasst' : ' Kinder erfasst');
+    renderKindAlter();
+  }
+
+  function save(){
+    B.save(lese());
     renderStatus();
   }
 
-  // Vorhandene Daten laden (z. B. nach Rückkehr von einem Tool)
-  const k = ladeKunde();
-  v.value = k.vorname || '';
-  n.value = k.nachname || '';
-  d.value = k.geburtsdatum || '';
+  /* ---------- Vorhandene Daten laden ---------- */
+  const k = B.load();
+  v.value = k.vorname; n.value = k.nachname; d.value = k.geburtsdatum;
+  pA.checked = k.partner.aktiv;
+  pV.value = k.partner.vorname; pN.value = k.partner.nachname; pD.value = k.partner.geburtsdatum;
+  k.kinder.forEach(kindZeile);
   renderStatus();
 
-  [v, n, d].forEach(el => el.addEventListener('input', save));
+  [v, n, d, pV, pN, pD].forEach(el => el.addEventListener('input', save));
+  pA.addEventListener('change', save);
+  $('k_addKind').addEventListener('click', () => { kindZeile({}); save(); });
 
-  btnReset.addEventListener('click', () => {
-    if(!confirm('Kundendaten löschen und für den nächsten Kunden zurücksetzen?')) return;
-    resetKunde();
-    v.value = ''; n.value = ''; d.value = '';
+  /* ---------- Neuer Kunde ---------- */
+  $('btnReset').addEventListener('click', () => {
+    if(!confirm('Kundendaten (inkl. Partner und Kinder) löschen und für den nächsten Kunden zurücksetzen?')) return;
+    B.clear();
+    v.value=''; n.value=''; d.value='';
+    pA.checked=false; pV.value=''; pN.value=''; pD.value='';
+    liste.innerHTML='';
     renderStatus();
     v.focus();
   });
 })();
 
+/* Vermerk-Hinweis aus dem gemeinsamen Modul anzeigen */
+(function(){
+  document.getElementById('vermerkBox').innerHTML =
+    '<b>Hinweis zu den Zusammenfassungen:</b> ' + window.Beratung.VERMERK_TEXT;
+})();
+
+/* Konditionsstand */
 (function(){
   const el = document.getElementById('konditionsstand');
   const K = window.KONDITIONEN;

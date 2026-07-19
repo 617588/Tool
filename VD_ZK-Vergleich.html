@@ -478,5 +478,95 @@ document.querySelectorAll("input:not([readonly])").forEach(i=>{
 loadKonditionen();
 </script>
 
+<!-- === Gemeinsames Modul ======================================================
+     beratung-shared.js uebernimmt zwei Aufgaben:
+       1. Kundendaten (Person 1, Partner, Kinder) aus dem Index einlesen und
+          in die passenden Felder dieses Tools eintragen. Es wird nur befuellt,
+          was leer ist – manuelle Eingaben bleiben erhalten.
+       2. Den Button "Zusammenfassung" im Header bereitstellen.
+     Die Daten liegen ausschliesslich im Browser (localStorage) und werden
+     ueber "Neuer Kunde" im Index geloescht. Es wird keine Datei angelegt.
+
+     BERATUNG_CONFIG beschreibt nur, WAS in der Zusammenfassung steht.
+     Die Rechenlogik dieses Tools wird dadurch nicht beruehrt – es werden
+     ausschliesslich bereits angezeigte Werte ausgelesen.
+     ========================================================================= -->
+<script>
+window.BERATUNG_CONFIG = {
+  titel: 'Vorfinanzierung / Zwischenkredit',
+  untertitel: 'Kostenvergleich der beiden Varianten',
+
+  hero: {
+    label: 'Kostendifferenz',
+    sel:   '#diff',
+    sub:   function(){
+      var w=document.getElementById('winner');
+      return w && w.innerText ? 'Günstiger: ' + w.innerText : '';
+    }
+  },
+  cards: [
+    { farbe:'orange', titel:'Vorausdarlehen', sel:'#ID',
+      subSel:'#IC', subPrefix:'Zins/Monat ' },
+    { farbe:'gruen',  titel:'Zwischenkredit',  sel:'#JD',
+      subSel:'#JC', subPrefix:'Zins/Monat ' }
+  ],
+  chart: {
+    titel: 'Gesamtkosten im Vergleich',
+    balken: [
+      { label:'Vorausdarlehen', sel:'#ID', farbe:'#ff4d0d' },
+      { label:'Zwischenkredit', sel:'#JD', farbe:'#4e9070' }
+    ]
+  },
+  kennzahlen: [
+    { label:'Darlehensbedarf', sel:'#C_bedarf', suffix:' €' },
+    { label:'Guthaben',        sel:'#B_gut',    suffix:' €' },
+    { label:'Bausparsumme',    sel:'#A_bss',    suffix:' €' },
+    { label:'Zins VD',         sel:'#D_zinsVD' },
+    { label:'Zins ZK',         sel:'#E_zinsZK' },
+    { label:'Laufzeit',        wert: function(){
+        var g=document.getElementById('G_vd'), h=document.getElementById('H_zk');
+        return 'VD ' + (g?g.value:'?') + ' M · ZK ' + (h?h.value:'?') + ' M'; } }
+  ],
+  notizenZeilen: 4,
+
+  abschnitte: [
+    { titel: 'Ausgangsdaten', zeilen: [
+      { label: 'Bausparsumme (bestehend)', sel: '#A_bss', suffix: ' €', immer: true },
+      { label: 'Guthaben',                 sel: '#B_gut', suffix: ' €', immer: true },
+      { label: 'Darlehensbedarf',          sel: '#C_bedarf', suffix: ' €', immer: true },
+      { label: 'Gebühr',                   sel: '#F_geb', suffix: ' %', immer: true },
+      { label: 'Anschlussgebühr zahlt der Kunde selbst', sel: '#F_kundezahlt', immer: true },
+      { label: 'Laufzeit Vorausdarlehen',  sel: '#G_vd', suffix: ' Monate', immer: true },
+      { label: 'Laufzeit Zwischenkredit',  sel: '#H_zk', suffix: ' Monate', immer: true }
+    ]},
+    { titel: 'Vorausdarlehen', zeilen: [
+      { label: 'Zins',         sel: '#D_zinsVD', immer: true },
+      { label: 'Darlehen',     sel: '#IA', immer: true },
+      { label: 'Gebühr',       sel: '#IB', immer: true },
+      { label: 'Zins / Monat', sel: '#IC', immer: true },
+      { label: 'Gesamt',       sel: '#ID', hervor: true, immer: true }
+    ]},
+    { titel: 'Zwischenkredit', zeilen: [
+      { label: 'Zins',                sel: '#E_zinsZK', immer: true },
+      { label: 'Erforderliche Bausparsumme', sel: '#JA', immer: true },
+      { label: 'Gebühr',              sel: '#JB', immer: true },
+      { label: 'Zins / Monat',        sel: '#JC', immer: true },
+      { label: 'Gesamt',              sel: '#JD', hervor: true, immer: true }
+    ]},
+    { titel: 'Ergebnis', hervor: true, zeilen: [
+      { label: 'Kostendifferenz', sel: '#diff', hervor: true, immer: true },
+      { label: 'Günstigere Variante', sel: '#winner', hervor: true, immer: true }
+    ]}
+  ],
+  hinweise: [
+    'Die Zinssätze stammen aus den hinterlegten Konditionen (Vorausdarlehen abhängig von Darlehenshöhe und Laufzeit).',
+    'Beim Zwischenkredit wird die erforderliche Bausparsumme aus Darlehensbedarf und Guthaben ermittelt; eine anfallende Abschlussgebühr mindert das Guthaben.',
+    'Verglichen werden ausschließlich Zins- und Gebührenkosten der Vorfinanzierungsphase – nicht die anschließende Darlehensphase.',
+    'Vereinfachte Beispielrechnung, kein Angebot. Verbindlich sind allein die offiziellen Angebotsunterlagen.'
+  ]
+};
+</script>
+<script src="beratung-shared.js"></script>
+
 </body>
 </html>
